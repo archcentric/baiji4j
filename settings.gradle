@@ -1,0 +1,3 @@
+rootProject.name='baiji4j'
+include 'baiji-core'
+include 'baiji-ipc'

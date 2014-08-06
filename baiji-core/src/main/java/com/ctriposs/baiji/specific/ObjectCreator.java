@@ -1,0 +1,112 @@
+package com.ctriposs.baiji.specific;
+
+import com.ctriposs.baiji.exception.BaijiRuntimeException;
+import com.ctriposs.baiji.schema.NamedSchema;
+import com.ctriposs.baiji.schema.Schema;
+import com.ctriposs.baiji.schema.SchemaType;
+import com.ctriposs.baiji.schema.UnionSchema;
+import com.ctriposs.baiji.util.ClassUtils;
+
+import java.util.List;
+import java.util.Map;
+
+public final class ObjectCreator {
+
+    public static final ObjectCreator INSTANCE = new ObjectCreator();
+
+    private ObjectCreator() {
+    }
+
+    /**
+     * Find the class with the given name
+     *
+     * @param name       the object type to locate
+     * @param throwError whether or not to throw an error if the type wasn't found
+     * @return the object class, or #null if not found.
+     */
+    private Class<?> findClass(String name, boolean throwError) {
+        // Modify provided type to ensure it can be discovered.
+        // This is mainly for Generics
+        name = name.replace("List", "java.util.List");
+        name = name.replace("Map", "java.util.Map");
+        name = name.replaceAll("<.+>", "");
+
+        Class<?> clazz = null;
+        try {
+            clazz = ClassUtils.forName(name);
+        } catch (ClassNotFoundException e) {
+        }
+
+        if (clazz == null && throwError) {
+            throw new BaijiRuntimeException("Unable to find class " + name);
+        }
+
+        return clazz;
+    }
+
+    /**
+     * Gets the class for the specified schema
+     *
+     * @param schema
+     * @return
+     */
+    public Class<?> getClass(Schema schema) {
+        switch (schema.getType()) {
+            case NULL:
+                break;
+            case BOOLEAN:
+                return Boolean.class;
+            case INT:
+                return Integer.class;
+            case LONG:
+                return Long.class;
+            case FLOAT:
+                return Float.class;
+            case DOUBLE:
+                return Double.class;
+            case BYTES:
+                return byte[].class;
+            case STRING:
+                return String.class;
+            case ARRAY:
+                return List.class;
+            case MAP:
+                return Map.class;
+            case ENUM:
+            case RECORD: {
+                // Should all be named types
+                if (schema instanceof NamedSchema) {
+                    NamedSchema named = (NamedSchema) schema;
+                    return findClass(named.getFullName(), true);
+                }
+                break;
+            }
+            case UNION: {
+                if (!(schema instanceof UnionSchema)) {
+                    break;
+                }
+                UnionSchema unSchema = (UnionSchema) schema;
+                if (unSchema.size() == 2) {
+                    Schema s1 = unSchema.get(0);
+                    Schema s2 = unSchema.get(1);
+
+                    // Nullable ?
+                    Class<?> itemType = null;
+                    if (s1.getType() == SchemaType.NULL) {
+                        itemType = getClass(s2);
+                    } else if (s2.getType() == SchemaType.NULL) {
+                        itemType = getClass(s1);
+                    }
+
+                    if (itemType != null) {
+                        return itemType;
+                    }
+                }
+                return Object.class;
+            }
+        }
+
+        // Fallback
+        return findClass(schema.getName(), true);
+    }
+}

@@ -1,0 +1,58 @@
+allprojects {
+	repositories {
+		mavenCentral()
+        maven{
+            url=mavenRepoUrl
+        }
+	}
+}
+
+apply from: file('gradle/versioning.gradle')
+apply from: file('gradle/convention.gradle')
+
+subprojects {
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+
+	group = "com.ctriposs.baiji"
+
+    sourceSets.test.java.srcDirs 'src/main/java'
+
+    tasks.withType(Javadoc).each {
+        it.classpath = sourceSets.main.compileClasspath
+    }
+
+    eclipse {
+        classpath {
+            // include 'provided' dependencies on the classpath
+            plusConfigurations += configurations.provided
+            downloadSources = true
+            downloadJavadoc = true
+        }
+    }
+
+    idea {
+        module {
+            scopes.PROVIDED.plus += configurations.provided
+        }
+    }
+
+    dependencies {
+        compile 'org.slf4j:slf4j-api:1.7.7'
+        testCompile 'org.slf4j:slf4j-simple:1.7.7'
+        testCompile 'junit:junit:4.11'
+    }
+}
+
+project(':baiji-core'){
+    dependencies {
+        compile 'org.codehaus.jackson:jackson-core-asl:1.9.13'
+        compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.13'
+        compile 'com.thoughtworks.paranamer:paranamer:2.6.1'
+    }
+}
+
+project(':baiji-ipc'){
+    dependencies {
+    }
+}

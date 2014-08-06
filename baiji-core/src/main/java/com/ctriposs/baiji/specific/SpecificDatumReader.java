@@ -1,0 +1,167 @@
+package com.ctriposs.baiji.specific;
+
+import com.ctriposs.baiji.exception.BaijiRuntimeException;
+import com.ctriposs.baiji.generic.GenericDatumReader;
+import com.ctriposs.baiji.generic.PreresolvingDatumReader;
+import com.ctriposs.baiji.io.Decoder;
+import com.ctriposs.baiji.schema.*;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * {@link com.ctriposs.baiji.generic.DatumReader DatumReader} for generated Java classes.
+ */
+public class SpecificDatumReader<T> extends PreresolvingDatumReader<T> {
+    public SpecificDatumReader(Schema schema) {
+        super(schema);
+    }
+
+    @Override
+    protected boolean isReusable(SchemaType type) {
+        switch (type) {
+            case DOUBLE:
+            case BOOLEAN:
+            case INT:
+            case LONG:
+            case FLOAT:
+            case BYTES:
+            case ENUM:
+            case STRING:
+            case NULL:
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    protected ArrayAccess getArrayAccess(ArraySchema schema) {
+        return new SpecificArrayAccess();
+    }
+
+    @Override
+    protected EnumAccess getEnumAccess(EnumSchema schema) {
+        return new SpecificEnumAccess();
+    }
+
+    @Override
+    protected MapAccess getMapAccess(MapSchema schema) {
+        return new SpecificMapAccess();
+    }
+
+    @Override
+    protected RecordAccess getRecordAccess(RecordSchema schema) {
+        if (schema.getName() == null) {
+            // ipc support
+            return new GenericDatumReader.GenericRecordAccess(schema);
+        }
+        return new SpecificRecordAccess(schema);
+    }
+
+    private static class SpecificEnumAccess implements EnumAccess {
+        @Override
+        public Object createEnum(Object reuse, int ordinal) {
+            return ordinal;
+        }
+    }
+
+    private static class SpecificRecordAccess implements RecordAccess {
+        private final Class<?> _clazz;
+
+        public SpecificRecordAccess(RecordSchema schema) {
+            _clazz = ObjectCreator.INSTANCE.getClass(schema);
+        }
+
+        @Override
+        public Object createRecord(Object reuse) {
+            try {
+                return reuse != null ? reuse : _clazz.newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public Object getField(Object record, String fieldName, int fieldPos) {
+            return ((SpecificRecord) record).get(fieldPos);
+        }
+
+        @Override
+        public void addField(Object record, String fieldName, int fieldPos, Object fieldValue) {
+            ((SpecificRecord) record).put(fieldPos, fieldValue);
+        }
+    }
+
+    private static class SpecificArrayAccess implements ArrayAccess {
+        @Override
+        public Object create(Object reuse) {
+            List array;
+
+            if (reuse != null) {
+
+                if (!(reuse instanceof List)) {
+                    throw new BaijiRuntimeException("array object does not implement non-generic List");
+                }
+                array = (List) reuse;
+                // retaining existing behavior where array contents aren't reused
+                // TODO: try to reuse contents?
+                array.clear();
+            } else {
+                array = new ArrayList();
+            }
+            return array;
+        }
+
+        @Override
+        public Object ensureSize(Object array, int targetSize) {
+            return array;
+        }
+
+        @Override
+        public Object resize(Object array, int targetSize) {
+            // no action needed
+            return array;
+        }
+
+        @Override
+        public void addElements(Object array, int elements, int index, ItemReader itemReader, Decoder decoder,
+                                boolean reuse) throws IOException {
+            List list = (List) array;
+            for (int i = 0; i < elements; i++) {
+                list.add(itemReader.read(null, decoder));
+            }
+        }
+    }
+
+    private static class SpecificMapAccess implements MapAccess {
+        @Override
+        public Object create(Object reuse) {
+            Map map;
+            if (reuse != null) {
+                if (!(reuse instanceof Map)) {
+                    throw new BaijiRuntimeException("map object does not implement non-generic IList");
+                }
+
+                map = (Map) reuse;
+                map.clear();
+            } else {
+                map = new HashMap();
+            }
+            return map;
+        }
+
+        @Override
+        public void addElements(Object mapObj, int elements, ItemReader itemReader, Decoder decoder, boolean reuse)
+                throws IOException {
+            Map map = ((Map) mapObj);
+            for (int i = 0; i < elements; i++) {
+                String key = decoder.readString();
+                map.put(key, itemReader.read(null, decoder));
+            }
+        }
+    }
+}
+
