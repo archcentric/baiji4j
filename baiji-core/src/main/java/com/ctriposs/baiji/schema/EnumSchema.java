@@ -3,6 +3,7 @@ package com.ctriposs.baiji.schema;
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.util.ObjectUtils;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.ObjectNode;
 
 import java.util.*;
 
@@ -10,7 +11,43 @@ public class EnumSchema extends NamedSchema implements Iterable<String> {
 
     private final List<String> _symbols;
 
-    private final Map<String, Integer> _symbolMap;
+    /**
+     * Map of enum symbols and it's corresponding ordinal number
+     * The first element of value is the explicit value which can be null, the second one is the actual value.
+     */
+    private final Map<String, Integer[]> _symbolMap;
+
+    /**
+     * Constructor for enum schema
+     *
+     * @param name    name of enum
+     * @param doc
+     * @param aliases list of aliases for the name
+     * @param symbols list of enum symbols, Map of enum symbols and it's corresponding ordinal number
+     *                The first element of value is the explicit value which can be null, the second one is the actual value.
+     * @param props
+     */
+    public EnumSchema(SchemaName name, String doc, List<SchemaName> aliases, Map.Entry<String, Integer>[] symbols,
+                      PropertyMap props) {
+        super(SchemaType.ENUM, name, doc, aliases, props, new SchemaNames());
+        if (null == name.getName()) {
+            throw new SchemaParseException("name cannot be null for enum schema.");
+        }
+
+        _symbols = new ArrayList<String>();
+        Map<String, Integer[]> symbolMap = new HashMap<String, Integer[]>();
+        int lastValue = -1;
+        for (Map.Entry<String, Integer> symbol : symbols) {
+            Integer[] values = new Integer[2];
+            if (symbol.getValue() != null) {
+                values[0] = values[1] = lastValue = symbol.getValue();
+            } else {
+                values[1] = ++lastValue;
+            }
+            symbolMap.put(symbol.getKey(), values);
+        }
+        _symbolMap = symbolMap;
+    }
 
     /**
      * Constructor for enum schema
@@ -20,13 +57,12 @@ public class EnumSchema extends NamedSchema implements Iterable<String> {
      * @param aliases   list of aliases for the name
      * @param symbols   list of enum symbols
      * @param symbolMap map of enum symbols and value
+     *                  The first element of value is the explicit value which can be null, the second one is the actual value.
      * @param props
      * @param names     list of named schema already read
      */
-    public EnumSchema(SchemaName name, String doc, List<SchemaName> aliases, List<String> symbols,
-                      Map<String, Integer> symbolMap, PropertyMap props, SchemaNames names)
-
-    {
+    private EnumSchema(SchemaName name, String doc, List<SchemaName> aliases, List<String> symbols,
+                       Map<String, Integer[]> symbolMap, PropertyMap props, SchemaNames names) {
         super(SchemaType.ENUM, name, doc, aliases, props, names);
         if (null == name.getName()) {
             throw new SchemaParseException("name cannot be null for enum schema.");
@@ -58,16 +94,43 @@ public class EnumSchema extends NamedSchema implements Iterable<String> {
         }
 
         List<String> symbols = new ArrayList<String>();
-        Map<String, Integer> symbolMap = new HashMap<String, Integer>();
-        int i = 0;
+        Map<String, Integer[]> symbolMap = new HashMap<String, Integer[]>();
+        int lastValue = -1;
         for (JsonNode jsymbol : jsymbols) {
-            String s = jsymbol.getTextValue();
-            if (symbolMap.containsKey(s)) {
-                throw new SchemaParseException("Duplicate symbol: " + s);
+            Integer explicitValue = null;
+            Integer actualValue;
+            String symbol;
+            if (jsymbol.isTextual()) {
+                symbol = jsymbol.getTextValue();
+                actualValue = ++lastValue;
+            } else if (jsymbol.isObject()) {
+                ObjectNode symbolObj = (ObjectNode) jsymbol;
+                JsonNode symbolNode = symbolObj.get("name");
+                if (symbolNode == null) {
+                    throw new SchemaParseException("Missing symbol name: " + jsymbol);
+                }
+                if (!symbolNode.isTextual()) {
+                    throw new SchemaParseException("Symbol name must be a string: " + jsymbol);
+                }
+                symbol = symbolNode.getTextValue();
+                JsonNode valueNode = symbolObj.get("value");
+                if (valueNode != null) {
+                    if (valueNode.isInt()) {
+                        throw new SchemaParseException("Only integer value is allowed for an enum symbol: " + jsymbol);
+                    }
+                    explicitValue = valueNode.getIntValue();
+                }
+                lastValue = actualValue = explicitValue != null ? explicitValue : lastValue + 1;
+            } else {
+                throw new SchemaParseException("Invalid symbol object: " + jsymbol);
             }
 
-            symbolMap.put(s, i++);
-            symbols.add(s);
+            if (symbolMap.containsKey(symbol)) {
+                throw new SchemaParseException("Duplicate symbol: " + symbol);
+            }
+
+            symbolMap.put(symbol, new Integer[]{explicitValue, actualValue});
+            symbols.add(symbol);
         }
         return new EnumSchema(name, doc, aliases, symbols, symbolMap, props, names);
     }
@@ -93,9 +156,9 @@ public class EnumSchema extends NamedSchema implements Iterable<String> {
      * @return position of the given symbol in this enum schema
      */
     public int ordinal(String symbol) {
-        Integer value = _symbolMap.get(symbol);
+        Integer[] value = _symbolMap.get(symbol);
         if (value != null) {
-            return value.intValue();
+            return value[1].intValue();
         }
         throw new BaijiRuntimeException("No such symbol: " + symbol);
     }
