@@ -187,6 +187,16 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
         return _fields.size();
     }
 
+    public void addField(Field field) {
+        if (_fieldLookup.containsKey(field.getName()))
+        {
+            throw new IllegalArgumentException("Duplicate field: " + field.getName());
+        }
+        _fields.add(field);
+        addToFieldMap(_fieldLookup, field.getName(), field);
+        addToFieldMap(_fieldAliasLookup, field.getName(), field);
+    }
+
     /**
      * Returns the field with the given name.
      *
@@ -198,7 +208,6 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
             throw new IllegalArgumentException("name cannot be null");
         }
         return _fieldLookup.get(name);
-
     }
 
     /**
