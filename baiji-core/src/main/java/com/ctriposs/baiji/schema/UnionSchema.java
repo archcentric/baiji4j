@@ -98,36 +98,6 @@ public class UnionSchema extends UnnamedSchema {
         writer.writeEndArray();
     }
 
-    /**
-     * Returns the index of a branch that can read the data written by the given schema s.
-     *
-     * @param s The schema to match the branches against.
-     * @return The index of the matching branch. If non matches a -1 is returned.
-     */
-    public int matchingBranch(Schema s) {
-        if (s instanceof UnionSchema) {
-            throw new BaijiRuntimeException("Cannot find a match against union schema");
-        }
-        // Try exact match.
-        for (int i = 0; i < _schemas.size(); i++) {
-            if (_schemas.get(i).canRead(s)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Checks if this schema can read data written by the given schema. Used for decoding data.
-     *
-     * @param writerSchema The writer's schema to match against.
-     * @return true if this and writer schema are compatible based on the BAIJI specification, false otherwise
-     */
-    @Override
-    public boolean canRead(Schema writerSchema) {
-        return writerSchema.getType() == SchemaType.UNION || matchingBranch(writerSchema) >= 0;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {

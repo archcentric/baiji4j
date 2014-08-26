@@ -273,15 +273,4 @@ public abstract class Schema {
     public int hashCode() {
         return _type.hashCode() + ObjectUtils.hashCode(_props);
     }
-
-    /**
-     * Returns true if and only if data written using writerSchema can be read using the current schema
-     * according to the Baiji resolution rules.
-     *
-     * @param writerSchema The writer's schema to match against.
-     * @return True if and only if the current schema matches the writer's.
-     */
-    public boolean canRead(Schema writerSchema) {
-        return _type == writerSchema._type;
-    }
 }

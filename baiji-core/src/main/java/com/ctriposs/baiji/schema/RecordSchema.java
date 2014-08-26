@@ -306,61 +306,6 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
         }
     }
 
-    /**
-     * Checks if this schema can read data written by the given schema. Used for decoding data.
-     *
-     * @param writerSchema The writer's schema to match against.
-     * @return true if this and writer schema are compatible based on the Baiji specification, false otherwise
-     */
-    @Override
-    public boolean canRead(Schema writerSchema) {
-        if (writerSchema.getType() != SchemaType.RECORD) {
-            return false;
-        }
-
-        RecordSchema that = (RecordSchema) writerSchema;
-        Set seen = SEEN.get();
-        RecordSchemaPair pair = new RecordSchemaPair(this, that);
-        if (seen.contains(pair)) {
-            return true;
-        }
-        seen.add(pair);
-
-        try {
-
-            if (!that.getSchemaName().equals(getSchemaName()) && !inAliases(that.getSchemaName())) {
-                return false;
-            }
-
-            for (Field field : this) {
-                Field thatField = that.getField(field.getName());
-                if (thatField == null) {
-                    // reader field not in writer field, check aliases of reader field if any match with a writer field
-                    if (field.getAliases() != null) {
-                        for (String alias : field.getAliases()) {
-                            thatField = that.getField(alias);
-                            if (thatField != null) {
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (thatField == null && field.getDefaultValue() != null) {
-                    continue; // Writer field missing, reader has default.
-                }
-
-                if (thatField != null && field.getSchema().canRead(thatField.getSchema())) {
-                    continue; // Both fields exist and are compatible.
-                }
-                return false;
-            }
-            return true;
-        } finally {
-            seen.remove(pair);
-        }
-    }
-
     @Override
     public Iterator<Field> iterator() {
         return _fields.iterator();

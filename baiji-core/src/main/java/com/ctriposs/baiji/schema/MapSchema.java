@@ -68,22 +68,6 @@ public class MapSchema extends UnnamedSchema {
         _valueSchema.writeJson(gen, names, encSpace);
     }
 
-    /**
-     * Checks if this schema can read data written by the given schema. Used for decoding data.
-     *
-     * @param writerSchema The writer's schema to match against.
-     * @return true if this and writer schema are compatible based on the Baiji specification, false otherwise
-     */
-    @Override
-    public boolean canRead(Schema writerSchema) {
-        if (writerSchema.getType() != getType()) {
-            return false;
-        }
-        MapSchema that = (MapSchema) writerSchema;
-        return that != null && _valueSchema.canRead(that._valueSchema);
-    }
-
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

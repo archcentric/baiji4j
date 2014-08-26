@@ -16,6 +16,5 @@ public interface DatumReader<D> {
      * non-null it may be reused and returned.
      */
     D read(D reuse, Decoder in) throws IOException;
-
 }
 

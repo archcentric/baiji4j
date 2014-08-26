@@ -217,30 +217,6 @@ public class EnumSchema extends NamedSchema implements Iterable<String> {
         return value;
     }
 
-    /**
-     * Checks if this schema can read data written by the given schema. Used for decoding data.
-     *
-     * @param writerSchema
-     * @return true if this and writer schema are compatible based on the Baiji specification, false otherwise
-     */
-    @Override
-    public boolean canRead(Schema writerSchema) {
-        if (writerSchema.getType() != getType()) {
-            return false;
-        }
-
-        EnumSchema that = (EnumSchema) writerSchema;
-        if (!that.getSchemaName().equals(getSchemaName())) {
-            if (!inAliases(that.getSchemaName())) {
-                return false;
-            }
-        }
-
-        // we defer checking of symbols. Writer may have a symbol missing from the reader,
-        // but if writer never used the missing symbol, then reader should still be able to read the data
-        return true;
-    }
-
     @Override
     public Iterator<String> iterator() {
         return _symbols.iterator();
