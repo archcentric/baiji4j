@@ -9,7 +9,6 @@ import org.codehaus.jackson.util.MinimalPrettyPrinter;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 public class JsonEncoder implements Encoder {
@@ -139,6 +138,10 @@ public class JsonEncoder implements Encoder {
     public void writeArrayStart() throws IOException {
     }
 
+    public void writeArrayStart(String fieldName) throws IOException {
+        out.writeArrayFieldStart(fieldName);
+    }
+
     @Override
     public void setItemCount(long itemCount) throws IOException {
     }
@@ -149,6 +152,7 @@ public class JsonEncoder implements Encoder {
 
     @Override
     public void writeArrayEnd() throws IOException {
+        out.writeEndArray();
     }
 
     @Override

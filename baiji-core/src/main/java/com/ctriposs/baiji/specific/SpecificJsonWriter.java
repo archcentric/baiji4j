@@ -3,12 +3,15 @@ package com.ctriposs.baiji.specific;
 import com.ctriposs.baiji.generic.DatumWriter;
 import com.ctriposs.baiji.io.Encoder;
 import com.ctriposs.baiji.io.JsonEncoder;
+import com.ctriposs.baiji.schema.ArraySchema;
 import com.ctriposs.baiji.schema.Field;
 import com.ctriposs.baiji.schema.RecordSchema;
 import com.ctriposs.baiji.schema.Schema;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
+import java.util.List;
 
 public class SpecificJsonWriter<T> implements DatumWriter<T> {
 
@@ -29,38 +32,32 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
     }
 
     /** Called to write data.*/
-    protected void write(Schema schema, String fieldName, Object datum, JsonEncoder out) throws IOException {
+    protected void write(Schema schema,Object datum, JsonEncoder out) throws IOException {
         try {
             switch (schema.getType()) {
                 case INT:
-                    out.writeFieldName(fieldName);
                     out.writeInt(((Number)datum).intValue());
                     break;
                 case LONG:
-                    out.writeFieldName(fieldName);
                     out.writeLong((Long)datum);
                     break;
                 case FLOAT:
-                    out.writeFieldName(fieldName);
                     out.writeFloat((Float)datum);
                     break;
                 case DOUBLE:
-                    out.writeFieldName(fieldName);
                     out.writeDouble((Double)datum);
                     break;
                 case BOOLEAN:
-                    out.writeFieldName(fieldName);
                     out.writeBoolean((Boolean) datum);
                     break;
                 case STRING:
-                    out.writeFieldName(fieldName);
                     out.writeString(((CharSequence) datum).toString());
                     break;
                 case BYTES:
-                    out.writeFieldName(fieldName);
                     out.writeBytes((ByteBuffer) datum);
                     break;
                 case NULL:
+                    out.writeNull();
                     break;
                 case ENUM:
                     break;
@@ -84,17 +81,48 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
         jsonEncoder.writeStartObject();
         for (Field field : recordSchema.getFields()) {
             Object value = ((SpecificRecord) datum).get(field.getPos());
-            writeField(field.getName(), value, field, jsonEncoder);
+            jsonEncoder.writeFieldName(field.getName());
+            writeFieldValue(value, field, jsonEncoder);
         }
         jsonEncoder.writeEndObject();
     }
 
     /** Called to write a single field of a record.*/
-    protected void writeField(String fieldName, Object datum, Field f, JsonEncoder out) throws IOException {
+    protected void writeFieldValue(Object datum, Field f, JsonEncoder out) throws IOException {
         try {
-            write(f.getSchema(), fieldName, datum, out);
+            write(f.getSchema(), datum, out);
         } catch (NullPointerException e) {
 
         }
+    }
+
+    /** Called to write a array.*/
+    protected void writeArray(Schema schema, String fieldName, Object datum, JsonEncoder out) throws IOException {
+        ArraySchema arraySchema = (ArraySchema) schema;
+        Schema element = arraySchema.getItemSchema();
+        out.writeArrayStart(fieldName);
+        for (Iterator iterator = getArrayElements(datum); iterator.hasNext();) {
+            write(element, iterator.next(), out);
+        }
+        out.writeArrayEnd();
+    }
+
+    /**
+     * Called by {@link #writeArray} to get the size of an array.
+     * @param array an array
+     * @return the size of an array
+     */
+    protected long getArraySize(Object array) {
+        return ((List)array).size();
+    }
+
+    /** Called by {@link #writeArray} to enumerate array elements.*/
+    protected Iterator getArrayElements(Object array) {
+        return ((List) array).iterator();
+    }
+
+    /** Called to write a nested object.*/
+    protected void writeNestRecord() {
+
     }
 }
