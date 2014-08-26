@@ -6,14 +6,19 @@ import com.ctriposs.baiji.schema.Schema;
 
 import java.io.IOException;
 
-public class SpecificJsonReader implements DatumReader {
-    @Override
-    public Schema getSchema() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+public class SpecificJsonReader<T> implements DatumReader<T> {
+
+    public SpecificJsonReader(Schema schema) {
+
     }
 
     @Override
-    public Object read(Object reuse, Decoder in) throws IOException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public Schema getSchema() {
+        return null;
+    }
+
+    @Override
+    public T read(T reuse, Decoder in) throws IOException {
+        return null;
     }
 }

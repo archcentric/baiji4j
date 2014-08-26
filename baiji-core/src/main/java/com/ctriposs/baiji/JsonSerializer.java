@@ -4,6 +4,7 @@ package com.ctriposs.baiji;
 import com.ctriposs.baiji.generic.DatumReader;
 import com.ctriposs.baiji.generic.DatumWriter;
 import com.ctriposs.baiji.io.JsonEncoder;
+import com.ctriposs.baiji.specific.SpecificJsonReader;
 import com.ctriposs.baiji.specific.SpecificJsonWriter;
 import com.ctriposs.baiji.specific.SpecificRecord;
 
@@ -43,5 +44,24 @@ public class JsonSerializer implements Serializer {
             }
         }
         return writer;
+    }
+
+    private static <T extends SpecificRecord> DatumReader<T> getReader(Class<T> clazz) {
+        DatumReader<T> datumReader = _readerCache.get(clazz);
+        if (datumReader == null) {
+            SpecificRecord record;
+            try {
+                record = clazz.newInstance();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            datumReader = new SpecificJsonReader<T>(record.getSchema());
+            DatumReader<T> existedReader = _readerCache.putIfAbsent(clazz, datumReader);
+            if (existedReader != null) {
+                datumReader = existedReader;
+            }
+        }
+
+        return datumReader;
     }
 }
