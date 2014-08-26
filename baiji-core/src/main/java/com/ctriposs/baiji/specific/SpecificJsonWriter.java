@@ -22,7 +22,7 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
 
     @Override
     public Schema getSchema() {
-        return null;
+        return root;
     }
 
     @Override
@@ -50,13 +50,16 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
                     out.writeBoolean((Boolean) datum);
                     break;
                 case STRING:
-                    out.writeString(((CharSequence) datum).toString());
+                    out.writeString(datum.toString());
                     break;
                 case BYTES:
                     out.writeBytes((ByteBuffer) datum);
                     break;
                 case NULL:
                     out.writeNull();
+                    break;
+                case RECORD:
+                    writeRecord(schema, datum, out);
                     break;
                 case ENUM:
                     writeEnum(schema, datum, out);
@@ -65,6 +68,7 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
                     writeArray(schema, datum, out);
                     break;
                 case MAP:
+                    writeMap(schema, datum, out);
                     break;
                 case UNION:
                     break;
@@ -131,7 +135,7 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
         for (String symbol : enumSchema.getSymbols()) {
             values[enumSchema.ordinal(symbol)] = enumSchema.ordinal(symbol);
         }
-        out.writeInt(values[((Integer) datum)]);
+        out.writeEnum(values[((Integer) datum)]);
     }
 
     /** Called to write a map.*/
@@ -158,8 +162,8 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
         return ((Map) map).entrySet();
     }
 
-    /** Called to write a nested object.*/
-    protected void writeNestRecord() {
+    /** Called to write an union.*/
+    protected void writeUnion(Schema schema, Object datum, JsonEncoder out) {
 
     }
 }

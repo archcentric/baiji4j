@@ -132,6 +132,7 @@ public class JsonEncoder implements Encoder {
 
     @Override
     public void writeEnum(int e) throws IOException {
+        this.writeInt(e);
     }
 
     @Override
