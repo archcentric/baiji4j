@@ -19,6 +19,9 @@ public class JsonEncoder implements Encoder {
 
     private JsonGenerator out;
 
+    private long counts[] = new long[10];
+    protected int pos = -1;
+
     public JsonEncoder(Schema sc, OutputStream out) throws IOException {
         this(sc, getJsonGenerator(out, false));
     }
@@ -142,10 +145,14 @@ public class JsonEncoder implements Encoder {
 
     @Override
     public void setItemCount(long itemCount) throws IOException {
+        if (counts[pos] != 0) {
+        }
+        counts[pos] = itemCount;
     }
 
     @Override
     public void startItem() throws IOException {
+        counts[pos] --;
     }
 
     @Override

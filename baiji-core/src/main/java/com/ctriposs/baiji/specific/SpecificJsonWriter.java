@@ -110,6 +110,7 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
         out.writeArrayStart();
         out.setItemCount(size);
         for (Iterator iterator = getArrayElements(datum); iterator.hasNext();) {
+            out.startItem();
             write(element, iterator.next(), out);
         }
         out.writeArrayEnd();
@@ -147,6 +148,7 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
         out.writeMapStart();
         out.setItemCount(size);
         for (Map.Entry<Object, Object> entry : getMapEntries(datum)) {
+            out.startItem();
             out.writeFieldName(entry.getKey().toString());
             write(value, entry.getValue(), out);
         }
