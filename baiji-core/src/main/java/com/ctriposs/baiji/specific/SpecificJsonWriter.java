@@ -71,6 +71,7 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
                     writeMap(schema, datum, out);
                     break;
                 case UNION:
+                    writeUnion(schema, datum, out);
                     break;
                 default:
             }
@@ -163,7 +164,15 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
     }
 
     /** Called to write an union.*/
-    protected void writeUnion(Schema schema, Object datum, JsonEncoder out) {
+    protected void writeUnion(Schema schema, Object datum, JsonEncoder out) throws IOException {
+        UnionSchema unionSchema = (UnionSchema) schema;
+        for (int i = 0; i < unionSchema.size(); i++) {
+            if (unionSchema.get(i).getType() == SchemaType.NULL) {
+                continue;
+            }
 
+            write(unionSchema.get(i), datum, out);
+            return;
+        }
     }
 }
