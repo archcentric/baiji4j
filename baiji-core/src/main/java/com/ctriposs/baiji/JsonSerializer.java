@@ -36,7 +36,7 @@ public class JsonSerializer implements Serializer {
         Class clazz = obj.getClass();
         DatumWriter<T> writer = _writerCache.get(clazz);
         if (writer == null) {
-            writer = new SpecificJsonWriter<>(obj.getSchema());
+            writer = new SpecificJsonWriter<T>(obj.getSchema());
             DatumWriter<T> existedWriter = _writerCache.putIfAbsent(clazz, writer);
             if (existedWriter != null) {
                 writer = existedWriter;

@@ -136,10 +136,7 @@ public class JsonEncoder implements Encoder {
 
     @Override
     public void writeArrayStart() throws IOException {
-    }
-
-    public void writeArrayStart(String fieldName) throws IOException {
-        out.writeArrayFieldStart(fieldName);
+        out.writeStartArray();
     }
 
     @Override

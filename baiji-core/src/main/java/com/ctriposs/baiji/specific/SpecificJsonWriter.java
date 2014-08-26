@@ -3,10 +3,7 @@ package com.ctriposs.baiji.specific;
 import com.ctriposs.baiji.generic.DatumWriter;
 import com.ctriposs.baiji.io.Encoder;
 import com.ctriposs.baiji.io.JsonEncoder;
-import com.ctriposs.baiji.schema.ArraySchema;
-import com.ctriposs.baiji.schema.Field;
-import com.ctriposs.baiji.schema.RecordSchema;
-import com.ctriposs.baiji.schema.Schema;
+import com.ctriposs.baiji.schema.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -60,8 +57,10 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
                     out.writeNull();
                     break;
                 case ENUM:
+                    writeEnum(schema, datum, out);
                     break;
                 case ARRAY:
+                    writeArray(schema, datum, out);
                     break;
                 case MAP:
                     break;
@@ -97,10 +96,10 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
     }
 
     /** Called to write a array.*/
-    protected void writeArray(Schema schema, String fieldName, Object datum, JsonEncoder out) throws IOException {
+    protected void writeArray(Schema schema, Object datum, JsonEncoder out) throws IOException {
         ArraySchema arraySchema = (ArraySchema) schema;
         Schema element = arraySchema.getItemSchema();
-        out.writeArrayStart(fieldName);
+        out.writeArrayStart();
         for (Iterator iterator = getArrayElements(datum); iterator.hasNext();) {
             write(element, iterator.next(), out);
         }
@@ -119,6 +118,16 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
     /** Called by {@link #writeArray} to enumerate array elements.*/
     protected Iterator getArrayElements(Object array) {
         return ((List) array).iterator();
+    }
+
+    /** Called to write an enum value.*/
+    protected void writeEnum(Schema schema, Object datum, JsonEncoder out) throws IOException {
+        EnumSchema enumSchema = (EnumSchema) schema;
+        int[] values = new int[enumSchema.size()];
+        for (String symbol : enumSchema.getSymbols()) {
+            values[enumSchema.ordinal(symbol)] = enumSchema.ordinal(symbol);
+        }
+        out.writeInt(values[((Integer) datum).intValue()]);
     }
 
     /** Called to write a nested object.*/
