@@ -53,7 +53,14 @@ project(':baiji-core'){
     }
 }
 
-project(':baiji-ipc'){
+project(':baiji-rpc-common'){
     dependencies {
+        compile project(':baiji-core')
+    }
+}
+
+project(':baiji-rpc-server'){
+    dependencies {
+        compile project(':baiji-rpc-common')
     }
 }

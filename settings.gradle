@@ -1,3 +1,4 @@
 rootProject.name='baiji4j'
 include 'baiji-core'
-include 'baiji-ipc'
+include 'baiji-rpc-common'
+include 'baiji-rpc-server'
