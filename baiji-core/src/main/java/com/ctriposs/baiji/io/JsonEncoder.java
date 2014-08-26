@@ -154,10 +154,12 @@ public class JsonEncoder implements Encoder {
 
     @Override
     public void writeMapStart() throws IOException {
+        out.writeStartObject();
     }
 
     @Override
     public void writeMapEnd() throws IOException {
+        out.writeEndObject();
     }
 
     @Override

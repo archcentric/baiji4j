@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SpecificJsonWriter<T> implements DatumWriter<T> {
 
@@ -99,7 +101,9 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
     protected void writeArray(Schema schema, Object datum, JsonEncoder out) throws IOException {
         ArraySchema arraySchema = (ArraySchema) schema;
         Schema element = arraySchema.getItemSchema();
+        long size = getArraySize(datum);
         out.writeArrayStart();
+        out.setItemCount(size);
         for (Iterator iterator = getArrayElements(datum); iterator.hasNext();) {
             write(element, iterator.next(), out);
         }
@@ -127,7 +131,31 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
         for (String symbol : enumSchema.getSymbols()) {
             values[enumSchema.ordinal(symbol)] = enumSchema.ordinal(symbol);
         }
-        out.writeInt(values[((Integer) datum).intValue()]);
+        out.writeInt(values[((Integer) datum)]);
+    }
+
+    /** Called to write a map.*/
+    protected void writeMap(Schema schema, Object datum, JsonEncoder out) throws IOException {
+        MapSchema mapSchema = (MapSchema) schema;
+        Schema value = mapSchema.getValueSchema();
+        int size = getMapSize(datum);
+        out.writeMapStart();
+        out.setItemCount(size);
+        for (Map.Entry<Object, Object> entry : getMapEntries(datum)) {
+            out.writeFieldName(entry.getKey().toString());
+            write(value, entry.getValue(), out);
+        }
+        out.writeMapEnd();
+    }
+
+    /** Called by {@link #writeMap} to get the size of a map.*/
+    protected int getMapSize(Object map) {
+        return ((Map) map).size();
+    }
+
+    /** Called by {@link #writeMap} to enumerate map elements.*/
+    protected Iterable<Map.Entry<Object, Object>> getMapEntries(Object map) {
+        return ((Map) map).entrySet();
     }
 
     /** Called to write a nested object.*/
