@@ -41,7 +41,16 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
      */
     public T read(T reuse, String source) throws IOException {
         jsonNode = objectMapper.readTree(source);
-        return null;
+        if (root instanceof RecordSchema) {
+            RecordSchema recordSchema = (RecordSchema) root;
+            try {
+                return (T) readRecord(reuse, new RecordReader(recordSchema), recordSchema);
+            } catch (Exception e) {
+                throw new BaijiRuntimeException(e);
+            }
+        } else {
+            throw new BaijiRuntimeException("");
+        }
     }
 
     /** Called to read a record.*/
@@ -95,6 +104,8 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
                     EnumReader enumReader = new EnumReader(schema);
                     return enumReader.read(datum);
                 case UNION:
+                    UnionSchema unionSchema = (UnionSchema) schema;
+                    return readUnion(datum, unionSchema);
                 case ARRAY:
                     ArraySchema arraySchema = (ArraySchema) schema;
                     return readArray(datum, arraySchema);
@@ -166,6 +177,18 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
         }
 
         return list;
+    }
+
+    private Object readUnion(Object obj, UnionSchema unionSchema) throws Exception {
+        for (int i = 0; i < unionSchema.size(); i++) {
+            Schema schema = unionSchema.get(i);
+            if (schema.getType() == SchemaType.NULL)
+                continue;
+
+            return readField(schema, obj);
+        }
+
+        throw new BaijiRuntimeException("");
     }
 
     private class RecordReader implements JsonReadable {

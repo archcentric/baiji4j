@@ -9,9 +9,7 @@ import com.ctriposs.baiji.specific.SpecificJsonReader;
 import com.ctriposs.baiji.specific.SpecificJsonWriter;
 import com.ctriposs.baiji.specific.SpecificRecord;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -31,8 +29,8 @@ public class JsonSerializer implements Serializer {
 
     @Override
     public <T extends SpecificRecord> T deserialize(Class<T> objClass, InputStream stream) throws IOException {
-        DatumReader<T> reader = getReader(objClass);
-        return reader.read(null, new JsonDecoder(stream));
+        SpecificJsonReader<T> reader = (SpecificJsonReader) getReader(objClass);
+        return reader.read(null, readStream(stream));
     }
 
     private static <T extends SpecificRecord> DatumWriter<T> getWriter(T obj) {
@@ -65,5 +63,18 @@ public class JsonSerializer implements Serializer {
         }
 
         return datumReader;
+    }
+
+    private static String readStream(InputStream is) throws IOException {
+        char[] buffer = new char[2048];
+        StringBuffer sb = new StringBuffer();
+        Reader reader = new BufferedReader(new InputStreamReader(is));
+        int n;
+
+        while ((n = reader.read(buffer)) != -1) {
+            sb.append(buffer, 0, n);
+        }
+
+        return sb.toString();
     }
 }
