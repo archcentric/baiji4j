@@ -22,13 +22,10 @@ public class BaijiServlet extends HttpServlet {
 
     private static final Logger _logger = LoggerFactory.getLogger(BaijiServlet.class);
 
-    private String _contextPath;
     private BaijiHttpRequestRouter _router;
 
     @Override
     public void init() {
-
-        _contextPath = getServletContext().getContextPath();
 
         Class<?> serviceClass = getServiceClass();
         ServiceConfig serviceConfig = buildServiceConfig();
@@ -80,7 +77,8 @@ public class BaijiServlet extends HttpServlet {
             throws ServletException, IOException {
 
         if (_router == null) {
-            ((HttpServletResponse) resp).sendError(HttpStatus.SC_SERVICE_UNAVAILABLE, "");
+            ((HttpServletResponse) resp).sendError(HttpStatus.SC_SERVICE_UNAVAILABLE,
+                    "No service processor is configured.");
             return;
         }
 
@@ -114,10 +112,10 @@ public class BaijiServlet extends HttpServlet {
         } catch (URISyntaxException e) {
             throw new BaijiRuntimeException(e);
         }
-        environment.RequestPath = uri.getPath();
+        environment.RequestPath = request.getPathInfo();
         environment.RequestProtocol = request.getProtocol();
         environment.RequestQueryString = request.getQueryString();
-        environment.RequestPathBase = _contextPath;
+        environment.RequestPathBase = request.getContextPath();
         environment.RequestScheme = uri.getScheme();
         return environment;
     }
