@@ -1,0 +1,19 @@
+apply plugin: 'war'
+
+sourceSets {
+    main {
+        java {
+            srcDir 'generated_src'
+        }
+    }
+}
+
+dependencies {
+    compile project(':baiji-core')
+    compile project(':baiji-rpc-server')
+    providedCompile 'javax.servlet:javax.servlet-api:3.0.1'
+}
+
+war {
+    exclude '**/javax.servlet-api-3.0.1.jar'
+}

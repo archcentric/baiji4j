@@ -1,0 +1,21 @@
+include 'common.bjsc'
+
+namespace java com.ctriposs.baiji.rpc.samples.hello
+namespace csharp CTripOSS.Baiji.Rpc.Samples.Hello
+
+struct HelloRequestType {
+    string name;
+}
+
+struct HelloResponseType {
+    common.ResponseStatusType responseStatus;
+    string message;
+}
+
+@serviceName='Hello'
+@serviceNamespace='http://soa.ctriposs.com/baijirpc/sample/hello'
+service HelloService {
+  HelloResponseType sayHello(HelloRequestType request);
+
+  common.CheckHealthResponseType checkHealth(common.CheckHealthRequestType request);
+}
