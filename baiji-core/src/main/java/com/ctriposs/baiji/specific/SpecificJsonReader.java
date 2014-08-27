@@ -3,8 +3,8 @@ package com.ctriposs.baiji.specific;
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.generic.DatumReader;
 import com.ctriposs.baiji.io.Decoder;
-import com.ctriposs.baiji.io.JsonDecoder;
 import com.ctriposs.baiji.schema.Field;
+import com.ctriposs.baiji.schema.MapSchema;
 import com.ctriposs.baiji.schema.RecordSchema;
 import com.ctriposs.baiji.schema.Schema;
 import org.codehaus.jackson.JsonNode;
@@ -12,6 +12,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.Iterator;
+import java.util.Map;
 
 public class SpecificJsonReader<T> implements DatumReader<T> {
 
@@ -85,7 +87,8 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
                     RecordReader recordReader = new RecordReader((RecordSchema) schema);
                     return readRecord(datum, recordReader, (RecordSchema) schema);
                 case MAP:
-
+                    MapSchema mapSchema = (MapSchema) schema;
+                    return readMap(datum, mapSchema);
                 default:
                     throw new BaijiRuntimeException("");
             }
@@ -122,6 +125,19 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
         return (obj instanceof JsonNode) ? ((JsonNode) obj).getTextValue() : obj;
     }
 
+    private Map readMap(Object obj, MapSchema mapSchema) throws Exception {
+        MapReader mapReader = new MapReader(mapSchema);
+        Map map = (Map) mapReader.read(null);
+        for (Iterator<Map.Entry<String, JsonNode>> iterator = ((JsonNode) obj).getFields(); iterator.hasNext();) {
+            Map.Entry<String, JsonNode> entry = iterator.next();
+            Schema valueSchema = mapSchema.getValueSchema();
+            Object value = readField(valueSchema, entry.getValue());
+            mapReader.add(map, entry.getKey(), value);
+        }
+
+        return map;
+    }
+
     private class RecordReader implements JsonReadable {
 
         private final Constructor constructor;
@@ -147,6 +163,10 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
         @Override
         public Object read(Object reuse) throws Exception {
             return reuse == null ? reuse : constructor.newInstance();
+        }
+
+        public void add(Object map, String key, Object value) {
+            ((Map) map).put(key, value);
         }
     }
 
