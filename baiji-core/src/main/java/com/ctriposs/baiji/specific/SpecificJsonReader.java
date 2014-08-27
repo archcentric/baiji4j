@@ -6,9 +6,11 @@ import com.ctriposs.baiji.io.Decoder;
 import com.ctriposs.baiji.schema.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +83,10 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
                     return readLong(datum);
                 case FLOAT:
                     return readFloat(datum);
+                case STRING:
+                    return readString(datum);
+                case BYTES:
+                    return readBytes(datum);
                 case RECORD:
                     RecordReader recordReader = new RecordReader((RecordSchema) schema);
                     return readRecord(datum, recordReader, (RecordSchema) schema);
@@ -89,7 +95,8 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
                     return readMap(datum, mapSchema);
                 case UNION:
                 case ARRAY:
-
+                    ArraySchema arraySchema = (ArraySchema) schema;
+                    return readArray(datum, arraySchema);
                 default:
                     throw new BaijiRuntimeException("");
             }
@@ -124,6 +131,14 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
 
     private Object readString(Object obj) {
         return (obj instanceof JsonNode) ? ((JsonNode) obj).getTextValue() : obj;
+    }
+
+    private byte[] readBytes(Object obj) throws IOException {
+        if (obj instanceof JsonNode && ((JsonNode) obj).isBinary()) {
+            return ((JsonNode) obj).getBinaryValue();
+        } else {
+            return ((String) obj).getBytes();
+        }
     }
 
     private Map readMap(Object obj, MapSchema mapSchema) throws Exception {
