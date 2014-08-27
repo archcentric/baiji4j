@@ -45,33 +45,47 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
     }
 
     /** Called to read a record.*/
-    protected T readRecord(Object reuse, JsonReadable recordReader, RecordSchema recordSchema) throws Exception {
+    protected Object readRecord(Object reuse, JsonReadable recordReader, RecordSchema recordSchema) throws Exception {
         reuse = recordReader.read(reuse);
         for (Field field : recordSchema.getFields()) {
             if (jsonNode.has(field.getName())) {
                 Object value = readField(field.getSchema(), jsonNode.get(field.getName()));
+                put(reuse, field.getPos(), value);
             }
-
-
         }
-        return null;
+
+        return reuse;
     }
 
+    protected void put(Object obj, int fieldPos, Object fieldValue) {
+        ((SpecificRecord) obj).put(fieldPos, fieldValue);
+    }
+
+    protected void put(Object obj, String fieldName, Object fieldValue) {
+        ((SpecificRecord) obj).put(fieldName, fieldValue);
+    }
 
     /** Called to read a field of a record.*/
-    protected Object readField(Schema schema, Object datum) {
+    protected Object readField(Schema schema, Object datum) throws Exception {
         try {
             switch (schema.getType()) {
                 case NULL:
                     return readNull();
                 case INT:
+                    return readInt(datum);
                 case BOOLEAN:
+                    return readBoolean(datum);
                 case DOUBLE:
+                    return readDouble(datum);
                 case LONG:
+                    return readLong(datum);
                 case FLOAT:
-
+                    return readFloat(datum);
                 case RECORD:
-                    return null;
+                    RecordReader recordReader = new RecordReader((RecordSchema) schema);
+                    return readRecord(datum, recordReader, (RecordSchema) schema);
+                case MAP:
+
                 default:
                     throw new BaijiRuntimeException("");
             }
@@ -114,6 +128,20 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
 
         public RecordReader(RecordSchema recordSchema) {
             this.constructor = getConstructor(recordSchema);
+        }
+
+        @Override
+        public Object read(Object reuse) throws Exception {
+            return reuse == null ? reuse : constructor.newInstance();
+        }
+    }
+
+    private class MapReader implements JsonReadable {
+
+        private final Constructor constructor;
+
+        public MapReader(Schema schema) {
+            this.constructor = getConstructor(schema);
         }
 
         @Override
