@@ -3,16 +3,14 @@ package com.ctriposs.baiji.specific;
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.generic.DatumReader;
 import com.ctriposs.baiji.io.Decoder;
-import com.ctriposs.baiji.schema.Field;
-import com.ctriposs.baiji.schema.MapSchema;
-import com.ctriposs.baiji.schema.RecordSchema;
-import com.ctriposs.baiji.schema.Schema;
+import com.ctriposs.baiji.schema.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class SpecificJsonReader<T> implements DatumReader<T> {
@@ -89,6 +87,9 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
                 case MAP:
                     MapSchema mapSchema = (MapSchema) schema;
                     return readMap(datum, mapSchema);
+                case UNION:
+                case ARRAY:
+
                 default:
                     throw new BaijiRuntimeException("");
             }
@@ -138,6 +139,19 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
         return map;
     }
 
+    private List readArray(Object obj, ArraySchema arraySchema) throws Exception {
+        ArrayReader arrayReader = new ArrayReader(arraySchema);
+        List list = (List) arrayReader.read(null);
+        for (Iterator<JsonNode> iterator = ((JsonNode) obj).getElements(); iterator.hasNext();) {
+            JsonNode node = iterator.next();
+            Schema itemSchema = arraySchema.getItemSchema();
+            Object value = readField(itemSchema, node);
+            list.add(value);
+        }
+
+        return list;
+    }
+
     private class RecordReader implements JsonReadable {
 
         private final Constructor constructor;
@@ -167,6 +181,32 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
 
         public void add(Object map, String key, Object value) {
             ((Map) map).put(key, value);
+        }
+    }
+
+    private class ArrayReader implements JsonReadable {
+
+        private final Constructor constructor;
+
+        public ArrayReader(Schema schema) {
+            this.constructor = getConstructor(schema);
+        }
+
+        @Override
+        public Object read(Object reuse) throws Exception {
+            List list;
+            if (reuse != null) {
+                try {
+                    list = (List) reuse;
+                } catch (ClassCastException e) {
+                    throw new BaijiRuntimeException(e);
+                }
+                list.clear();
+            } else {
+                list = (List) constructor.newInstance();
+            }
+
+            return list;
         }
     }
 
