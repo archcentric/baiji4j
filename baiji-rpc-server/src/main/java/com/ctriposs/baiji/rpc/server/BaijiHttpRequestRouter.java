@@ -168,7 +168,7 @@ public class BaijiHttpRequestRouter {
                     BeanUtils.populate(requestObject, requestQueryMap);
                 }
             } else if ("POST".equalsIgnoreCase(request.RequestMethod)) { // RPC call
-                requestObject = formatter.deserialize(handler.getResponseType(), request.RequestBody);
+                requestObject = formatter.deserialize(handler.getRequestType(), request.RequestBody);
             } else { // for Baiji RPC, only GET & POST are allowed
                 this.writeHttpResponse(responseWriter, HttpStatus.SC_METHOD_NOT_ALLOWED);
                 return; // Nothing more to do
