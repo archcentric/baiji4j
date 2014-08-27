@@ -21,9 +21,9 @@ import java.net.URLDecoder;
 import java.sql.Timestamp;
 import java.util.*;
 
-public class BaijiHttpRequestRouter {
+public class BaijiHttpRequestRouter implements HttpRequestRouter {
 
-    private static final Logger _logger = LoggerFactory.getLogger(OperationHandler.class);
+    private static final Logger _logger = LoggerFactory.getLogger(BaijiHttpRequestRouter.class);
 
     private final Map<RequestPath, OperationHandler> _handlers = new HashMap<RequestPath, OperationHandler>();
     private final ServiceConfig _config;
@@ -150,7 +150,7 @@ public class BaijiHttpRequestRouter {
             // Routing
             handler = this.selectHandler(request);
             if (handler == null) {
-                _logger.error("No handler found.");
+                _logger.error("No handler found: " + request.RequestPath);
                 this.writeHttpResponse(responseWriter, HttpStatus.SC_NOT_FOUND);
                 return; // Nothing more to do
             }
@@ -236,9 +236,9 @@ public class BaijiHttpRequestRouter {
                         _logger.error("Fail to close request input stream", e);
                     }
                 }
-                if (request.RequestBody != null) {
+                if (request.ResponseBody != null) {
                     try {
-                        request.RequestBody.close();
+                        request.ResponseBody.close();
                     } catch (IOException e) {
                         _logger.error("Fail to close response output stream", e);
                     }
