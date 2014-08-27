@@ -47,8 +47,7 @@ public class SpecificDatumWriter<T> extends PreresolvingDatumWriter<T> {
 
     @Override
     protected ItemWriter resolveEnum(EnumSchema es) {
-//        var type = ObjectCreator.Instance.GetType(es);
-        Class<?> clazz = null;
+        Class<?> clazz = ObjectCreator.INSTANCE.getClass(es);
         Object[] enumValues = clazz.getEnumConstants();
         Map<Object, Integer> translator = new HashMap<Object, Integer>(enumValues.length);
         for (int i = 0; i < enumValues.length; i++) {
