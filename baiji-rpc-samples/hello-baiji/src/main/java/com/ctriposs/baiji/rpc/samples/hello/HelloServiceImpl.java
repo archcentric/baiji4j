@@ -6,7 +6,7 @@ import com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType;
 public class HelloServiceImpl implements HelloService {
     @Override
     public HelloResponseType sayHello(HelloRequestType request) {
-        if (request == null || request.name == null && request.name.isEmpty()) {
+        if (request == null || request.name == null || request.name.isEmpty()) {
             throw new IllegalArgumentException("Missing name parameter");
         }
         return new HelloResponseType(null, "Hello " + request.name);

@@ -22,11 +22,10 @@ public class BaijiServlet extends HttpServlet {
 
     private static final Logger _logger = LoggerFactory.getLogger(BaijiServlet.class);
 
-    private BaijiHttpRequestRouter _router;
+    private HttpRequestRouter _router;
 
     @Override
     public void init() {
-
         Class<?> serviceClass = getServiceClass();
         ServiceConfig serviceConfig = buildServiceConfig();
         _router = new BaijiHttpRequestRouter(serviceConfig, serviceClass);
