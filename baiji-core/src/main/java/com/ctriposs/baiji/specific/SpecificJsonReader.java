@@ -6,11 +6,9 @@ import com.ctriposs.baiji.io.Decoder;
 import com.ctriposs.baiji.schema.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import sun.misc.BASE64Encoder;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +91,9 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
                 case MAP:
                     MapSchema mapSchema = (MapSchema) schema;
                     return readMap(datum, mapSchema);
+                case ENUM:
+                    EnumReader enumReader = new EnumReader(schema);
+                    return enumReader.read(datum);
                 case UNION:
                 case ARRAY:
                     ArraySchema arraySchema = (ArraySchema) schema;
@@ -222,6 +223,26 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
             }
 
             return list;
+        }
+    }
+
+    private class EnumReader implements JsonReadable {
+
+        private int[] translator;
+
+        public EnumReader(Schema schema) {
+            EnumSchema enumSchema = (EnumSchema) schema;
+            translator = new int[enumSchema.getSymbols().size()];
+            for (String symbol : enumSchema.getSymbols()) {
+                int index = enumSchema.ordinal(symbol);
+                translator[index] = enumSchema.ordinal(symbol);
+            }
+        }
+
+        @Override
+        public Object read(Object reuse) throws Exception {
+            int ordinal = ((JsonNode) reuse).asInt();
+            return translator[ordinal];
         }
     }
 
