@@ -65,7 +65,7 @@ public class JsonSerializer implements Serializer {
         return datumReader;
     }
 
-    private static String readStream(InputStream is) throws IOException {
+    public static String readStream(InputStream is) throws IOException {
         char[] buffer = new char[2048];
         StringBuffer sb = new StringBuffer();
         Reader reader = new BufferedReader(new InputStreamReader(is));

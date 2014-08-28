@@ -183,5 +183,8 @@ public class JsonEncoder implements Encoder {
 
     @Override
     public void flush() throws IOException {
+        if (out != null) {
+            out.flush();
+        }
     }
 }

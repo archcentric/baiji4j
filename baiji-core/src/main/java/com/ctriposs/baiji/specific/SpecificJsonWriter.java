@@ -91,6 +91,7 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
             writeFieldValue(value, field, jsonEncoder);
         }
         jsonEncoder.writeEndObject();
+        jsonEncoder.flush();
     }
 
     /** Called to write a single field of a record.*/
