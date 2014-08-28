@@ -4,32 +4,65 @@ import com.ctriposs.baiji.generic.DatumWriter;
 import com.ctriposs.baiji.io.Encoder;
 import com.ctriposs.baiji.io.JsonEncoder;
 import com.ctriposs.baiji.schema.*;
+import org.codehaus.jackson.JsonEncoding;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.util.DefaultPrettyPrinter;
+import org.codehaus.jackson.util.MinimalPrettyPrinter;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SpecificJsonWriter<T> implements DatumWriter<T> {
+public class SpecificJsonWriter<T> {
+
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String CHARSET = "ISO-8859-1";
 
     private Schema root;
-    private Encoder encoder;
+    private JsonGenerator out;
+
 
     public SpecificJsonWriter(Schema root) {
         this.root = root;
     }
 
-    @Override
     public Schema getSchema() {
         return root;
     }
 
-    @Override
     public void write(T datum, Encoder out) throws IOException {
-        this.encoder = out;
         writeRecord(root, datum, out);
+    }
+
+    public void write(T datum, OutputStream os) throws IOException {
+
+    }
+
+    private static JsonGenerator getJsonGenerator(OutputStream out, boolean pretty) throws IOException {
+        if (null == out)
+            throw new NullPointerException("OutputStream can't be null");
+        JsonGenerator g = new JsonFactory().createJsonGenerator(out, JsonEncoding.UTF8);
+        if (pretty) {
+            DefaultPrettyPrinter pp = new DefaultPrettyPrinter() {
+                //@Override
+                public void writeRootValueSeparator(JsonGenerator jg)
+                        throws IOException
+                {
+                    jg.writeRaw(LINE_SEPARATOR);
+                }
+            };
+            g.setPrettyPrinter(pp);
+        } else {
+            MinimalPrettyPrinter pp = new MinimalPrettyPrinter();
+            pp.setRootValueSeparator(LINE_SEPARATOR);
+            g.setPrettyPrinter(pp);
+        }
+        return g;
     }
 
     /** Called to write data.*/
@@ -89,10 +122,13 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
         jsonEncoder.writeStartObject();
         for (Field field : recordSchema.getFields()) {
             Object value = ((SpecificRecord) datum).get(field.getPos());
+            if (value == null)
+                continue;
             jsonEncoder.writeFieldName(field.getName());
             writeFieldValue(value, field, jsonEncoder);
         }
         jsonEncoder.writeEndObject();
+        jsonEncoder.flush();
     }
 
     /** Called to write a single field of a record.*/
@@ -178,9 +214,5 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
             write(unionSchema.get(i), datum, out);
             return;
         }
-    }
-
-    public void flush() throws IOException {
-        this.encoder.flush();
     }
 }
