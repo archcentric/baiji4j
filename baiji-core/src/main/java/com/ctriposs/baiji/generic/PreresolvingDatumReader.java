@@ -317,8 +317,12 @@ public abstract class PreresolvingDatumReader<T> implements DatumReader<T> {
         }
 
         public void read(Object record, Decoder dec) throws IOException {
+            Object reuseObj = null;
+            if (_reuse) {
+                _recordAccess.getField(record, _field.getName(), _field.getPos());
+            }
             _recordAccess.addField(record, _field.getName(), _field.getPos(),
-                    _itemReader.read(_reuse ? record : null, dec));
+                    _itemReader.read(reuseObj, dec));
         }
     }
 

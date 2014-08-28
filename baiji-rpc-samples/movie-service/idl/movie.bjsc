@@ -1,0 +1,100 @@
+include 'common.bjsc'
+
+namespace java 'com.ctriposs.baiji.rpc.samples.movie'
+namespace csharp 'CTripOSS.Baiji.Rpc.Samples.Movie'
+
+struct MovieDto {
+    i64 id;
+    string imdbId;
+    string title;
+    double rating;
+    string director;
+    string releaseDate;
+    string tagLine;
+    list<string> genres;
+}
+
+struct AddMovieRequestType {
+    /* The movie to be updated */
+    MovieDto movie;
+}
+
+struct AddMovieResponseType {
+    common.ResponseStatusType responseStatus;
+    /* The movie id of the added movie */
+    i64 id;
+}
+
+struct UpdateMovieRequestType {
+    /* The movie to be added */
+    MovieDto movie;
+}
+
+struct UpdateMovieResponseType {
+    common.ResponseStatusType responseStatus;
+}
+
+struct GetMovieByIdRequestType {
+    i64 id;
+}
+
+struct GetMovieByIdResponseType {
+    common.ResponseStatusType responseStatus;
+    /* Movie with specific id */
+    MovieDto movie;
+}
+
+struct DeleteMovieByIdRequestType {
+    /* The identifier of the movie to delete */
+    i64 id;
+}
+
+struct DeleteMovieByIdResponseType {
+    common.ResponseStatusType responseStatus;
+}
+
+struct FindMoviesByGenreRequestType {
+    /* Genre to search */
+    string Genre;
+}
+
+struct FindMoviesByGenreResponseType {
+    common.ResponseStatusType responseStatus;
+    list<MovieDto> movies;
+}
+
+struct ResetMovieRequestType {  
+}
+
+struct ResetMovieResponseType {
+    common.ResponseStatusType responseStatus;
+}
+
+struct GetMoviesRequestType {
+    i32 count;
+}
+
+struct GetMoviesResponseType {
+    common.ResponseStatusType responseStatus;
+    list<MovieDto> movies;
+}
+
+@serviceName='Movie'
+@serviceNamespace='http://soa.ctriposs.com/baijirpc/sample/movie'
+service MovieService {
+    AddMovieResponseType addMovie(AddMovieRequestType request);
+  
+    UpdateMovieResponseType updateMovie(UpdateMovieRequestType request);
+    
+    GetMovieByIdResponseType getMovieById(GetMovieByIdRequestType request);
+    
+    DeleteMovieByIdResponseType deleteMovieById(DeleteMovieByIdRequestType request);
+    
+    FindMoviesByGenreResponseType findMoviesByGenre(FindMoviesByGenreRequestType request);
+    
+    ResetMovieResponseType resetMovie(ResetMovieRequestType request);
+    
+    GetMoviesResponseType getMovies(GetMoviesRequestType request);
+  
+    common.CheckHealthResponseType checkHealth(common.CheckHealthRequestType request);
+}
