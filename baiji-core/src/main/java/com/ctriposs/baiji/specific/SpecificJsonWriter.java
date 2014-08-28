@@ -15,6 +15,7 @@ import java.util.Set;
 public class SpecificJsonWriter<T> implements DatumWriter<T> {
 
     private Schema root;
+    private Encoder encoder;
 
     public SpecificJsonWriter(Schema root) {
         this.root = root;
@@ -27,6 +28,7 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
 
     @Override
     public void write(T datum, Encoder out) throws IOException {
+        this.encoder = out;
         writeRecord(root, datum, out);
     }
 
@@ -50,7 +52,7 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
                     out.writeBoolean((Boolean) datum);
                     break;
                 case STRING:
-                    out.writeString(datum.toString());
+                    out.writeString("nihao");
                     break;
                 case BYTES:
                     out.writeBytes((ByteBuffer) datum);
@@ -91,7 +93,6 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
             writeFieldValue(value, field, jsonEncoder);
         }
         jsonEncoder.writeEndObject();
-        jsonEncoder.flush();
     }
 
     /** Called to write a single field of a record.*/
@@ -177,5 +178,9 @@ public class SpecificJsonWriter<T> implements DatumWriter<T> {
             write(unionSchema.get(i), datum, out);
             return;
         }
+    }
+
+    public void flush() throws IOException {
+        this.encoder.flush();
     }
 }

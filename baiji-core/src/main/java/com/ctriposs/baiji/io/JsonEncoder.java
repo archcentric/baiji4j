@@ -78,6 +78,7 @@ public class JsonEncoder implements Encoder {
      * @throws IOException
      */
     public void writeFieldName(String fieldName) throws IOException {
+        System.out.println(fieldName);
         out.writeFieldName(fieldName);
     }
 
