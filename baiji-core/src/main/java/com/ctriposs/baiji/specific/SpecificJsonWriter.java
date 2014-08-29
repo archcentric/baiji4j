@@ -81,7 +81,7 @@ public class SpecificJsonWriter<T> {
                     out.writeBoolean((Boolean) datum);
                     break;
                 case STRING:
-                    out.writeString("nihao");
+                    out.writeString(datum.toString());
                     break;
                 case BYTES:
                     out.writeBytes((ByteBuffer) datum);
@@ -167,11 +167,12 @@ public class SpecificJsonWriter<T> {
     /** Called to write an enum value.*/
     protected void writeEnum(Schema schema, Object datum, JsonEncoder out) throws IOException {
         EnumSchema enumSchema = (EnumSchema) schema;
+        String value = enumSchema.get(((Enum) datum).ordinal());
         int[] values = new int[enumSchema.size()];
         for (String symbol : enumSchema.getSymbols()) {
             values[enumSchema.ordinal(symbol)] = enumSchema.ordinal(symbol);
         }
-        out.writeEnum(values[((Integer) datum)]);
+        out.writeString(value);
     }
 
     /** Called to write a map.*/

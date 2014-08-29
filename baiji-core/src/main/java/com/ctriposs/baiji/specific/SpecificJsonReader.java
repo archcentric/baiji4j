@@ -252,9 +252,10 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
     private class EnumReader implements JsonReadable {
 
         private int[] translator;
+        private EnumSchema enumSchema;
 
         public EnumReader(Schema schema) {
-            EnumSchema enumSchema = (EnumSchema) schema;
+            enumSchema = (EnumSchema) schema;
             translator = new int[enumSchema.getSymbols().size()];
             for (String symbol : enumSchema.getSymbols()) {
                 int index = enumSchema.ordinal(symbol);
@@ -264,8 +265,8 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
 
         @Override
         public Object read(Object reuse) throws Exception {
-            int ordinal = ((JsonNode) reuse).asInt();
-            return translator[ordinal];
+            String value = ((JsonNode) reuse).getTextValue();
+            return Enum.valueOf((Class)ObjectCreator.INSTANCE.getClass(enumSchema), value);
         }
     }
 
