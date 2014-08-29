@@ -45,7 +45,7 @@ public class SpecificJsonSerializerUnitTest {
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 
         // Then deserialize
-        //return reader.read(null, JsonSerializer.readStream(is));
-        return record;
+        return reader.read(null, JsonSerializer.readStream(is));
+        //return record;
     }
 }

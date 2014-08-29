@@ -18,12 +18,12 @@ public class JsonSerializer implements Serializer {
     private static final ConcurrentMap<Class<?>, DatumReader> _readerCache =
             new ConcurrentHashMap<Class<?>, DatumReader>();
 
-    private static final ConcurrentMap<Class<?>, DatumWriter> _writerCache =
-            new ConcurrentHashMap<Class<?>, DatumWriter>();
+    private static final ConcurrentMap<Class<?>, SpecificJsonWriter> _writerCache =
+            new ConcurrentHashMap<Class<?>, SpecificJsonWriter>();
 
     @Override
     public <T extends SpecificRecord> void serialize(T obj, OutputStream stream) throws IOException {
-        DatumWriter<T> writer = getWriter(obj);
+        SpecificJsonWriter<T> writer = getWriter(obj);
         writer.write(obj, new JsonEncoder(obj.getSchema(), stream));
     }
 
@@ -33,12 +33,12 @@ public class JsonSerializer implements Serializer {
         return reader.read(null, readStream(stream));
     }
 
-    private static <T extends SpecificRecord> DatumWriter<T> getWriter(T obj) {
+    private static <T extends SpecificRecord> SpecificJsonWriter<T> getWriter(T obj) {
         Class clazz = obj.getClass();
-        DatumWriter<T> writer = _writerCache.get(clazz);
+        SpecificJsonWriter<T> writer = _writerCache.get(clazz);
         if (writer == null) {
             writer = new SpecificJsonWriter<T>(obj.getSchema());
-            DatumWriter<T> existedWriter = _writerCache.putIfAbsent(clazz, writer);
+            SpecificJsonWriter<T> existedWriter = _writerCache.putIfAbsent(clazz, writer);
             if (existedWriter != null) {
                 writer = existedWriter;
             }

@@ -39,11 +39,7 @@ public class SpecificJsonWriter<T> {
         writeRecord(root, datum, out);
     }
 
-    public void write(T datum, OutputStream os) throws IOException {
-
-    }
-
-    private static JsonGenerator getJsonGenerator(OutputStream out, boolean pretty) throws IOException {
+    /*private static JsonGenerator getJsonGenerator(OutputStream out, boolean pretty) throws IOException {
         if (null == out)
             throw new NullPointerException("OutputStream can't be null");
         JsonGenerator g = new JsonFactory().createJsonGenerator(out, JsonEncoding.UTF8);
@@ -63,7 +59,7 @@ public class SpecificJsonWriter<T> {
             g.setPrettyPrinter(pp);
         }
         return g;
-    }
+    }*/
 
     /** Called to write data.*/
     protected void write(Schema schema,Object datum, JsonEncoder out) throws IOException {
