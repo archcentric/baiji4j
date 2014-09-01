@@ -8,8 +8,7 @@ import com.ctriposs.baiji.schema.UnionSchema;
 import com.ctriposs.baiji.util.ClassUtils;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.HashMap;
 
 public final class ObjectCreator {
 
@@ -28,8 +27,8 @@ public final class ObjectCreator {
     private Class<?> findClass(String name, boolean throwError) {
         // Modify provided type to ensure it can be discovered.
         // This is mainly for Generics
-        name = name.replace("List", "java.util.List");
-        name = name.replace("Map", "java.util.Map");
+        name = name.replace("List", "java.util.ArrayList");
+        name = name.replace("Map", "java.util.HashMap");
         name = name.replaceAll("<.+>", "");
 
         Class<?> clazz = null;
@@ -72,7 +71,7 @@ public final class ObjectCreator {
             case ARRAY:
                 return ArrayList.class;
             case MAP:
-                return Map.class;
+                return HashMap.class;
             case ENUM:
             case RECORD: {
                 // Should all be named types
