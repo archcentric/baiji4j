@@ -10,9 +10,12 @@ sourceSets {
 
 dependencies {
     compile project(':baiji-core')
+    compile project(':baiji-rpc-client')
     compile project(':baiji-rpc-server')
     providedCompile 'javax.servlet:javax.servlet-api:3.0.1'
     runtime 'org.slf4j:slf4j-simple:1.7.7'
+
+    testCompile 'junit:junit:4.11'
 }
 
 war {
