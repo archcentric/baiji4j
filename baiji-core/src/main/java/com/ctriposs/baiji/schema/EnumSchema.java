@@ -166,16 +166,17 @@ public class EnumSchema extends NamedSchema implements Iterable<String> {
     /**
      * Returns the enum symbol of the given index to the list
      *
-     * @param index symbol index
-     * @return symbol name
+     * @param value symbol value
+     * @return The symbol name corresponding to the given value.
+     *         If there are multiple symbols associated with the given value, the first one in the list will be returned.
      */
-    public String get(int index) {
-
-        if (index < _symbols.size()) {
-            return _symbols.get(index);
+    public String get(int value) {
+        for (Map.Entry<String, Integer[]> entry : _symbolMap.entrySet()) {
+            if (entry.getValue()[1] == value) {
+                return entry.getKey();
+            }
         }
-        throw new BaijiRuntimeException("Enumeration out of range. Must be less than " + _symbols.size() + ", but is " +
-                index);
+        return null;
     }
 
     /**
