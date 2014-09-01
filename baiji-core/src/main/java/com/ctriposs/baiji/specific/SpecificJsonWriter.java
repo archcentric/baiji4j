@@ -84,7 +84,7 @@ public class SpecificJsonWriter<T> {
                     out.writeString(datum.toString());
                     break;
                 case BYTES:
-                    out.writeBytes((ByteBuffer) datum);
+                    out.writeBytes((byte[])datum);
                     break;
                 case NULL:
                     out.writeNull();

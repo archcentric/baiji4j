@@ -1,326 +1,317 @@
 package com.ctriposs.baiji.specific;
 
-import com.ctriposs.baiji.exception.BaijiRuntimeException;
-import com.ctriposs.baiji.schema.Schema;
+import java.util.*;
+import com.ctriposs.baiji.exception.*;
+import com.ctriposs.baiji.schema.*;
+import com.ctriposs.baiji.specific.*;
+import com.google.common.base.Objects;
 
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.Map;
+@SuppressWarnings("all")
+public class TestSerializerSample extends SpecificRecordBase implements SpecificRecord {
+    private static final long serialVersionUID = 1L;
 
-public class TestSerializerSample extends SpecificRecordBase {
+    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"TestSerializerSample\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"fields\":[{\"name\":\"int1\",\"type\":[\"int\",\"null\"]},{\"name\":\"tinyint1\",\"type\":[\"int\",\"null\"]},{\"name\":\"smallint1\",\"type\":[\"int\",\"null\"]},{\"name\":\"bigint1\",\"type\":[\"long\",\"null\"]},{\"name\":\"boolean1\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"double1\",\"type\":[\"double\",\"null\"]},{\"name\":\"string1\",\"type\":[\"string\",\"null\"]},{\"name\":\"record\",\"type\":[{\"type\":\"record\",\"name\":\"Record\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"fields\":[{\"name\":\"sInt\",\"type\":[\"int\",\"null\"]},{\"name\":\"sBoolean\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"sString\",\"type\":[\"string\",\"null\"]}]},\"null\"]},{\"name\":\"list1\",\"type\":[{\"type\":\"array\",\"items\":\"string\"},\"null\"]},{\"name\":\"map1\",\"type\":[{\"type\":\"map\",\"values\":\"int\"},\"null\"]},{\"name\":\"enum1\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum1Values\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"symbols\":[\"BLUE\",\"RED\",\"GREEN\"]},\"null\"]},{\"name\":\"nullableint\",\"type\":[\"int\",\"null\"]},{\"name\":\"bytes1\",\"type\":[\"bytes\",\"null\"]},{\"name\":\"container1\",\"type\":[{\"type\":\"record\",\"name\":\"Record2Container\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"fields\":[{\"name\":\"record2list\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Record2\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"fields\":[{\"name\":\"enum2\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum2Values\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"symbols\":[\"CAR\",\"BIKE\",\"PLANE\"]},\"null\"]},{\"name\":\"bigint2\",\"type\":[\"long\",\"null\"]},{\"name\":\"nullablebigint\",\"type\":[\"long\",\"null\"]},{\"name\":\"list2\",\"type\":[{\"type\":\"array\",\"items\":\"int\"},\"null\"]},{\"name\":\"map2\",\"type\":[{\"type\":\"map\",\"values\":\"Record\"},\"null\"]},{\"name\":\"byteslist\",\"type\":[{\"type\":\"array\",\"items\":\"bytes\"},\"null\"]},{\"name\":\"filling\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"fields\":[{\"name\":\"stringfilling1\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling2\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling3\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling4\",\"type\":[\"string\",\"null\"]},{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"boolfilling\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"modelfilling\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling2\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"fields\":[{\"name\":\"longfilling\",\"type\":[\"long\",\"null\"]},{\"name\":\"stringfilling\",\"type\":[\"string\",\"null\"]},{\"name\":\"listfilling\",\"type\":[{\"type\":\"array\",\"items\":\"string\"},\"null\"]},{\"name\":\"enumfilling\",\"type\":[\"Enum2Values\",\"null\"]}]},\"null\"]},{\"name\":\"modelfilling3\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling3\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"fields\":[{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"doublefilling\",\"type\":[\"double\",\"null\"]},{\"name\":\"listsfilling\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":\"int\"}},\"null\"]},{\"name\":\"mapsfilling\",\"type\":[{\"type\":\"map\",\"values\":{\"type\":\"map\",\"values\":\"string\"}},\"null\"]}]},\"null\"]},{\"name\":\"enumfilling\",\"type\":[\"Enum1Values\",\"null\"]}]},\"null\"]}]}},\"null\"]}]},\"null\"]},{\"name\":\"innerSample\",\"type\":[\"TestSerializerSample\",\"null\"]}]}");
 
-  public static final Schema SCHEMA$ = Schema.parse("{\"type\":\"record\",\"name\":\"TestSerializerSample\",\"namespace\":\"com.ctriposs.baiji.specific\",\"fields\":[{\"name\":\"string1\",\"type\":\"string\"},{\"name\":\"int1\",\"type\":\"int\"},{\"name\":\"tinyint1\",\"type\":\"int\"},{\"name\":\"smallint1\",\"type\":\"int\"},{\"name\":\"bigint1\",\"type\":\"long\"},{\"name\":\"boolean1\",\"type\":\"boolean\"},{\"name\":\"float1\",\"type\":\"float\"},{\"name\":\"double1\",\"type\":\"double\"},{\"name\":\"list1\",\"type\":{\"type\":\"array\",\"items\":\"string\"}},{\"name\":\"map1\",\"type\":{\"type\":\"map\",\"values\":\"int\"}},{\"name\":\"struct1\",\"type\":{\"type\":\"record\",\"name\":\"struct1_name\",\"fields\":[{\"name\":\"sInt\",\"type\":\"int\"},{\"name\":\"sBoolean\",\"type\":\"boolean\"},{\"name\":\"sString\",\"type\":\"string\"}]}},{\"name\":\"union1\",\"type\":[\"float\",\"boolean\",\"string\"]},{\"name\":\"enum1\",\"type\":{\"type\":\"enum\",\"name\":\"enum1_values\",\"symbols\":[\"BLUE\",\"RED\",\"GREEN\"]}},{\"name\":\"nullableint\",\"type\":[\"int\",\"null\"]},{\"name\":\"bytes1\",\"type\":\"bytes\"}]}");
-  public static Schema getClassSchema() { return SCHEMA$; }
-  public CharSequence string1;
-  public int int1;
-  public int tinyint1;
-  public int smallint1;
-  public long bigint1;
-  public boolean boolean1;
-  public float float1;
-  public double double1;
-  public List<CharSequence> list1;
-  public Map<CharSequence,Integer> map1;
-  public struct1_name struct1;
-  public Object union1;
-  public enum1_values enum1;
-  public Integer nullableint;
-  public ByteBuffer bytes1;
+    @Override
+    public Schema getSchema() { return SCHEMA; }
 
-  /**
-   * Default constructor.  Note that this does not initialize fields
-   * to their default values from the schema.  If that is desired then
-   * one should use <code>newBuilder()</code>. 
-   */
-  public TestSerializerSample() {}
-
-  /**
-   * All-args constructor.
-   */
-  public TestSerializerSample(CharSequence string1, Integer int1, Integer tinyint1, Integer smallint1, Long bigint1, Boolean boolean1, Float float1, Double double1, List<CharSequence> list1, Map<CharSequence,Integer> map1, struct1_name struct1, Object union1, enum1_values enum1, Integer nullableint, java.nio.ByteBuffer bytes1) {
-    this.string1 = string1;
-    this.int1 = int1;
-    this.tinyint1 = tinyint1;
-    this.smallint1 = smallint1;
-    this.bigint1 = bigint1;
-    this.boolean1 = boolean1;
-    this.float1 = float1;
-    this.double1 = double1;
-    this.list1 = list1;
-    this.map1 = map1;
-    this.struct1 = struct1;
-    this.union1 = union1;
-    this.enum1 = enum1;
-    this.nullableint = nullableint;
-    this.bytes1 = bytes1;
-  }
-
-  public Schema getSchema() { return SCHEMA$; }
-  // Used by DatumWriter.  Applications should not call. 
-  public Object get(int field$) {
-    switch (field$) {
-    case 0: return string1;
-    case 1: return int1;
-    case 2: return tinyint1;
-    case 3: return smallint1;
-    case 4: return bigint1;
-    case 5: return boolean1;
-    case 6: return float1;
-    case 7: return double1;
-    case 8: return list1;
-    case 9: return map1;
-    case 10: return struct1;
-    case 11: return union1;
-    case 12: return enum1;
-    case 13: return nullableint;
-    case 14: return bytes1;
-    default: throw new BaijiRuntimeException("Bad index");
+    public TestSerializerSample(
+        Integer int1,
+        Integer tinyint1,
+        Integer smallint1,
+        Long bigint1,
+        Boolean boolean1,
+        Double double1,
+        String string1,
+        Record record,
+        List<String> list1,
+        Map<String, Integer> map1,
+        Enum1Values enum1,
+        Integer nullableint,
+        byte[] bytes1,
+        Record2Container container1,
+        TestSerializerSample innerSample
+    ) {
+        this.int1 = int1;
+        this.tinyint1 = tinyint1;
+        this.smallint1 = smallint1;
+        this.bigint1 = bigint1;
+        this.boolean1 = boolean1;
+        this.double1 = double1;
+        this.string1 = string1;
+        this.record = record;
+        this.list1 = list1;
+        this.map1 = map1;
+        this.enum1 = enum1;
+        this.nullableint = nullableint;
+        this.bytes1 = bytes1;
+        this.container1 = container1;
+        this.innerSample = innerSample;
     }
-  }
-  
-  public void put(int field$, Object value$) {
-    switch (field$) {
-    case 0: string1 = (CharSequence)value$; break;
-    case 1: int1 = (Integer)value$; break;
-    case 2: tinyint1 = (Integer)value$; break;
-    case 3: smallint1 = (Integer)value$; break;
-    case 4: bigint1 = (Long)value$; break;
-    case 5: boolean1 = (Boolean)value$; break;
-    case 6: float1 = (Float)value$; break;
-    case 7: double1 = (Double)value$; break;
-    case 8: list1 = (List<CharSequence>)value$; break;
-    case 9: map1 = (Map<CharSequence,Integer>)value$; break;
-    case 10: struct1 = (struct1_name)value$; break;
-    case 11: union1 = (Object)value$; break;
-    case 12: enum1 = (enum1_values)value$; break;
-    case 13: nullableint = (Integer)value$; break;
-    case 14: bytes1 = (ByteBuffer)value$; break;
-    default: throw new BaijiRuntimeException("Bad index");
+
+    public TestSerializerSample() {
     }
-  }
 
-  /**
-   * Gets the value of the 'string1' field.
-   */
-  public CharSequence getString1() {
-    return string1;
-  }
+    public Integer int1;
 
-  /**
-   * Sets the value of the 'string1' field.
-   * @param value the value to set.
-   */
-  public void setString1(CharSequence value) {
-    this.string1 = value;
-  }
+    public Integer tinyint1;
 
-  /**
-   * Gets the value of the 'int1' field.
-   */
-  public Integer getInt1() {
-    return int1;
-  }
+    public Integer smallint1;
 
-  /**
-   * Sets the value of the 'int1' field.
-   * @param value the value to set.
-   */
-  public void setInt1(Integer value) {
-    this.int1 = value;
-  }
+    public Long bigint1;
 
-  /**
-   * Gets the value of the 'tinyint1' field.
-   */
-  public Integer getTinyint1() {
-    return tinyint1;
-  }
+    public Boolean boolean1;
 
-  /**
-   * Sets the value of the 'tinyint1' field.
-   * @param value the value to set.
-   */
-  public void setTinyint1(Integer value) {
-    this.tinyint1 = value;
-  }
+    public Double double1;
 
-  /**
-   * Gets the value of the 'smallint1' field.
-   */
-  public Integer getSmallint1() {
-    return smallint1;
-  }
+    public String string1;
 
-  /**
-   * Sets the value of the 'smallint1' field.
-   * @param value the value to set.
-   */
-  public void setSmallint1(Integer value) {
-    this.smallint1 = value;
-  }
+    public Record record;
 
-  /**
-   * Gets the value of the 'bigint1' field.
-   */
-  public Long getBigint1() {
-    return bigint1;
-  }
+    public List<String> list1;
 
-  /**
-   * Sets the value of the 'bigint1' field.
-   * @param value the value to set.
-   */
-  public void setBigint1(Long value) {
-    this.bigint1 = value;
-  }
+    public Map<String, Integer> map1;
 
-  /**
-   * Gets the value of the 'boolean1' field.
-   */
-  public Boolean getBoolean1() {
-    return boolean1;
-  }
+    public Enum1Values enum1;
 
-  /**
-   * Sets the value of the 'boolean1' field.
-   * @param value the value to set.
-   */
-  public void setBoolean1(Boolean value) {
-    this.boolean1 = value;
-  }
+    public Integer nullableint;
 
-  /**
-   * Gets the value of the 'float1' field.
-   */
-  public Float getFloat1() {
-    return float1;
-  }
+    public byte[] bytes1;
 
-  /**
-   * Sets the value of the 'float1' field.
-   * @param value the value to set.
-   */
-  public void setFloat1(Float value) {
-    this.float1 = value;
-  }
+    public Record2Container container1;
 
-  /**
-   * Gets the value of the 'double1' field.
-   */
-  public Double getDouble1() {
-    return double1;
-  }
+    public TestSerializerSample innerSample;
 
-  /**
-   * Sets the value of the 'double1' field.
-   * @param value the value to set.
-   */
-  public void setDouble1(Double value) {
-    this.double1 = value;
-  }
+    public Integer getInt1() {
+        return int1;
+    }
 
-  /**
-   * Gets the value of the 'list1' field.
-   */
-  public java.util.List<CharSequence> getList1() {
-    return list1;
-  }
+    public void setInt1(final Integer int1) {
+        this.int1 = int1;
+    }
 
-  /**
-   * Sets the value of the 'list1' field.
-   * @param value the value to set.
-   */
-  public void setList1(java.util.List<CharSequence> value) {
-    this.list1 = value;
-  }
+    public Integer getTinyint1() {
+        return tinyint1;
+    }
 
-  /**
-   * Gets the value of the 'map1' field.
-   */
-  public java.util.Map<CharSequence,Integer> getMap1() {
-    return map1;
-  }
+    public void setTinyint1(final Integer tinyint1) {
+        this.tinyint1 = tinyint1;
+    }
 
-  /**
-   * Sets the value of the 'map1' field.
-   * @param value the value to set.
-   */
-  public void setMap1(java.util.Map<CharSequence,Integer> value) {
-    this.map1 = value;
-  }
+    public Integer getSmallint1() {
+        return smallint1;
+    }
 
-  /**
-   * Gets the value of the 'struct1' field.
-   */
-  public struct1_name getStruct1() {
-    return struct1;
-  }
+    public void setSmallint1(final Integer smallint1) {
+        this.smallint1 = smallint1;
+    }
 
-  /**
-   * Sets the value of the 'struct1' field.
-   * @param value the value to set.
-   */
-  public void setStruct1(struct1_name value) {
-    this.struct1 = value;
-  }
+    public Long getBigint1() {
+        return bigint1;
+    }
 
-  /**
-   * Gets the value of the 'union1' field.
-   */
-  public Object getUnion1() {
-    return union1;
-  }
+    public void setBigint1(final Long bigint1) {
+        this.bigint1 = bigint1;
+    }
 
-  /**
-   * Sets the value of the 'union1' field.
-   * @param value the value to set.
-   */
-  public void setUnion1(Object value) {
-    this.union1 = value;
-  }
+    public Boolean isBoolean1() {
+        return boolean1;
+    }
 
-  /**
-   * Gets the value of the 'enum1' field.
-   */
-  public enum1_values getEnum1() {
-    return enum1;
-  }
+    public void setBoolean1(final Boolean boolean1) {
+        this.boolean1 = boolean1;
+    }
 
-  /**
-   * Sets the value of the 'enum1' field.
-   * @param value the value to set.
-   */
-  public void setEnum1(enum1_values value) {
-    this.enum1 = value;
-  }
+    public Double getDouble1() {
+        return double1;
+    }
 
-  /**
-   * Gets the value of the 'nullableint' field.
-   */
-  public Integer getNullableint() {
-    return nullableint;
-  }
+    public void setDouble1(final Double double1) {
+        this.double1 = double1;
+    }
 
-  /**
-   * Sets the value of the 'nullableint' field.
-   * @param value the value to set.
-   */
-  public void setNullableint(Integer value) {
-    this.nullableint = value;
-  }
+    public String getString1() {
+        return string1;
+    }
 
-  /**
-   * Gets the value of the 'bytes1' field.
-   */
-  public java.nio.ByteBuffer getBytes1() {
-    return bytes1;
-  }
+    public void setString1(final String string1) {
+        this.string1 = string1;
+    }
 
-  /**
-   * Sets the value of the 'bytes1' field.
-   * @param value the value to set.
-   */
-  public void setBytes1(java.nio.ByteBuffer value) {
-    this.bytes1 = value;
-  }
+    public Record getRecord() {
+        return record;
+    }
+
+    public void setRecord(final Record record) {
+        this.record = record;
+    }
+
+    public List<String> getList1() {
+        return list1;
+    }
+
+    public void setList1(final List<String> list1) {
+        this.list1 = list1;
+    }
+
+    public Map<String, Integer> getMap1() {
+        return map1;
+    }
+
+    public void setMap1(final Map<String, Integer> map1) {
+        this.map1 = map1;
+    }
+
+    public Enum1Values getEnum1() {
+        return enum1;
+    }
+
+    public void setEnum1(final Enum1Values enum1) {
+        this.enum1 = enum1;
+    }
+
+    public Integer getNullableint() {
+        return nullableint;
+    }
+
+    public void setNullableint(final Integer nullableint) {
+        this.nullableint = nullableint;
+    }
+
+    public byte[] getBytes1() {
+        return bytes1;
+    }
+
+    public void setBytes1(final byte[] bytes1) {
+        this.bytes1 = bytes1;
+    }
+
+    public Record2Container getContainer1() {
+        return container1;
+    }
+
+    public void setContainer1(final Record2Container container1) {
+        this.container1 = container1;
+    }
+
+    public TestSerializerSample getInnerSample() {
+        return innerSample;
+    }
+
+    public void setInnerSample(final TestSerializerSample innerSample) {
+        this.innerSample = innerSample;
+    }
+
+    // Used by DatumWriter. Applications should not call.
+    public Object get(int fieldPos) {
+        switch (fieldPos) {
+            case 0: return this.int1;
+            case 1: return this.tinyint1;
+            case 2: return this.smallint1;
+            case 3: return this.bigint1;
+            case 4: return this.boolean1;
+            case 5: return this.double1;
+            case 6: return this.string1;
+            case 7: return this.record;
+            case 8: return this.list1;
+            case 9: return this.map1;
+            case 10: return this.enum1;
+            case 11: return this.nullableint;
+            case 12: return this.bytes1;
+            case 13: return this.container1;
+            case 14: return this.innerSample;
+            default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in get()");
+        }
+    }
+
+    // Used by DatumReader. Applications should not call.
+    @SuppressWarnings(value="unchecked")
+    public void put(int fieldPos, Object fieldValue) {
+        switch (fieldPos) {
+            case 0: this.int1 = (Integer)fieldValue; break;
+            case 1: this.tinyint1 = (Integer)fieldValue; break;
+            case 2: this.smallint1 = (Integer)fieldValue; break;
+            case 3: this.bigint1 = (Long)fieldValue; break;
+            case 4: this.boolean1 = (Boolean)fieldValue; break;
+            case 5: this.double1 = (Double)fieldValue; break;
+            case 6: this.string1 = (String)fieldValue; break;
+            case 7: this.record = (Record)fieldValue; break;
+            case 8: this.list1 = (List<String>)fieldValue; break;
+            case 9: this.map1 = (Map<String, Integer>)fieldValue; break;
+            case 10: this.enum1 = (Enum1Values)fieldValue; break;
+            case 11: this.nullableint = (Integer)fieldValue; break;
+            case 12: this.bytes1 = (byte[])fieldValue; break;
+            case 13: this.container1 = (Record2Container)fieldValue; break;
+            case 14: this.innerSample = (TestSerializerSample)fieldValue; break;
+            default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in put()");
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
+
+        final TestSerializerSample other = (TestSerializerSample)obj;
+        return 
+            Objects.equal(this.int1, other.int1) &&
+            Objects.equal(this.tinyint1, other.tinyint1) &&
+            Objects.equal(this.smallint1, other.smallint1) &&
+            Objects.equal(this.bigint1, other.bigint1) &&
+            Objects.equal(this.boolean1, other.boolean1) &&
+            Objects.equal(this.double1, other.double1) &&
+            Objects.equal(this.string1, other.string1) &&
+            Objects.equal(this.record, other.record) &&
+            Objects.equal(this.list1, other.list1) &&
+            Objects.equal(this.map1, other.map1) &&
+            Objects.equal(this.enum1, other.enum1) &&
+            Objects.equal(this.nullableint, other.nullableint) &&
+            Arrays.equals(this.bytes1, other.bytes1) &&
+            Objects.equal(this.container1, other.container1) &&
+            Objects.equal(this.innerSample, other.innerSample);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+
+        result = 31 * result + (this.int1 == null ? 0 : this.int1.hashCode());
+        result = 31 * result + (this.tinyint1 == null ? 0 : this.tinyint1.hashCode());
+        result = 31 * result + (this.smallint1 == null ? 0 : this.smallint1.hashCode());
+        result = 31 * result + (this.bigint1 == null ? 0 : this.bigint1.hashCode());
+        result = 31 * result + (this.boolean1 == null ? 0 : this.boolean1.hashCode());
+        result = 31 * result + (this.double1 == null ? 0 : this.double1.hashCode());
+        result = 31 * result + (this.string1 == null ? 0 : this.string1.hashCode());
+        result = 31 * result + (this.record == null ? 0 : this.record.hashCode());
+        result = 31 * result + (this.list1 == null ? 0 : this.list1.hashCode());
+        result = 31 * result + (this.map1 == null ? 0 : this.map1.hashCode());
+        result = 31 * result + (this.enum1 == null ? 0 : this.enum1.hashCode());
+        result = 31 * result + (this.nullableint == null ? 0 : this.nullableint.hashCode());
+        result = 31 * result + (this.bytes1 == null ? 0 : Arrays.hashCode(this.bytes1));
+        result = 31 * result + (this.container1 == null ? 0 : this.container1.hashCode());
+        result = 31 * result + (this.innerSample == null ? 0 : this.innerSample.hashCode());
+
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+            .add("int1", int1)
+            .add("tinyint1", tinyint1)
+            .add("smallint1", smallint1)
+            .add("bigint1", bigint1)
+            .add("boolean1", boolean1)
+            .add("double1", double1)
+            .add("string1", string1)
+            .add("record", record)
+            .add("list1", list1)
+            .add("map1", map1)
+            .add("enum1", enum1)
+            .add("nullableint", nullableint)
+            .add("bytes1", bytes1)
+            .add("container1", container1)
+            .add("innerSample", innerSample)
+            .toString();
+    }
 }

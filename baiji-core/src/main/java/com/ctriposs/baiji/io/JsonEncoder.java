@@ -137,7 +137,7 @@ public class JsonEncoder implements Encoder {
 
     @Override
     public void writeBytes(byte[] bytes) throws IOException {
-        out.writeBinary(bytes);
+        writeByteArray(bytes, 0, bytes.length);
     }
 
 

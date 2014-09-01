@@ -95,7 +95,7 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
                 case STRING:
                     return readString(datum);
                 case BYTES:
-                    return ByteBuffer.wrap(readBytes(datum));
+                    return readBytes(datum);
                 case RECORD:
                     RecordReader recordReader = new RecordReader((RecordSchema) schema);
                     return readRecord(datum, recordReader, (RecordSchema) schema);
