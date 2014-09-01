@@ -7,6 +7,7 @@ import com.ctriposs.baiji.schema.SchemaType;
 import com.ctriposs.baiji.schema.UnionSchema;
 import com.ctriposs.baiji.util.ClassUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +70,7 @@ public final class ObjectCreator {
             case STRING:
                 return String.class;
             case ARRAY:
-                return List.class;
+                return ArrayList.class;
             case MAP:
                 return Map.class;
             case ENUM:

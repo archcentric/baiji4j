@@ -10,6 +10,7 @@ import org.codehaus.jackson.util.MinimalPrettyPrinter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class JsonEncoder implements Encoder {
 
@@ -148,6 +149,7 @@ public class JsonEncoder implements Encoder {
     @Override
     public void writeArrayStart() throws IOException {
         out.writeStartArray();
+        push();
     }
 
     @Override
@@ -160,6 +162,13 @@ public class JsonEncoder implements Encoder {
     @Override
     public void startItem() throws IOException {
         counts[pos] --;
+    }
+
+    protected final void push() {
+        if (++pos == counts.length) {
+            counts = Arrays.copyOf(counts, pos + 10);
+        }
+        counts[pos] = 0;
     }
 
     @Override

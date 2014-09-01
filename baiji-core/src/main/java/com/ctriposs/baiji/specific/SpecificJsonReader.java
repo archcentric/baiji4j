@@ -278,6 +278,7 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
         try {
             constructor = objectCreator.getClass(schema).getConstructor(new Class[]{});
         } catch (NoSuchMethodException e) {
+            System.out.println("null pointer exception");
             return null;
         }
 

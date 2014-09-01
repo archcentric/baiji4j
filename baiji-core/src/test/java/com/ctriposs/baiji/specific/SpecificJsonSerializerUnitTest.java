@@ -10,6 +10,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.ctriposs.baiji.specific.TestSerializerSample.*;
 
@@ -62,6 +64,13 @@ public class SpecificJsonSerializerUnitTest {
     @Test
     public void testSerializeEnum() throws Exception {
         singleFieldTest("enum1", enum1_values.RED);
+    }
+
+    @Test
+    public void testSerializeArray() throws Exception {
+        List list = Arrays.asList("a", "b", "c");
+        System.out.println(list.size());
+        singleFieldTest("list1", list);
     }
 
     private void singleFieldTest(String fieldName, Object fieldValue) throws IOException {
