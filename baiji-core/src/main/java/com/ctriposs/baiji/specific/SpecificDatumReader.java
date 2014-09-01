@@ -7,6 +7,7 @@ import com.ctriposs.baiji.io.Decoder;
 import com.ctriposs.baiji.schema.*;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +45,7 @@ public class SpecificDatumReader<T> extends PreresolvingDatumReader<T> {
 
     @Override
     protected EnumAccess getEnumAccess(EnumSchema schema) {
-        return new SpecificEnumAccess();
+        return new SpecificEnumAccess(schema);
     }
 
     @Override
@@ -55,16 +56,34 @@ public class SpecificDatumReader<T> extends PreresolvingDatumReader<T> {
     @Override
     protected RecordAccess getRecordAccess(RecordSchema schema) {
         if (schema.getName() == null) {
-            // ipc support
             return new GenericDatumReader.GenericRecordAccess(schema);
         }
         return new SpecificRecordAccess(schema);
     }
 
     private static class SpecificEnumAccess implements EnumAccess {
+        private final Method _findByValueMethod;
+
+        public SpecificEnumAccess(EnumSchema schema) {
+            Class clazz = ObjectCreator.INSTANCE.getClass(schema);
+            try {
+                _findByValueMethod = clazz.getMethod("findByValue", int.class);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         @Override
         public Object createEnum(Object reuse, int ordinal) {
-            return ordinal;
+            Object value = null;
+            if (_findByValueMethod != null) {
+                try {
+                    value = _findByValueMethod.invoke(null, ordinal);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return value;
         }
     }
 
