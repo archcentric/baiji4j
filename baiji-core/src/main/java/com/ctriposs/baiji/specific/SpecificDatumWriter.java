@@ -47,29 +47,14 @@ public class SpecificDatumWriter<T> extends PreresolvingDatumWriter<T> {
 
     @Override
     protected ItemWriter resolveEnum(EnumSchema es) {
-        Class<?> clazz = ObjectCreator.INSTANCE.getClass(es);
-        Object[] enumValues = clazz.getEnumConstants();
-        Map<Object, Integer> translator = new HashMap<Object, Integer>(enumValues.length);
-        for (int i = 0; i < enumValues.length; i++) {
-            Object value = enumValues[i];
-            String symbol = value.toString();
-            if (es.contains(symbol)) {
-                translator.put(value, es.ordinal(symbol));
-            }
-        }
-
-        return new EnumItemWriter(es, clazz, translator);
+        return new EnumItemWriter(es);
     }
 
     private static class EnumItemWriter implements ItemWriter {
         private final EnumSchema _schema;
-        private final Class<?> _clazz;
-        private final Map<Object, Integer> _translator;
 
-        public EnumItemWriter(EnumSchema schema, Class<?> clazz, Map<Object, Integer> translator) {
+        public EnumItemWriter(EnumSchema schema) {
             _schema = schema;
-            _clazz = clazz;
-            _translator = translator;
         }
 
         @Override
@@ -77,15 +62,7 @@ public class SpecificDatumWriter<T> extends PreresolvingDatumWriter<T> {
             if (value == null) {
                 throw new BaijiTypeException("value is null in SpecificDatumWriter.EnumItemWriter.write");
             }
-            if (value.getClass() == _clazz) {
-                Integer translated = _translator.get(value);
-                if (translated == null) {
-                    throw new BaijiTypeException("Unknown enum value:" + value.toString());
-                }
-                encoder.writeEnum(translated);
-            } else {
-                encoder.writeEnum(_schema.ordinal(value.toString()));
-            }
+            encoder.writeEnum(_schema.ordinal(value.toString()));
         }
     }
 
