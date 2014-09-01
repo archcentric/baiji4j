@@ -81,6 +81,12 @@ public class SpecificJsonSerializerUnitTest {
         singleFieldTest("map1", map);
     }
 
+    @Test
+    public void testSerializeNullable() throws Exception {
+        singleFieldTest("nullableint", null);
+        singleFieldTest("nullableint", 1);
+    }
+
     private void singleFieldTest(String fieldName, Object fieldValue) throws IOException {
         TestSerializerSample sample = serializeAndDeserialize(fieldName, fieldValue);
         Assert.assertEquals(fieldValue, sample.get(fieldName));
