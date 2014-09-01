@@ -11,7 +11,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.ctriposs.baiji.specific.TestSerializerSample.*;
 
@@ -68,9 +69,16 @@ public class SpecificJsonSerializerUnitTest {
 
     @Test
     public void testSerializeArray() throws Exception {
-        List list = Arrays.asList("a", "b", "c");
-        System.out.println(list.size());
-        singleFieldTest("list1", list);
+        singleFieldTest("list1", Arrays.asList("a", "b", "c"));
+    }
+
+    @Test
+    public void testSerializeMap() throws Exception {
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        map.put("1a", 1);
+        map.put("2b", 2);
+        map.put("3c", 3);
+        singleFieldTest("map1", map);
     }
 
     private void singleFieldTest(String fieldName, Object fieldValue) throws IOException {

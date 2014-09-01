@@ -171,18 +171,28 @@ public class JsonEncoder implements Encoder {
         counts[pos] = 0;
     }
 
+    protected final void pop() {
+        if (counts[pos] != 0) {
+        }
+
+        pos--;
+    }
+
     @Override
     public void writeArrayEnd() throws IOException {
+        pop();
         out.writeEndArray();
     }
 
     @Override
     public void writeMapStart() throws IOException {
+        push();
         out.writeStartObject();
     }
 
     @Override
     public void writeMapEnd() throws IOException {
+        pop();
         out.writeEndObject();
     }
 

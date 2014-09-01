@@ -217,7 +217,7 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
 
         @Override
         public Object read(Object reuse) throws Exception {
-            return reuse == null ? reuse : constructor.newInstance();
+            return reuse == null ? constructor.newInstance() : reuse;
         }
 
         public void add(Object map, String key, Object value) {
