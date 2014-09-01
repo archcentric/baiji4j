@@ -6,9 +6,11 @@ import com.ctriposs.baiji.io.Decoder;
 import com.ctriposs.baiji.schema.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.TextNode;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +95,7 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
                 case STRING:
                     return readString(datum);
                 case BYTES:
-                    return readBytes(datum);
+                    return ByteBuffer.wrap(readBytes(datum));
                 case RECORD:
                     RecordReader recordReader = new RecordReader((RecordSchema) schema);
                     return readRecord(datum, recordReader, (RecordSchema) schema);
@@ -149,7 +151,7 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
         if (obj instanceof JsonNode && ((JsonNode) obj).isBinary()) {
             return ((JsonNode) obj).getBinaryValue();
         } else {
-            return ((String) obj).getBytes();
+            return ((TextNode) obj).getTextValue().getBytes();
         }
     }
 

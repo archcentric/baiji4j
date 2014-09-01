@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import static com.ctriposs.baiji.specific.TestSerializerSample.*;
 
@@ -55,7 +56,7 @@ public class SpecificJsonSerializerUnitTest {
 
     @Test
     public void testSerializeBytes() throws Exception {
-        singleFieldTest("bytes1", "beepboop".getBytes());
+        singleFieldTest("bytes1", ByteBuffer.wrap("beepboop".getBytes()));
     }
 
     @Test
