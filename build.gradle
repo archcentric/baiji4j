@@ -67,6 +67,14 @@ project(':baiji-rpc-common') {
     }
 }
 
+project(':baiji-rpc-client') {
+    dependencies {
+        compile project(':baiji-core')
+        compile project(':baiji-rpc-common')
+        compile 'org.apache.httpcomponents:httpclient:4.3.5'
+    }
+}
+
 project(':baiji-rpc-server') {
     dependencies {
         compile project(':baiji-core')
