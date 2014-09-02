@@ -1,10 +1,12 @@
 package com.ctriposs.baiji.specific;
 
-import java.util.*;
-import com.ctriposs.baiji.exception.*;
-import com.ctriposs.baiji.schema.*;
-import com.ctriposs.baiji.specific.*;
+import com.ctriposs.baiji.exception.BaijiRuntimeException;
+import com.ctriposs.baiji.schema.Schema;
 import com.google.common.base.Objects;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("all")
 public class TestSerializerSample extends SpecificRecordBase implements SpecificRecord {

@@ -13,8 +13,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.ctriposs.baiji.specific.TestSerializerSample.*;
-
 public class SpecificJsonSerializerUnitTest {
 
     private SpecificJsonWriter<TestSerializerSample> writer;
@@ -22,8 +20,8 @@ public class SpecificJsonSerializerUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        writer = new SpecificJsonWriter<TestSerializerSample>(SCHEMA);
-        reader = new SpecificJsonReader<TestSerializerSample>(SCHEMA);
+        writer = new SpecificJsonWriter<TestSerializerSample>(TestSerializerSample.SCHEMA);
+        reader = new SpecificJsonReader<TestSerializerSample>(TestSerializerSample.SCHEMA);
     }
 
     @Test
@@ -92,7 +90,7 @@ public class SpecificJsonSerializerUnitTest {
 
         // First serialize
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        writer.write(record, new JsonEncoder(SCHEMA, os));
+        writer.write(record, new JsonEncoder(TestSerializerSample.SCHEMA, os));
 
         // Convert the output-stream to input-stream
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());

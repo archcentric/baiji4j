@@ -24,8 +24,6 @@ public class SpecificJsonWriter<T> {
     private static final String CHARSET = "ISO-8859-1";
 
     private Schema root;
-    private JsonGenerator out;
-
 
     public SpecificJsonWriter(Schema root) {
         this.root = root;
@@ -38,28 +36,6 @@ public class SpecificJsonWriter<T> {
     public void write(T datum, Encoder out) throws IOException {
         writeRecord(root, datum, out);
     }
-
-    /*private static JsonGenerator getJsonGenerator(OutputStream out, boolean pretty) throws IOException {
-        if (null == out)
-            throw new NullPointerException("OutputStream can't be null");
-        JsonGenerator g = new JsonFactory().createJsonGenerator(out, JsonEncoding.UTF8);
-        if (pretty) {
-            DefaultPrettyPrinter pp = new DefaultPrettyPrinter() {
-                //@Override
-                public void writeRootValueSeparator(JsonGenerator jg)
-                        throws IOException
-                {
-                    jg.writeRaw(LINE_SEPARATOR);
-                }
-            };
-            g.setPrettyPrinter(pp);
-        } else {
-            MinimalPrettyPrinter pp = new MinimalPrettyPrinter();
-            pp.setRootValueSeparator(LINE_SEPARATOR);
-            g.setPrettyPrinter(pp);
-        }
-        return g;
-    }*/
 
     /** Called to write data.*/
     protected void write(Schema schema,Object datum, JsonEncoder out) throws IOException {
@@ -90,7 +66,7 @@ public class SpecificJsonWriter<T> {
                     out.writeNull();
                     break;
                 case RECORD:
-                    writeRecord(schema, datum, out);
+                    writeInnerRecord(schema, datum, out);
                     break;
                 case ENUM:
                     writeEnum(schema, datum, out);
@@ -125,6 +101,20 @@ public class SpecificJsonWriter<T> {
         }
         jsonEncoder.writeEndObject();
         jsonEncoder.flush();
+    }
+
+    protected void writeInnerRecord(Schema schema, Object datum, Encoder out) throws IOException {
+        JsonEncoder jsonEncoder = (JsonEncoder) out;
+        RecordSchema recordSchema = (RecordSchema) schema;
+        jsonEncoder.writeStartObject();
+        for (Field field : recordSchema.getFields()) {
+            Object value = ((SpecificRecord) datum).get(field.getPos());
+            if (value == null)
+                continue;
+            jsonEncoder.writeFieldName(field.getName());
+            writeFieldValue(value, field, jsonEncoder);
+        }
+        jsonEncoder.writeEndObject();
     }
 
     /** Called to write a single field of a record.*/

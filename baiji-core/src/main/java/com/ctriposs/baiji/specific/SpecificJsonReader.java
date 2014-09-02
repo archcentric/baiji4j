@@ -6,6 +6,7 @@ import com.ctriposs.baiji.io.Decoder;
 import com.ctriposs.baiji.schema.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.node.TextNode;
 
 import java.io.IOException;
@@ -59,15 +60,28 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
 
     /** Called to read a record.*/
     protected Object readRecord(Object reuse, JsonReadable recordReader, RecordSchema recordSchema) throws Exception {
-        reuse = recordReader.read(reuse);
+        Object r = recordReader.read(reuse);
         for (Field field : recordSchema.getFields()) {
             if (jsonNode.has(field.getName())) {
                 Object value = readField(field.getSchema(), jsonNode.get(field.getName()));
-                put(reuse, field.getPos(), value);
+                put(r, field.getPos(), value);
             }
         }
 
-        return reuse;
+        return r;
+    }
+
+    /** Called to read the inner record.*/
+    protected Object readInnerRecord(Object reuse, JsonReadable recordReader, RecordSchema recordSchema) throws Exception {
+        Object obj = recordReader.read(null);
+        for (Field field : recordSchema.getFields()) {
+            if (((ObjectNode) reuse).has(field.getName())) {
+                Object value = readField(field.getSchema(), ((ObjectNode) reuse).get(field.getName()));
+                put(obj, field.getPos(), value);
+            }
+        }
+
+        return obj;
     }
 
     protected void put(Object obj, int fieldPos, Object fieldValue) {
@@ -100,7 +114,7 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
                     return readBytes(datum);
                 case RECORD:
                     RecordReader recordReader = new RecordReader((RecordSchema) schema);
-                    return readRecord(datum, recordReader, (RecordSchema) schema);
+                    return readInnerRecord(datum, recordReader, (RecordSchema) schema);
                 case MAP:
                     MapSchema mapSchema = (MapSchema) schema;
                     return readMap(datum, mapSchema);
@@ -154,12 +168,7 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
         if (obj instanceof JsonNode && ((JsonNode) obj).isBinary()) {
             return ((JsonNode) obj).getBinaryValue();
         } else {
-            byte[] bytes3 = ((TextNode) obj).asText().getBytes(CHARSET);
-            byte[] bytes = ((TextNode) obj).getBinaryValue();
-            byte[] bytes1 = ((TextNode) obj).getTextValue().getBytes(CHARSET);
-            byte[] bytes2 = ((TextNode) obj).getTextValue().getBytes();
-            //return ((TextNode) obj).getTextValue().getBytes(CHARSET);
-            return bytes1;
+            return ((TextNode) obj).getTextValue().getBytes(CHARSET);
         }
     }
 
