@@ -7,6 +7,7 @@ import com.ctriposs.baiji.io.Decoder;
 import com.ctriposs.baiji.schema.*;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,6 +69,7 @@ public class SpecificDatumReader<T> extends PreresolvingDatumReader<T> {
             Class clazz = ObjectCreator.INSTANCE.getClass(schema);
             try {
                 _findByValueMethod = clazz.getMethod("findByValue", int.class);
+                _findByValueMethod.setAccessible(true);
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException(e);
             }
@@ -89,15 +91,23 @@ public class SpecificDatumReader<T> extends PreresolvingDatumReader<T> {
 
     private static class SpecificRecordAccess implements RecordAccess {
         private final Class<?> _clazz;
+        private Constructor<?> _ctor;
 
         public SpecificRecordAccess(RecordSchema schema) {
             _clazz = ObjectCreator.INSTANCE.getClass(schema);
+            try {
+                _ctor = _clazz != null ? _clazz.getDeclaredConstructor() : null;
+            } catch (NoSuchMethodException e) {
+            }
+            if (_ctor != null) {
+                _ctor.setAccessible(true);
+            }
         }
 
         @Override
         public Object createRecord(Object reuse) {
             try {
-                return reuse != null ? reuse : _clazz.newInstance();
+                return reuse != null ? reuse : (_ctor != null ? _ctor.newInstance() : null);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
