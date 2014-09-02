@@ -16,8 +16,6 @@ subprojects {
 
     group = "com.ctriposs.baiji"
 
-    sourceSets.test.java.srcDirs 'src/main/java'
-
     tasks.withType(Javadoc).each {
         it.classpath = sourceSets.main.compileClasspath
     }
