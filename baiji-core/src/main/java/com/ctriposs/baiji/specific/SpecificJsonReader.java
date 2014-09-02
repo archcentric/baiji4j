@@ -17,6 +17,8 @@ import java.util.Map;
 
 public class SpecificJsonReader<T> implements DatumReader<T> {
 
+    static final String CHARSET = "ISO-8859-1";
+
     private Schema root;
     private JsonNode jsonNode;
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -148,10 +150,16 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
     }
 
     private byte[] readBytes(Object obj) throws IOException {
+
         if (obj instanceof JsonNode && ((JsonNode) obj).isBinary()) {
             return ((JsonNode) obj).getBinaryValue();
         } else {
-            return ((TextNode) obj).getTextValue().getBytes();
+            byte[] bytes3 = ((TextNode) obj).asText().getBytes(CHARSET);
+            byte[] bytes = ((TextNode) obj).getBinaryValue();
+            byte[] bytes1 = ((TextNode) obj).getTextValue().getBytes(CHARSET);
+            byte[] bytes2 = ((TextNode) obj).getTextValue().getBytes();
+            //return ((TextNode) obj).getTextValue().getBytes(CHARSET);
+            return bytes1;
         }
     }
 
