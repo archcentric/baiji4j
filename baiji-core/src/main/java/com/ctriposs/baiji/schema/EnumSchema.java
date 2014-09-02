@@ -115,7 +115,7 @@ public class EnumSchema extends NamedSchema implements Iterable<String> {
                 symbol = symbolNode.getTextValue();
                 JsonNode valueNode = symbolObj.get("value");
                 if (valueNode != null) {
-                    if (valueNode.isInt()) {
+                    if (!valueNode.isInt()) {
                         throw new SchemaParseException("Only integer value is allowed for an enum symbol: " + jsymbol);
                     }
                     explicitValue = valueNode.getIntValue();
