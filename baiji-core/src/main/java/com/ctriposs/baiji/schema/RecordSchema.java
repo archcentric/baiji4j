@@ -9,7 +9,6 @@ import java.util.*;
 
 public class RecordSchema extends NamedSchema implements Iterable<Field> {
 
-
     private final List<Field> _fields;
 
     private final Map<String, Field> _fieldLookup;
@@ -309,7 +308,6 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
         return _fields.iterator();
     }
 
-
     private static class RecordSchemaPair {
         public final RecordSchema _first;
         public final RecordSchema _second;
@@ -329,6 +327,11 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
             }
             RecordSchemaPair that = (RecordSchemaPair) obj;
             return that._first == _first && that._second == _second;
+        }
+
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(_first) + System.identityHashCode(_second);
         }
     }
 }

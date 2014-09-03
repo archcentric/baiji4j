@@ -251,9 +251,9 @@ public abstract class Schema {
      *
      * @param gen      JSON generator
      * @param names    list of named schemas already written
-     * @param encspace enclosing namespace of the schema
+     * @param encSpace enclosing namespace of the schema
      */
-    protected void writeJsonFields(JsonGenerator gen, SchemaNames names, String encspace) throws IOException {
+    protected void writeJsonFields(JsonGenerator gen, SchemaNames names, String encSpace) throws IOException {
     }
 
     public boolean equals(Object o) {

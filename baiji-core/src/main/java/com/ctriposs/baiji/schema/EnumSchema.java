@@ -2,9 +2,11 @@ package com.ctriposs.baiji.schema;
 
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.util.ObjectUtils;
+import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
 
+import java.io.IOException;
 import java.util.*;
 
 public class EnumSchema extends NamedSchema implements Iterable<String> {
@@ -168,7 +170,7 @@ public class EnumSchema extends NamedSchema implements Iterable<String> {
      *
      * @param value symbol value
      * @return The symbol name corresponding to the given value.
-     *         If there are multiple symbols associated with the given value, the first one in the list will be returned.
+     * If there are multiple symbols associated with the given value, the first one in the list will be returned.
      */
     public String get(int value) {
         for (Map.Entry<String, Integer[]> entry : _symbolMap.entrySet()) {
@@ -187,6 +189,23 @@ public class EnumSchema extends NamedSchema implements Iterable<String> {
      */
     public boolean contains(String symbol) {
         return _symbolMap.containsKey(symbol);
+    }
+
+    /**
+     * Default implementation for writing schema properties in JSON format
+     *
+     * @param gen      JSON generator
+     * @param names    list of named schemas already written
+     * @param encSpace enclosing namespace of the schema
+     */
+    protected void writeJsonFields(JsonGenerator gen, SchemaNames names, String encSpace) throws IOException {
+        super.writeJsonFields(gen, names, encSpace);
+        gen.writeFieldName("symbols");
+        gen.writeStartArray();
+        for (String s : _symbols) {
+            gen.writeString(s);
+        }
+        gen.writeEndArray();
     }
 
     @Override
