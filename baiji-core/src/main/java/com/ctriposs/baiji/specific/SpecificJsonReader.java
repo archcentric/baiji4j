@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class SpecificJsonReader<T> implements DatumReader<T> {
+public class SpecificJsonReader<T> {
 
     static final String CHARSET = "ISO-8859-1";
 
@@ -28,14 +28,8 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
         this.root = schema;
     }
 
-    @Override
     public Schema getSchema() {
         return root;
-    }
-
-    @Override
-    public T read(T reuse, Decoder in) throws IOException {
-        return null;
     }
 
     /**
@@ -54,7 +48,7 @@ public class SpecificJsonReader<T> implements DatumReader<T> {
                 throw new BaijiRuntimeException(e);
             }
         } else {
-            throw new BaijiRuntimeException("");
+            throw new BaijiRuntimeException("schema wrong");
         }
     }
 

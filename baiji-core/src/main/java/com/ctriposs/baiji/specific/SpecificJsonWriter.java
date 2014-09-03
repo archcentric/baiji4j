@@ -1,27 +1,15 @@
 package com.ctriposs.baiji.specific;
 
-import com.ctriposs.baiji.generic.DatumWriter;
 import com.ctriposs.baiji.io.Encoder;
 import com.ctriposs.baiji.io.JsonEncoder;
 import com.ctriposs.baiji.schema.*;
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.util.DefaultPrettyPrinter;
-import org.codehaus.jackson.util.MinimalPrettyPrinter;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class SpecificJsonWriter<T> {
-
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
-    private static final String CHARSET = "ISO-8859-1";
 
     private Schema root;
 
@@ -33,12 +21,13 @@ public class SpecificJsonWriter<T> {
         return root;
     }
 
+    /** The only write interface.*/
     public void write(T datum, Encoder out) throws IOException {
         writeRecord(root, datum, out);
     }
 
     /** Called to write data.*/
-    protected void write(Schema schema,Object datum, JsonEncoder out) throws IOException {
+    protected void write(Schema schema, Object datum, JsonEncoder out) throws IOException {
         try {
             switch (schema.getType()) {
                 case INT:
@@ -103,6 +92,8 @@ public class SpecificJsonWriter<T> {
         jsonEncoder.flush();
     }
 
+    /** Called to write inner record.*/
+    //TODO:NECESSARY?
     protected void writeInnerRecord(Schema schema, Object datum, Encoder out) throws IOException {
         JsonEncoder jsonEncoder = (JsonEncoder) out;
         RecordSchema recordSchema = (RecordSchema) schema;
@@ -158,10 +149,6 @@ public class SpecificJsonWriter<T> {
     protected void writeEnum(Schema schema, Object datum, JsonEncoder out) throws IOException {
         EnumSchema enumSchema = (EnumSchema) schema;
         String value = enumSchema.get(((Enum) datum).ordinal());
-        int[] values = new int[enumSchema.size()];
-        for (String symbol : enumSchema.getSymbols()) {
-            values[enumSchema.ordinal(symbol)] = enumSchema.ordinal(symbol);
-        }
         out.writeString(value);
     }
 

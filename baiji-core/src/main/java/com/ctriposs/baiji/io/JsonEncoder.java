@@ -117,21 +117,7 @@ public class JsonEncoder implements Encoder {
         out.writeString(str);
     }
 
-    public void writeBytes(ByteBuffer byteBuffer) throws IOException {
-        if (byteBuffer.hasArray()) {
-            writeBytes(byteBuffer.array(), byteBuffer.position(), byteBuffer.remaining());
-        } else {
-            byte[] b = new byte[byteBuffer.remaining()];
-            byteBuffer.duplicate().get(b);
-            writeBytes(b, 0, b.length);
-        }
-    }
-
-    public void writeBytes(byte[] bytes, int start, int len) throws IOException {
-        writeByteArray(bytes, start, len);
-    }
-
-    public void writeByteArray(byte[] bytes, int start, int len) throws IOException {
+    protected void writeByteArray(byte[] bytes, int start, int len) throws IOException {
         out.writeString(new String(bytes, start, len, JsonEncoder.CHARSET));
     }
 
