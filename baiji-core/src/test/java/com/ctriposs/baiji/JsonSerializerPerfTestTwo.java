@@ -32,7 +32,9 @@ public class JsonSerializerPerfTestTwo {
 
         try {
             countDownLatch.await();
-        } catch (InterruptedException e) {/**/}
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     class Serializer implements Runnable {
@@ -47,29 +49,17 @@ public class JsonSerializerPerfTestTwo {
         public void run() {
             long tid = Thread.currentThread().getId();
             int loop = 10;
-            InputStream is = null;
-            OutputStream os = null;
 
             for (int i = 0; i < loop; i++) {
-                try {
+                try (OutputStream os = new ByteArrayOutputStream()) {
                     TestSerializerSample expected = createSample(tid + i);
-                    os = new ByteArrayOutputStream();
                     serializer.serialize(expected, os);
-                    is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
+                    InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
                     TestSerializerSample actual = serializer.deserialize(TestSerializerSample.class, is);
                     checkStatus(expected, actual);
                     Assert.assertEquals((long)actual.bigint1, tid + i);
-                } catch (IOException e) {/**/} finally {
-                    if (os != null) {
-                        try {
-                            os.close();
-                        } catch (IOException e) {/**/}
-                    }
-                    if (is != null) {
-                        try {
-                            is.close();
-                        } catch (IOException e) {/**/}
-                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
 
