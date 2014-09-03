@@ -16,20 +16,27 @@ import java.util.concurrent.ConcurrentMap;
 public class JsonSerializer implements Serializer {
 
     private static final ConcurrentMap<Class<?>, SpecificJsonReader> _readerCache =
-            new ConcurrentHashMap<Class<?>, SpecificJsonReader>();
+            new ConcurrentHashMap<>();
 
     private static final ConcurrentMap<Class<?>, SpecificJsonWriter> _writerCache =
-            new ConcurrentHashMap<Class<?>, SpecificJsonWriter>();
+            new ConcurrentHashMap<>();
 
     @Override
     public <T extends SpecificRecord> void serialize(T obj, OutputStream stream) throws IOException {
         SpecificJsonWriter<T> writer = getWriter(obj);
-        writer.write(obj, new JsonEncoder(obj.getSchema(), stream));
+        writer.writeR(obj.getSchema(), obj, new JsonEncoder(obj.getSchema(), stream));
     }
 
     @Override
     public <T extends SpecificRecord> T deserialize(Class<T> objClass, InputStream stream) throws IOException {
         SpecificJsonReader<T> reader = (SpecificJsonReader) getReader(objClass);
+        /*SpecificRecord record;
+        try {
+            record = objClass.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        SpecificJsonReader<T> reader = new SpecificJsonReader<>();*/
         return reader.read(null, readStream(stream));
     }
 
@@ -37,7 +44,7 @@ public class JsonSerializer implements Serializer {
         Class clazz = obj.getClass();
         SpecificJsonWriter<T> writer = _writerCache.get(clazz);
         if (writer == null) {
-            writer = new SpecificJsonWriter<T>(obj.getSchema());
+            writer = new SpecificJsonWriter<>();
             SpecificJsonWriter<T> existedWriter = _writerCache.putIfAbsent(clazz, writer);
             if (existedWriter != null) {
                 writer = existedWriter;

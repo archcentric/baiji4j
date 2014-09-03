@@ -13,16 +13,11 @@ import java.util.concurrent.CountDownLatch;
 
 public class JsonSerializerPerfTestTwo {
 
-    JsonSerializer serializer;
-
-    @Before
-    public void setUp() throws Exception {
-        serializer = new JsonSerializer();
-    }
+    private static JsonSerializer serializer = new JsonSerializer();
 
     @Test
     public void testMultiThreadSerialize() throws Exception {
-        final int threadNumber = 1;
+        final int threadNumber = 10;
         final CountDownLatch countDownLatch = new CountDownLatch(threadNumber);
         for (int i = 0; i < threadNumber; i++) {
             Serializer ser = new Serializer(countDownLatch);
@@ -52,13 +47,13 @@ public class JsonSerializerPerfTestTwo {
 
             for (int i = 0; i < loop; i++) {
                 try (OutputStream os = new ByteArrayOutputStream()) {
-                    TestSerializerSample expected = createSample(tid);
+                    TestSerializerSample expected = createSample(tid + i);
                     serializer.serialize(expected, os);
                     InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
                     TestSerializerSample actual = serializer.deserialize(TestSerializerSample.class, is);
                     checkStatus(expected, actual);
-                    //Assert.assertEquals((long)actual.bigint1, tid + i);
-                } catch (IOException e) {
+                    Assert.assertEquals((long)actual.bigint1, tid + i);
+                } catch (Throwable e) {
                     e.printStackTrace();
                 }
             }

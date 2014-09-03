@@ -11,19 +11,9 @@ import java.util.Map;
 
 public class SpecificJsonWriter<T> {
 
-    private Schema root;
-
-    public SpecificJsonWriter(Schema root) {
-        this.root = root;
-    }
-
-    public Schema getSchema() {
-        return root;
-    }
-
     /** The only write interface.*/
-    public void write(T datum, Encoder out) throws IOException {
-        writeRecord(root, datum, out);
+    public void writeR(Schema schema, T datum, Encoder out) throws IOException {
+        writeRecord(schema, datum, out);
     }
 
     /** Called to write data.*/

@@ -21,7 +21,6 @@ public class SpecificJsonReader<T> {
     static final String CHARSET = "ISO-8859-1";
 
     private Schema root;
-    private JsonNode jsonNode;
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public SpecificJsonReader(Schema schema) {
@@ -39,11 +38,11 @@ public class SpecificJsonReader<T> {
      * @return a record instance
      */
     public T read(T reuse, String source) throws IOException {
-        jsonNode = objectMapper.readTree(source);
+        JsonNode jsonNode = objectMapper.readTree(source);
         if (root instanceof RecordSchema) {
             RecordSchema recordSchema = (RecordSchema) root;
             try {
-                return (T) readRecord(reuse, new RecordReader(recordSchema), recordSchema);
+                return (T) readRecord(jsonNode, reuse, new RecordReader(recordSchema), recordSchema);
             } catch (Exception e) {
                 throw new BaijiRuntimeException(e);
             }
@@ -53,11 +52,11 @@ public class SpecificJsonReader<T> {
     }
 
     /** Called to read a record.*/
-    protected Object readRecord(Object reuse, JsonReadable recordReader, RecordSchema recordSchema) throws Exception {
+    protected Object readRecord(JsonNode node, Object reuse, JsonReadable recordReader, RecordSchema recordSchema) throws Exception {
         Object r = recordReader.read(reuse);
         for (Field field : recordSchema.getFields()) {
-            if (jsonNode.has(field.getName())) {
-                Object value = readField(field.getSchema(), jsonNode.get(field.getName()));
+            if (node.has(field.getName())) {
+                Object value = readField(field.getSchema(), node.get(field.getName()));
                 put(r, field.getPos(), value);
             }
         }

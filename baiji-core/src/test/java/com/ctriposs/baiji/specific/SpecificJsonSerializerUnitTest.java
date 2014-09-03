@@ -20,8 +20,8 @@ public class SpecificJsonSerializerUnitTest {
 
     @Before
     public void setUp() throws Exception {
-        writer = new SpecificJsonWriter<TestSerializerSample>(TestSerializerSample.SCHEMA);
-        reader = new SpecificJsonReader<TestSerializerSample>(TestSerializerSample.SCHEMA);
+        writer = new SpecificJsonWriter<>();
+        reader = new SpecificJsonReader<>(TestSerializerSample.SCHEMA);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class SpecificJsonSerializerUnitTest {
 
         // First serialize
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        writer.write(record, new JsonEncoder(TestSerializerSample.SCHEMA, os));
+        writer.writeR(record.getSchema(), record, new JsonEncoder(TestSerializerSample.SCHEMA, os));
 
         // Convert the output-stream to input-stream
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
