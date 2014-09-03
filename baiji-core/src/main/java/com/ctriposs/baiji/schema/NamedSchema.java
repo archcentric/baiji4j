@@ -111,6 +111,33 @@ public abstract class NamedSchema extends Schema {
     }
 
     /**
+     * Writes named schema in JSON format
+     *
+     * @param gen      JSON generator
+     * @param names    list of named schemas already written
+     * @param encSpace enclosing namespace of the schema
+     */
+    @Override
+    protected void writeJsonFields(JsonGenerator gen, SchemaNames names, String encSpace) throws IOException {
+        _schemaName.writeJson(gen, names);
+
+        if (_doc != null && !_doc.isEmpty()) {
+            gen.writeFieldName("doc");
+            gen.writeString(_doc);
+        }
+
+        if (_aliases != null) {
+            gen.writeFieldName("aliases");
+            gen.writeStartArray();
+            for (SchemaName name : _aliases) {
+                String fullname = name.getSpace() != null ? name.getSpace() + "." + name.getName() : name.getName();
+                gen.writeString(fullname);
+            }
+            gen.writeEndArray();
+        }
+    }
+
+    /**
      * Parses the 'aliases' property from the given JSON token
      *
      * @param node     JSON object to read
@@ -124,13 +151,13 @@ public abstract class NamedSchema extends Schema {
             return null;
         }
 
-        if (aliasesNode.isArray()) {
+        if (!aliasesNode.isArray()) {
             throw new SchemaParseException("Aliases must be of format JSON array of strings");
         }
 
         List<SchemaName> aliases = new ArrayList<SchemaName>();
         for (JsonNode aliasNode : aliasesNode) {
-            if (aliasNode.isTextual()) {
+            if (!aliasNode.isTextual()) {
                 throw new SchemaParseException("Aliases must be of format JSON array of strings");
             }
 

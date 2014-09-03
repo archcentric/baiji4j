@@ -59,7 +59,7 @@ public class PropertyMap extends HashMap<String, String> {
         }
 
         String oldValue = get(key);
-        if (oldValue != null)
+        if (oldValue == null)
         {
            return super.put(key, value);
         }
