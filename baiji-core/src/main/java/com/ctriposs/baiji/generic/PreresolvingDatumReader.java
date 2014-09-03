@@ -96,6 +96,7 @@ public abstract class PreresolvingDatumReader<T> implements DatumReader<T> {
         RecordAccess recordAccess = getRecordAccess(schema);
         List<FieldReader> fieldReaders = new ArrayList<FieldReader>();
         recordReader = new RecordReader(recordAccess, fieldReaders);
+        _recordReaders.put(schema, recordReader);
 
         for (Field field : schema) {
             ItemReader itemReader = resolveReader(field.getSchema());
