@@ -62,6 +62,9 @@ public class JsonSerializerPerfTestThree {
             results.add(future.get());
         }
 
+        // shutdown the thread pool
+        executorService.shutdown();
+
         long[] result = readResults(results);
         System.out.println("parse 50 records (" + loop + " loops, " + threadNumber + " threads) : " + result[0] / 50 + " (min) ms/op");
         System.out.println("parse 50 records (" + loop + " loops, " + threadNumber + " threads) : " + result[1] / 50 + " (max) ms/op");
