@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public class SchemaTestBasicValid extends SchemaTestBase {
+public class SchemaTestBasic extends SchemaTestBase {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
@@ -41,18 +41,27 @@ public class SchemaTestBasicValid extends SchemaTestBase {
                 new Object[]{"{ \"type\": \"double\" }", true},
                 new Object[]{"{ \"type\": \"bytes\" }", true},
                 new Object[]{"{ \"type\": \"string\" }", true},
+
                 // Record
                 new Object[]{"{\"type\": \"record\",\"name\": \"Test\",\"fields\": [{\"name\": \"f\",\"type\": \"long\"}]}", true},
                 new Object[]{"{\"type\": \"record\",\"name\": \"Test\",\"fields\": " +
-                        "[{\"name\": \"f1\",\"type\": \"long\", true},{\"name\": \"f2\", \"type\": \"int\"}]}", true},
+                        "[{\"name\": \"f1\",\"type\": \"long\"},{\"name\": \"f2\", \"type\": \"int\"}]}", true},
                 new Object[]{"{\"type\": \"error\",\"name\": \"Test\",\"fields\": " +
-                        "[{\"name\": \"f1\",\"type\": \"long\", true},{\"name\": \"f2\", \"type\": \"int\"}]}", true},
+                        "[{\"name\": \"f1\",\"type\": \"long\"},{\"name\": \"f2\", \"type\": \"int\"}]}", true},
                 new Object[]{"{\"type\":\"record\",\"name\":\"LongList\"," +
-                        "\"fields\":[{\"name\":\"value\",\"type\":\"long\", true},{\"name\":\"next\",\"type\":[\"LongList\",\"null\"]}]}"
+                        "\"fields\":[{\"name\":\"value\",\"type\":\"long\"},{\"name\":\"next\",\"type\":[\"LongList\",\"null\"]}]}"
                         , true}, // Recursive.
+                new Object[]{"{\"type\":\"record\",\"name\":\"LongList\"," +
+                        "\"fields\":[{\"name\":\"value\",\"type\":\"long\"},{\"name\":\"next\",\"type\":[\"LongListA\",\"null\"]}]}", false},
+                new Object[]{"{\"type\":\"record\",\"name\":\"LongList\"}", false},
+                new Object[]{"{\"type\":\"record\",\"name\":\"LongList\", \"fields\": \"hi\"}", false},
 
                 // Enum
                 new Object[]{"{\"type\": \"enum\", \"name\": \"Test\", \"symbols\": [\"A\", \"B\"]}", true},
+                new Object[]{"{\"type\": \"enum\", \"name\": \"Status\", \"symbols\": \"Normal Caution Critical\"}", false},
+                new Object[]{"{\"type\": \"enum\", \"name\": [ 0, 1, 1, 2, 3, 5, 8 }, \"symbols\": [\"Golden\", \"Mean\"]}", false},
+                new Object[]{"{\"type\": \"enum\", \"symbols\" : [\"I\", \"will\", \"fail\", \"no\", \"name\"]}", false},
+                new Object[]{"{\"type\": \"enum\", \"name\": \"Test\", \"symbols\" : [\"AA\", \"AA\"]}", false},
 
                 // Array
                 new Object[]{"{\"type\": \"array\", \"items\": \"long\"}", true},
@@ -66,14 +75,15 @@ public class SchemaTestBasicValid extends SchemaTestBase {
 
                 // Union
                 new Object[]{"[\"string\", \"null\", \"long\"]", true},
-                new Object[]{"[\"string\", \"long\", \"long\"]", true}
+                new Object[]{"[\"string\", \"long\", \"long\"]", false},
+                new Object[]{"[{\"type\": \"array\", \"items\": \"long\"}, {\"type\": \"array\", \"items\": \"string\"}]", false},
         });
     }
 
     private final String _schema;
     private final boolean _valid;
 
-    public SchemaTestBasicValid(String schema, boolean valid) {
+    public SchemaTestBasic(String schema, boolean valid) {
         _schema = schema;
         _valid = valid;
     }
@@ -84,6 +94,9 @@ public class SchemaTestBasicValid extends SchemaTestBase {
             Schema.parse(_schema);
             Assert.assertTrue(_valid);
         } catch (SchemaParseException ex) {
+            if (_valid) {
+                ex.printStackTrace();
+            }
             Assert.assertFalse(_valid);
         }
     }
