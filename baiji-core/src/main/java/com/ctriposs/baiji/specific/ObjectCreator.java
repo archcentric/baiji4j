@@ -27,9 +27,9 @@ public final class ObjectCreator {
     private Class<?> findClass(String name, boolean throwError) {
         // Modify provided type to ensure it can be discovered.
         // This is mainly for Generics
-        name = name.replace("List", "java.util.ArrayList");
+       /* name = name.replace("List", "java.util.ArrayList");
         name = name.replace("Map", "java.util.HashMap");
-        name = name.replaceAll("<.+>", "");
+        name = name.replaceAll("<.+>", "");*/
 
         Class<?> clazz = null;
         try {

@@ -19,7 +19,7 @@ public class JsonSerializerPerfTest {
         serializer = new JsonSerializer();
     }
 
-    /*@Test
+    @Test
     public void testDeserialize_10tiny() throws Exception {
         testDeserialize("/t10records.json", 10, 5, "with tiny data");
     }
@@ -42,7 +42,7 @@ public class JsonSerializerPerfTest {
     @Test
     public void testDeserialize_50big() throws Exception {
         testDeserialize("/b50records.json", 50, 5, "with big data");
-    }*/
+    }
 
     @Test
     public void testDeserialize_300big() throws Exception {
