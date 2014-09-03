@@ -140,17 +140,17 @@ public class Field {
             return null;
         }
 
-        if (aliasesNode.isArray()) {
+        if (!aliasesNode.isArray()) {
             throw new SchemaParseException("Aliases must be of format JSON array of strings");
         }
 
         List<String> aliases = new ArrayList<String>();
         for (JsonNode aliasNode : aliasesNode) {
-            if (aliasNode.isTextual()) {
+            if (!aliasNode.isTextual()) {
                 throw new SchemaParseException("Aliases must be of format JSON array of strings");
             }
 
-            aliases.add(aliasesNode.getTextValue());
+            aliases.add(aliasNode.getTextValue());
         }
         return aliases;
     }

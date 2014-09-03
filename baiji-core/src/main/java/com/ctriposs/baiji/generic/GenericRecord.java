@@ -2,6 +2,7 @@ package com.ctriposs.baiji.generic;
 
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.schema.RecordSchema;
+import com.ctriposs.baiji.util.ObjectUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +12,6 @@ public class GenericRecord {
     private final RecordSchema _schema;
 
     private final Map<String, Object> _contents = new HashMap<String, Object>();
-
 
     public GenericRecord(RecordSchema schema) {
         _schema = schema;
@@ -41,7 +41,7 @@ public class GenericRecord {
             return false;
         }
         GenericRecord other = (GenericRecord) obj;
-        return _schema.equals(other._schema) && _contents.equals(other._contents);
+        return _schema.equals(other._schema) && ObjectUtils.equals(_contents, other._contents);
     }
 
     @Override

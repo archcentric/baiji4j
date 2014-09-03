@@ -9,7 +9,6 @@ import java.util.*;
 
 public class RecordSchema extends NamedSchema implements Iterable<Field> {
 
-
     private final List<Field> _fields;
 
     private final Map<String, Field> _fieldLookup;
@@ -27,12 +26,12 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
     /**
      * Constructor for the record schema
      *
-     * @param name          name of the record schema
+     * @param name    name of the record schema
      * @param doc
-     * @param aliases       list of aliases for the record name
+     * @param aliases list of aliases for the record name
      * @param props
-     * @param fields        list of fields for the record
-     * @param request       true if this is an anonymous record with 'request' instead of 'fields'
+     * @param fields  list of fields for the record
+     * @param request true if this is an anonymous record with 'request' instead of 'fields'
      */
     public RecordSchema(SchemaName name, String doc, List<SchemaName> aliases, PropertyMap props,
                         List<Field> fields, boolean request) {
@@ -74,8 +73,8 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
      * @param names         list of named schema already read
      */
     private RecordSchema(SchemaName name, String doc, List<SchemaName> aliases, PropertyMap props,
-                        List<Field> fields, boolean request, Map<String, Field> fieldMap,
-                        Map<String, Field> fieldAliasMap, SchemaNames names) {
+                         List<Field> fields, boolean request, Map<String, Field> fieldMap,
+                         Map<String, Field> fieldAliasMap, SchemaNames names) {
         super(SchemaType.RECORD, name, doc, aliases, props, names);
         if (!request && name.getName() == null) {
             throw new SchemaParseException("name cannot be null for record schema.");
@@ -130,9 +129,8 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
             addToFieldMap(fieldMap, fieldName, field);
             addToFieldMap(fieldAliasMap, fieldName, field);
 
-            if (field.getAliases() != null)
-            // add aliases to field lookup map so reader function will find it when writer field name appears only as an alias on the reader field
-            {
+            if (field.getAliases() != null) {
+                // add aliases to field lookup map so reader function will find it when writer field name appears only as an alias on the reader field
                 for (String alias : field.getAliases()) {
                     addToFieldMap(fieldAliasMap, alias, field);
                 }
@@ -188,8 +186,7 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
     }
 
     public void addField(Field field) {
-        if (_fieldLookup.containsKey(field.getName()))
-        {
+        if (_fieldLookup.containsKey(field.getName())) {
             throw new IllegalArgumentException("Duplicate field: " + field.getName());
         }
         _fields.add(field);
@@ -311,7 +308,6 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
         return _fields.iterator();
     }
 
-
     private static class RecordSchemaPair {
         public final RecordSchema _first;
         public final RecordSchema _second;
@@ -331,6 +327,11 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
             }
             RecordSchemaPair that = (RecordSchemaPair) obj;
             return that._first == _first && that._second == _second;
+        }
+
+        @Override
+        public int hashCode() {
+            return System.identityHashCode(_first) + System.identityHashCode(_second);
         }
     }
 }

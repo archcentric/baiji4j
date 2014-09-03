@@ -1,5 +1,9 @@
 package com.ctriposs.baiji.schema;
 
+import com.ctriposs.baiji.util.ObjectUtils;
+import org.codehaus.jackson.JsonGenerator;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,5 +43,36 @@ public final class PrimitiveSchema extends UnnamedSchema {
         }
         SchemaType schemaType = _typeMap.get(type);
         return schemaType != null ? new PrimitiveSchema(schemaType, props) : null;
+    }
+
+    /**
+     * Writes schema object in JSON format
+     *
+     * @param gen      JSON generator
+     * @param names    list of named schemas already written
+     * @param encSpace enclosing namespace of the schema
+     */
+    @Override
+    protected void writeJson(JsonGenerator gen, SchemaNames names, String encSpace) throws IOException {
+        gen.writeString(getName());
+    }
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof PrimitiveSchema)) {
+            return false;
+        }
+        PrimitiveSchema that = (PrimitiveSchema) obj;
+        return getType() == that.getType() && ObjectUtils.equals(that.getProps(), getProps());
+    }
+
+    @Override
+    public int hashCode() {
+        return 13 * getType().hashCode() + ObjectUtils.hashCode(getProps());
     }
 }

@@ -11,6 +11,7 @@ import com.ctriposs.baiji.specific.SpecificRecord;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -47,12 +48,14 @@ public class BinarySerializer implements Serializer {
         return writer;
     }
 
-    private static <T> DatumReader<T> getReader(Class<T> clazz) {
+    private static <T extends SpecificRecord> DatumReader<T> getReader(Class<T> clazz) {
         DatumReader<T> reader = _readerCache.get(clazz);
         if (reader == null) {
             SpecificRecord record;
             try {
-                record = (SpecificRecord) clazz.newInstance();
+                Constructor<T> ctor = clazz.getDeclaredConstructor();
+                ctor.setAccessible(true);
+                record = ctor.newInstance();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -67,7 +67,7 @@ public class SchemaName {
         return fullname;
     }
 
-    public void writeJson(JsonGenerator gen, SchemaNames names) throws IOException {
+    void writeJson(JsonGenerator gen, SchemaNames names) throws IOException {
         JsonHelper.writeIfNotNullOrEmpty(gen, "name", name);
         JsonHelper.writeIfNotNullOrEmpty(gen, "namespace", getNamespace());
     }
