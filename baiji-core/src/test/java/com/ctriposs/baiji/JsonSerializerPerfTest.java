@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JsonSerializerPerTest {
+public class JsonSerializerPerfTest {
 
     JsonSerializer serializer;
 
@@ -19,40 +19,40 @@ public class JsonSerializerPerTest {
         serializer = new JsonSerializer();
     }
 
-    @Test
+    /*@Test
     public void testDeserialize_10tiny() throws Exception {
-        testDeserialize("t10records.json", 10, 5, "with tiny data");
+        testDeserialize("/t10records.json", 10, 5, "with tiny data");
     }
 
     @Test
     public void testDeserialize_50tiny() throws Exception {
-        testDeserialize("t50records.json", 50, 5, "with tiny data");
+        testDeserialize("/t50records.json", 50, 5, "with tiny data");
     }
 
     @Test
     public void testDeserialize_300tiny() throws Exception {
-        testDeserialize("t300records.json", 300, 5, "with tiny data");
+        testDeserialize("/t300records.json", 300, 5, "with tiny data");
     }
 
     @Test
     public void testDeserialize_10big() throws Exception {
-        testDeserialize("b10records.json", 10, 5, "with big data");
+        testDeserialize("/b10records.json", 10, 5, "with big data");
     }
 
     @Test
     public void testDeserialize_50big() throws Exception {
-        testDeserialize("b50records.json", 50, 5, "with big data");
-    }
+        testDeserialize("/b50records.json", 50, 5, "with big data");
+    }*/
 
     @Test
     public void testDeserialize_300big() throws Exception {
-        testDeserialize("b300records.json", 300, 5, "with big data");
+        testDeserialize("/b300records.json", 300, 5, "with big data");
     }
 
     protected void testDeserialize(String fileName, int size, int loop, String dataType) {
         List<Long> results = new ArrayList<Long>();
         for (int i = 0; i < loop; i++) {
-            try (InputStream in = JsonSerializerPerTest.class.getResourceAsStream(fileName)) {
+            try (InputStream in = JsonSerializerPerfTest.class.getResourceAsStream(fileName)) {
                 long start = System.currentTimeMillis();
                 TestSerializerSampleList sample = deserialize(TestSerializerSampleList.class, in);
                 long end = System.currentTimeMillis();
