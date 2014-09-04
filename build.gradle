@@ -19,6 +19,9 @@ subprojects {
     tasks.withType(Javadoc).each {
         it.classpath = sourceSets.main.compileClasspath
     }
+    
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
 
     eclipse {
         classpath {
@@ -27,11 +30,18 @@ subprojects {
             downloadSources = true
             downloadJavadoc = true
         }
+        jdt {
+            sourceCompatibility = 1.7
+            targetCompatibility = 1.7
+        }
     }
 
     idea {
         module {
             scopes.PROVIDED.plus += configurations.provided
+        }
+        project {
+            languageLevel = 7.0
         }
     }
 
