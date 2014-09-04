@@ -3,13 +3,94 @@ include 'common.bjsc'
 namespace java com.ctriposs.baiji.rpc.samples.crosstest
 namespace csharp CTripOSS.Baiji.Rpc.Samples.CrossTest
 
+struct TestSerializerSampleList{
+    list<TestSerializerSample> samples;
+}
+
+struct TestSerializerSample {
+    required i32 int1;
+    required i32 tinyint1;
+    required i32 smallint1;
+    required i64 bigint1;
+    required bool boolean1;
+    required double double1;
+	string string1;
+    Record record;
+    list<string> list1;
+    map<string,i32> map1;
+    Enum1Values enum1;
+    i32 nullableint;
+    binary bytes1;
+	Record2Container container1;
+    TestSerializerSample innerSample;
+}
+
+enum Enum1Values {
+    BLUE,
+    RED,
+    GREEN
+}
+
+struct Record2Container{
+	list<Record2> record2list;
+}
+
+struct Record2{
+    Enum2Values enum2;
+    required i64 bigint2;
+    i64 nullablebigint;
+    list<i32> list2;
+    map<string, Record> map2;
+    list<binary> byteslist;
+	ModelFilling filling;
+}
+
+struct Record{
+    i32 sInt;
+    bool sBoolean;
+    string sString;
+}
+
+struct ModelFilling{
+	string stringfilling1;
+	string stringfilling2;
+	string stringfilling3;
+	string stringfilling4;
+	i32 intfilling;
+	bool boolfilling;
+	ModelFilling2 modelfilling;
+	ModelFilling3 modelfilling3;
+	Enum1Values enumfilling;
+}
+
+struct ModelFilling2{
+	i64 longfilling;
+	string stringfilling;
+	list<string> listfilling;
+	Enum2Values enumfilling;
+}
+
+struct ModelFilling3{
+	i32 intfilling;
+	double doublefilling;
+	list<list<i32>> listsfilling;
+	map<string, map<string,string>> mapsfilling;
+}
+
+enum Enum2Values{
+    CAR,
+    BIKE,
+    PLANE
+}
+
 struct CrossTestRequestType {
     string name;
-    common.TestSerializerSample sample;
+    TestSerializerSample sample;
 }
 
 struct CrossTestResponseType {
-    common.TestSerializerSampleList sampleList;
+    common.ResponseStatusType responseStatus;
+    TestSerializerSampleList sampleList;
     string message;
 }
 
