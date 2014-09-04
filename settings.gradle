@@ -5,3 +5,6 @@ include 'baiji-rpc-client'
 include 'baiji-rpc-server'
 include 'baiji-rpc-samples:hello-baiji'
 include 'baiji-rpc-samples:movie-service'
+include 'baiji-rpc-samples/cross-server'
+rootProject.children.find { it.name == 'baiji-rpc-samples/cross-server' }.name = 'cross-server'
+

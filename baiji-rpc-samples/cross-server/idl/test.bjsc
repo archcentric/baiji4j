@@ -1,0 +1,20 @@
+include 'common.bjsc'
+
+namespace java com.ctriposs.baiji.rpc.samples.crosstest
+namespace csharp CTripOSS.Baiji.Rpc.Samples.CrossTest
+
+struct CrossTestRequestType {
+    string name;
+    common.TestSerializerSample sample;
+}
+
+struct CrossTestResponseType {
+    common.TestSerializerSampleList sampleList;
+    string message;
+}
+
+@serviceName='TestSerialize'
+@serviceNamespace='http://soa.ctriposs.com/baijirpc/sample/crosstest'
+service TestService {
+  CrossTestResponseType testSerialize(CrossTestRequestType request);
+}
