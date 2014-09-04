@@ -5,7 +5,7 @@ import java.util.*;
 public class Client {
 
     public static void main(String[] args) throws Exception {
-        TestServiceClient client = TestServiceClient.getInstance(TestServiceClient.class, "http://localhost:8111/");
+        TestServiceClient client = TestServiceClient.getInstance(TestServiceClient.class, "http://localhost:8113/");
         CrossTestRequestType requestType = new CrossTestRequestType("beepboop", createSample());
         CrossTestResponseType responseType = client.testSerialize(requestType);
         System.out.println(responseType.getMessage());
