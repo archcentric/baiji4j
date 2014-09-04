@@ -10,17 +10,18 @@ public class TestServiceImpl implements TestService {
             throw new IllegalArgumentException("Missing name parameter");
         }
 
+        TestSerializerSample sample = request.getSample();
         TestSerializerSampleList sampleList = new TestSerializerSampleList();
         List<TestSerializerSample> list = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            list.add(createSample(i));
+            list.add(createSample(i, sample.getString1(), sample.getString1(), sample.record.getSString()));
         }
         sampleList.setSamples(list);
 
         return new CrossTestResponseType(null, sampleList, "Hello" + request.name);
     }
 
-    private TestSerializerSample createSample(long id) {
+    private TestSerializerSample createSample(long id, String str, String bytes, String record) {
 
         TestSerializerSample sample = new TestSerializerSample();
 
@@ -29,21 +30,21 @@ public class TestServiceImpl implements TestService {
         sample.double1 = 2.099328;
         sample.enum1 = Enum1Values.GREEN;
         sample.int1 = 2000;
-        sample.string1 = "testSerialize";
-        sample.bytes1 = "testBytes".getBytes();
+        sample.string1 = str.toUpperCase();
+        sample.bytes1 = bytes.toLowerCase().getBytes();
         sample.list1 = Arrays.asList("a", "b", "c");
         Map<String, Integer> map = new HashMap<>();
         map.put("1a", 1);
         map.put("2b", 2);
         map.put("3c", 3);
         sample.map1 = map;
-        sample.record = new Record(1, true, "testRecord");
+        sample.record = new Record(1, true, record);
         Record2 record2 = new Record2();
         record2.bigint2 = 2048L;
         record2.enum2 = Enum2Values.PLANE;
         Map<String, Record> recordMap = new HashMap<>();
-        recordMap.put("m1", new Record(1, true, "testRecord"));
-        recordMap.put("m2", new Record(2, true, "testRecord"));
+        recordMap.put("m1", new Record(1, true, record));
+        recordMap.put("m2", new Record(2, true, record));
         record2.map2 = recordMap;
         sample.container1 = new Record2Container(Arrays.asList(record2));
 

@@ -12,7 +12,7 @@ public class StartServer {
         ServiceConfig config = new ServiceConfig();
         HttpRequestRouter router = new BaijiHttpRequestRouter(config, TestServiceImpl.class);
 
-        BlockingHttpServerBuilder builder = new BlockingHttpServerBuilder(8111);
+        BlockingHttpServerBuilder builder = new BlockingHttpServerBuilder(8113);
 
         builder.requestRouter(router)
                 .withWorkerCount(10)
