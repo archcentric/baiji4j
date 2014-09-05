@@ -1,6 +1,5 @@
 package com.ctriposs.baiji.io;
 
-import com.ctriposs.baiji.util.Utf8;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -42,6 +41,6 @@ public class BinaryCodecTestString extends BinaryCodecTestBase {
                 encoder.writeString((String) obj);
             }
         };
-        testRead(_data, decoder, encoder, Utf8.getBytesFor(_data).length + _overhead);
+        testRead(_data, decoder, encoder, _data.getBytes("utf-8").length + _overhead);
     }
 }

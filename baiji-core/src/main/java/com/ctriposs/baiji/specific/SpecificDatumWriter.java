@@ -33,19 +33,6 @@ public class SpecificDatumWriter<T> extends PreresolvingDatumWriter<T> {
     }
 
     @Override
-    protected void ensureRecordObject(RecordSchema recordSchema, Object value) {
-        if (!(value instanceof SpecificRecord)) {
-            throw new BaijiTypeException("Record object is not derived from ISpecificRecord");
-        }
-    }
-
-    @Override
-    protected void writeField(Object record, String fieldName, int fieldPos, ItemWriter writer,
-                              Encoder encoder) throws IOException {
-        writer.write(((SpecificRecord) record).get(fieldPos), encoder);
-    }
-
-    @Override
     protected ItemWriter resolveEnum(EnumSchema es) {
         return new EnumItemWriter(es);
     }

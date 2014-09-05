@@ -11,10 +11,6 @@ public class MapSchema extends UnnamedSchema {
 
     private final Schema _valueSchema;
 
-    public static MapSchema createMap(Schema type) {
-        return new MapSchema(type, null);
-    }
-
     /**
      * Static function to return new instance of map schema
      *
@@ -39,7 +35,7 @@ public class MapSchema extends UnnamedSchema {
      * @param valueSchema schema for map values type
      * @param props
      */
-    private MapSchema(Schema valueSchema, PropertyMap props) {
+    public MapSchema(Schema valueSchema, PropertyMap props) {
         super(SchemaType.MAP, props);
         if (null == valueSchema) {
             throw new IllegalArgumentException("valueSchema cannot be null.");
