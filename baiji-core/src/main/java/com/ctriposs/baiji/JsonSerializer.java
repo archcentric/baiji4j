@@ -30,14 +30,7 @@ public class JsonSerializer implements Serializer {
     @Override
     public <T extends SpecificRecord> T deserialize(Class<T> objClass, InputStream stream) throws IOException {
         SpecificJsonReader<T> reader = (SpecificJsonReader) getReader(objClass);
-        /*SpecificRecord record;
-        try {
-            record = objClass.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        SpecificJsonReader<T> reader = new SpecificJsonReader<>();*/
-        return reader.read(null, readStream(stream));
+        return reader.read(null, stream);
     }
 
     private static <T extends SpecificRecord> SpecificJsonWriter<T> getWriter(T obj) {
@@ -70,18 +63,5 @@ public class JsonSerializer implements Serializer {
         }
 
         return datumReader;
-    }
-
-    public static String readStream(InputStream is) throws IOException {
-        char[] buffer = new char[4096];
-        StringBuffer sb = new StringBuffer();
-        Reader reader = new BufferedReader(new InputStreamReader(is));
-        int n;
-
-        while ((n = reader.read(buffer)) != -1) {
-            sb.append(buffer, 0, n);
-        }
-
-        return sb.toString();
     }
 }

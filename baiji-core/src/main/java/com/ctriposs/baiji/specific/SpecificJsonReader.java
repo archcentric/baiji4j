@@ -10,6 +10,7 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.node.TextNode;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
@@ -34,11 +35,11 @@ public class SpecificJsonReader<T> {
     /**
      * Parse as JSON Node
      * @param reuse
-     * @param source the source string
+     * @param is the source stream
      * @return a record instance
      */
-    public T read(T reuse, String source) throws IOException {
-        JsonNode jsonNode = objectMapper.readTree(source);
+    public T read(T reuse, InputStream is) throws IOException {
+        JsonNode jsonNode = objectMapper.readTree(is);
         if (root instanceof RecordSchema) {
             RecordSchema recordSchema = (RecordSchema) root;
             try {
