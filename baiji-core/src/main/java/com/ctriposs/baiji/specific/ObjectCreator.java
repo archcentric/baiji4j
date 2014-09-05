@@ -53,7 +53,7 @@ public final class ObjectCreator {
     public Class<?> getClass(Schema schema) {
         switch (schema.getType()) {
             case NULL:
-                break;
+                return null;
             case BOOLEAN:
                 return Boolean.class;
             case INT:

@@ -113,22 +113,8 @@ public abstract class PreresolvingDatumWriter<T> implements DatumWriter<T> {
         }
     }
 
-    protected abstract void ensureRecordObject(RecordSchema recordSchema, Object value);
-
     protected abstract void writeRecordFields(Object record, RecordFieldWriter[] writers, Encoder encoder)
             throws IOException;
-
-    /**
-     * Extracts the field value from the given object.
-     *
-     * @param record    The record value from which the field needs to be extracted
-     * @param fieldName The name of the field in the record
-     * @param fieldPos  The position of field in the record
-     * @param writer
-     * @param encoder
-     */
-    protected abstract void writeField(Object record, String fieldName, int fieldPos, ItemWriter writer,
-                                       Encoder encoder) throws IOException;
 
     /**
      * Serializes an enumeration.

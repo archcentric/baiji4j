@@ -28,20 +28,6 @@ public class GenericDatumWriter<D> extends PreresolvingDatumWriter<D> {
     }
 
     @Override
-    protected void ensureRecordObject(RecordSchema recordSchema, Object value) {
-        if (value == null || !(value instanceof GenericRecord)
-                || !(((GenericRecord) value).getSchema().equals(recordSchema))) {
-            throw typeMismatch(value, "record", "GenericRecord");
-        }
-    }
-
-    @Override
-    protected void writeField(Object record, String fieldName, int fieldPos, ItemWriter writer,
-                              Encoder encoder) throws IOException {
-        writer.write(((GenericRecord) record).get(fieldName), encoder);
-    }
-
-    @Override
     protected ItemWriter resolveEnum(EnumSchema es) {
         return new EnumItemWriter(es);
     }
