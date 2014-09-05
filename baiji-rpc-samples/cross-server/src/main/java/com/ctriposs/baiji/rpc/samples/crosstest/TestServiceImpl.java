@@ -4,6 +4,18 @@ import java.util.*;
 
 public class TestServiceImpl implements TestService {
 
+    public static void main(String[] args) {
+        TestSerializerSample sample = createSample(2000, "test", "test", "testRecord");
+        List<TestSerializerSample> list = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            TestSerializerSample t = generateSample(sample, 2048 + i);
+            list.add(t);
+        }
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println(list.get(i).getInt1());
+        }
+    }
+
     @Override
     public CrossTestResponseType testSerialize(CrossTestRequestType request) {
         if (request == null || request.name == null || request.name.isEmpty()) {
@@ -21,7 +33,7 @@ public class TestServiceImpl implements TestService {
         return new CrossTestResponseType(null, sampleList, "Hello" + request.name);
     }
 
-    private TestSerializerSample createSample(long id, String str, String bytes, String record) {
+    private static TestSerializerSample createSample(long id, String str, String bytes, String record) {
 
         TestSerializerSample sample = new TestSerializerSample();
 
@@ -51,10 +63,14 @@ public class TestServiceImpl implements TestService {
         return sample;
     }
 
-    private TestSerializerSample generateSample(TestSerializerSample sample, int id) {
-        sample.enum1 = Enum1Values.BLUE;
-        sample.int1 = id;
+    private static TestSerializerSample generateSample(TestSerializerSample sample, int id) {
 
-        return sample;
+        TestSerializerSample copySample = new TestSerializerSample(
+                id,sample.tinyint1,sample.smallint1,sample.bigint1,sample.boolean1,sample.double1,
+                sample.string1,sample.record,sample.list1,sample.map1,sample.enum1,sample.nullableint,
+                sample.bytes1,sample.container1,sample.innerSample);
+        copySample.enum1 = Enum1Values.BLUE;
+
+        return copySample;
     }
 }
