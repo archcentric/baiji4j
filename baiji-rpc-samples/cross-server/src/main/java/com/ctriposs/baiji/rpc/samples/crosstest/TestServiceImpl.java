@@ -14,7 +14,7 @@ public class TestServiceImpl implements TestService {
         TestSerializerSampleList sampleList = new TestSerializerSampleList();
         List<TestSerializerSample> list = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            list.add(createSample(i, sample.getString1(), sample.getString1(), sample.record.getSString()));
+            list.add(generateSample(sample, 2048 + i));
         }
         sampleList.setSamples(list);
 
@@ -47,6 +47,13 @@ public class TestServiceImpl implements TestService {
         recordMap.put("m2", new Record(2, true, record));
         record2.map2 = recordMap;
         sample.container1 = new Record2Container(Arrays.asList(record2));
+
+        return sample;
+    }
+
+    private TestSerializerSample generateSample(TestSerializerSample sample, int id) {
+        sample.enum1 = Enum1Values.BLUE;
+        sample.int1 = id;
 
         return sample;
     }
