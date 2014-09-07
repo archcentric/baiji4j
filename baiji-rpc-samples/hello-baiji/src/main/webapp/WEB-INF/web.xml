@@ -5,6 +5,15 @@
          version="3.0">
     <display-name>Hello Baiji</display-name>
 
+    <context-param>
+        <param-name>etcd-service-url</param-name>
+        <param-value>http://localhost:4001/</param-value>
+    </context-param>
+    <context-param>
+        <param-name>service-port</param-name>
+        <param-value>8111</param-value>
+    </context-param>
+
     <servlet>
         <servlet-name>BaijiServlet</servlet-name>
         <servlet-class>com.ctriposs.baiji.rpc.server.BaijiServlet</servlet-class>

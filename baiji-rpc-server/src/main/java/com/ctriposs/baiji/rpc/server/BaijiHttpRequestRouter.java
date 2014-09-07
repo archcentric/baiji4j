@@ -42,7 +42,7 @@ public class BaijiHttpRequestRouter implements HttpRequestRouter {
             throw new BaijiRuntimeException(errMsg);
         }
 
-        _serviceMetadata = this.getServiceMetaData(contract);
+        _serviceMetadata = extractServiceMetaData(contract);
 
         // Cache all operation methods
         for (Method method : contract.getMethods()) {
@@ -59,7 +59,11 @@ public class BaijiHttpRequestRouter implements HttpRequestRouter {
         }
     }
 
-    private static ServiceMetadata getServiceMetaData(Class<?> contract) {
+    public ServiceMetadata getServiceMetaData() {
+        return _serviceMetadata;
+    }
+
+    private static ServiceMetadata extractServiceMetaData(Class<?> contract) {
         BaijiContract annotation = contract.getAnnotation(BaijiContract.class);
         ServiceMetadata metaData = new ServiceMetadata();
         metaData.setServiceName(annotation.serviceName());

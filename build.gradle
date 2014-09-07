@@ -19,7 +19,7 @@ subprojects {
     tasks.withType(Javadoc).each {
         it.classpath = sourceSets.main.compileClasspath
     }
-    
+
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
 
@@ -92,5 +92,8 @@ project(':baiji-rpc-server') {
         compile 'org.apache.httpcomponents:httpcore:4.3.2'
         compile 'commons-lang:commons-lang:2.6'
         compile 'commons-beanutils:commons-beanutils:1.9.2'
+        compile 'org.apache.httpcomponents:httpasyncclient:4.0.1'
+        compile 'com.google.code.gson:gson:2.2.4'
+        compile files('../lib/etcd4j-1.0-SNAPSHOT.jar')
     }
 }

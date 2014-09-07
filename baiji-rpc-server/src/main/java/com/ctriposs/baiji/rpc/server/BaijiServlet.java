@@ -1,6 +1,9 @@
 package com.ctriposs.baiji.rpc.server;
 
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
+import com.ctriposs.baiji.rpc.server.registry.EtcdServiceRegistry;
+import com.ctriposs.baiji.rpc.server.registry.ServiceInfo;
+import com.ctriposs.baiji.rpc.server.registry.ServiceRegistry;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +23,19 @@ import java.util.HashMap;
  */
 public class BaijiServlet extends HttpServlet {
 
-    private static final Logger _logger = LoggerFactory.getLogger(BaijiServlet.class);
+    // Context Params
+    private static final String ETCD_SERVICE_URL_PARAM = "etcd-service-url";
+    private static final String SERVICE_PORT_PARAM = "service-port";
 
+    // Servlet Init Params
+    private static final String SERVICE_CLASS_PARAM = "service-class";
+    private static final String DETAILED_ERROR_PARAM = "detailed-error";
+    private static final String REUSE_SERVICE_PARAM = "reuse-service";
+
+    private static final Logger _logger = LoggerFactory.getLogger(BaijiServlet.class);
+    private static final Object _classLock = new Object();
+    private static ServiceRegistry _serviceRegistry;
+    private static int _port;
     private HttpRequestRouter _router;
 
     @Override
@@ -29,11 +43,12 @@ public class BaijiServlet extends HttpServlet {
         Class<?> serviceClass = getServiceClass();
         ServiceConfig serviceConfig = buildServiceConfig();
         _router = new BaijiHttpRequestRouter(serviceConfig, serviceClass);
+        registerService();
     }
 
     private Class<?> getServiceClass() {
         ServletConfig servletConfig = getServletConfig();
-        String serviceClassName = servletConfig.getInitParameter("service-class");
+        String serviceClassName = servletConfig.getInitParameter(SERVICE_CLASS_PARAM);
 
         if (serviceClassName == null || serviceClassName.length() == 0) {
             final String errorMsg = "No service class is configured for BaijiServlet.";
@@ -53,22 +68,65 @@ public class BaijiServlet extends HttpServlet {
     }
 
     private ServiceConfig buildServiceConfig() {
-
         ServiceConfig config = new ServiceConfig();
 
         ServletConfig servletConfig = getServletConfig();
 
-        String detailedError = servletConfig.getInitParameter("detailed-error");
+        String detailedError = servletConfig.getInitParameter(DETAILED_ERROR_PARAM);
         if ("true".equalsIgnoreCase(detailedError)) {
             config.setOutputExceptionStackTrace(true);
         }
 
-        String reuseService = servletConfig.getInitParameter("reuse-service");
+        String reuseService = servletConfig.getInitParameter(REUSE_SERVICE_PARAM);
         if (reuseService != null && !"true".equalsIgnoreCase(reuseService)) {
             config.setNewServiceInstancePerRequest(true);
         }
 
         return config;
+    }
+
+    private void registerService() {
+        initializeServiceRegistry();
+
+        if (_serviceRegistry == null) {
+            return;
+        }
+
+        ServiceMetadata metadata = _router.getServiceMetaData();
+        ServletContext servletContext = getServletContext();
+        ServiceInfo serviceInfo = new ServiceInfo.Builder().serviceName(metadata.getServiceName())
+                .serviceNamespace(metadata.getServiceNamespace())
+                .port(_port).contextPath(servletContext.getContextPath()).build();
+        _serviceRegistry.addService(serviceInfo);
+    }
+
+    private void initializeServiceRegistry() {
+        synchronized (_classLock) {
+            ServletContext servletContext = getServletContext();
+
+            String portString = servletContext.getInitParameter(SERVICE_PORT_PARAM);
+            if (portString != null && !portString.isEmpty()) {
+                _port = Integer.valueOf(portString);
+            }
+
+            String serviceUrl = servletContext.getInitParameter(ETCD_SERVICE_URL_PARAM);
+            if (serviceUrl == null || serviceUrl.isEmpty()) {
+                return;
+            }
+
+            _serviceRegistry = new EtcdServiceRegistry(serviceUrl);
+            _serviceRegistry.run();
+        }
+    }
+
+    @Override
+    public void destroy() {
+        synchronized (_classLock) {
+            if (_serviceRegistry != null) {
+                _serviceRegistry.stop();
+                _serviceRegistry = null;
+            }
+        }
     }
 
     @Override
