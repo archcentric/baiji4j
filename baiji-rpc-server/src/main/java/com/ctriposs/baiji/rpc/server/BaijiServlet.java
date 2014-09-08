@@ -26,6 +26,7 @@ public class BaijiServlet extends HttpServlet {
     // Context Params
     private static final String ETCD_SERVICE_URL_PARAM = "etcd-service-url";
     private static final String SERVICE_PORT_PARAM = "service-port";
+    private static final String SUB_ENV_PARAM = "sub-env";
 
     // Servlet Init Params
     private static final String SERVICE_CLASS_PARAM = "service-class";
@@ -36,6 +37,7 @@ public class BaijiServlet extends HttpServlet {
     private static final Object _classLock = new Object();
     private static ServiceRegistry _serviceRegistry;
     private static int _port;
+    private static String _subEnv;
     private HttpRequestRouter _router;
 
     @Override
@@ -96,7 +98,7 @@ public class BaijiServlet extends HttpServlet {
         ServletContext servletContext = getServletContext();
         ServiceInfo serviceInfo = new ServiceInfo.Builder().serviceName(metadata.getServiceName())
                 .serviceNamespace(metadata.getServiceNamespace())
-                .port(_port).contextPath(servletContext.getContextPath()).build();
+                .port(_port).contextPath(servletContext.getContextPath()).subEnv(_subEnv).build();
         _serviceRegistry.addService(serviceInfo);
     }
 
@@ -108,6 +110,8 @@ public class BaijiServlet extends HttpServlet {
             if (portString != null && !portString.isEmpty()) {
                 _port = Integer.valueOf(portString);
             }
+
+            _subEnv = servletContext.getInitParameter(SUB_ENV_PARAM);
 
             String serviceUrl = servletContext.getInitParameter(ETCD_SERVICE_URL_PARAM);
             if (serviceUrl == null || serviceUrl.isEmpty()) {

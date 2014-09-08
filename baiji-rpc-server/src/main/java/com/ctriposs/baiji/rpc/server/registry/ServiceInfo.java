@@ -13,6 +13,7 @@ public class ServiceInfo {
     private int _port = 80;
     private String _contextPath;
     private String _serviceUrl;
+    private String _subEnv;
     private HealthCheckHandler _healthCheckHandler;
     private boolean _dirty;
     private final Map<String, String> _metadata = new ConcurrentHashMap<String, String>();
@@ -52,6 +53,10 @@ public class ServiceInfo {
             _serviceUrl = builder.toString();
         }
         return _serviceUrl;
+    }
+
+    public String getSubEnv() {
+        return _subEnv;
     }
 
     public HealthCheckHandler getHealthCheckHandler() {
@@ -130,6 +135,11 @@ public class ServiceInfo {
             } else {
                 _serviceInfo._contextPath = "/";
             }
+            return this;
+        }
+
+        public Builder subEnv(String subEnv) {
+            _serviceInfo._subEnv = subEnv;
             return this;
         }
 

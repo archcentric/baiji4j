@@ -167,9 +167,13 @@ public class EtcdServiceRegistry implements ServiceRegistry {
         }
 
         private String getServiceKey(ServiceInfo service) {
-            return String.format(BASE_KEY + "/%s/%s",
+            String key = String.format(BASE_KEY + "/%s/%s",
                     normalizeText(service.getServiceName()),
                     normalizeText(service.getServiceNamespace()));
+            if (service.getSubEnv() != null && !service.getSubEnv().isEmpty()) {
+                key += "/" + normalizeText(service.getSubEnv());
+            }
+            return key;
         }
 
         private String getInstanceKey(ServiceInfo service) {
