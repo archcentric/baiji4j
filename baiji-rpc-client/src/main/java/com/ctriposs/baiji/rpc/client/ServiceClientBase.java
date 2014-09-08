@@ -1,5 +1,9 @@
 package com.ctriposs.baiji.rpc.client;
 
+import com.ctriposs.baiji.rpc.client.registry.EtcdRegistryClient;
+import com.ctriposs.baiji.rpc.client.registry.InstanceInfo;
+import com.ctriposs.baiji.rpc.client.registry.RegistryClient;
+import com.ctriposs.baiji.rpc.client.util.DaemonThreadFactory;
 import com.ctriposs.baiji.rpc.common.HasResponseStatus;
 import com.ctriposs.baiji.rpc.common.formatter.BinaryContentFormatter;
 import com.ctriposs.baiji.rpc.common.formatter.ContentFormatter;
@@ -8,6 +12,7 @@ import com.ctriposs.baiji.rpc.common.types.AckCodeType;
 import com.ctriposs.baiji.rpc.common.types.ErrorDataType;
 import com.ctriposs.baiji.rpc.common.types.ResponseStatusType;
 import com.ctriposs.baiji.specific.SpecificRecord;
+import com.google.common.base.Joiner;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.config.RequestConfig;
@@ -24,13 +29,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase> {
@@ -41,12 +48,15 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private static final int DEFAULT_CONNECT_TIME_OUT = 10 * 1000;
     private static final int DEFAULT_MAX_CONNECTIONS = 20;
     private static final long OLD_CLIENT_DISPOSE_DELAY = 30 * 1000;
+    private static final int MAX_INIT_REG_SYNC_ATTEMPTS = 3;
+    private static final int INIT_REG_SYNC_INTERVAL = 5 * 1000; // 5 seconds
+    private static final int DEFAULT_REG_SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
     private static final String APP_ID_HTTP_HEADER = "SOA20-Client-AppId";
 
-    protected static final String ORIGINAL_SERVICE_NAME_FIELD_NAME = "OriginalServiceName";
-    protected static final String ORIGINAL_SERVICE_NAMESPACE_FIELD_NAME = "OriginalServiceNamespace";
+    protected static final String ORIGINAL_SERVICE_NAME_FIELD_NAME = "ORIGINAL_SERVICE_NAME";
+    protected static final String ORIGINAL_SERVICE_NAMESPACE_FIELD_NAME = "ORIGINAL_SERVICE_NAMESPACE";
 
-    private static ServiceClientConfig CLIENT_CONFIG;
+    private static ServiceClientConfig CLIENT_CONFIG = new ServiceClientConfig();
 
     protected static final Map<String, ContentFormatter> _contentFormatters =
             new HashMap<String, ContentFormatter>();
@@ -57,29 +67,140 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     protected static final Map<String, Map<String, String>> _serviceMetadataCache =
             new HashMap<String, Map<String, String>>();
 
+    private static RegistryClient _registryClient;
+
     private final Logger _logger;
 
-    private boolean _registryMode;
-    private String _baseUri, _serviceName, _serviceNamespace, _subEnv;
+    private String _serviceName, _serviceNamespace, _subEnv;
     private String _format = DEFAULT_FORMAT;
     private int _requestTimeOut = DEFAULT_REQUEST_TIME_OUT;
     private int _socketTimeOut = DEFAULT_SOCKET_TIME_OUT;
     private int _connectTimeOut = DEFAULT_CONNECT_TIME_OUT;
     private int _maxConnections = DEFAULT_MAX_CONNECTIONS;
+    private String[] _serviceUris;
+    private final AtomicInteger _lastUsedServiceIndex = new AtomicInteger(-1);
+    private final ConnectionMode _connectionMode;
     private final Map<String, String> _headers = new HashMap<String, String>();
     private final AtomicReference<CloseableHttpClient> _client = new AtomicReference<CloseableHttpClient>(createClient());
-    private final ScheduledExecutorService _clientDisposeService = new ScheduledThreadPoolExecutor(1, new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread thread = new Thread(r);
-            thread.setDaemon(true);
-            return thread;
-        }
-    });
+    private final ScheduledExecutorService _registrySyncService = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
+    private final ScheduledExecutorService _clientDisposeService = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
 
     static {
         registerContentFormatter(new BinaryContentFormatter());
         registerContentFormatter(new JsonContentFormatter());
+    }
+
+    /**
+     * Gets the collection of headers to be added to outgoing requests.
+     *
+     * @return
+     */
+    public Map<String, String> headers() {
+        return _headers;
+    }
+
+    /**
+     * Gets the name of target service.
+     *
+     * @return
+     */
+    public String getServiceName() {
+        return _serviceName;
+    }
+
+    /**
+     * Gets
+     *
+     * @return
+     */
+    public String getServiceNamespace() {
+        return _serviceNamespace;
+    }
+
+    public String getSubEnv() {
+        return _subEnv;
+    }
+
+    /**
+     * Gets the current calling format.
+     *
+     * @return
+     */
+    public String getFormat() {
+        return _format;
+    }
+
+    public void setFormat(String format) {
+        _format = format;
+    }
+
+    /**
+     * Returns the timeout in milliseconds used when requesting a connection
+     * from the connection manager. A timeout value of zero is interpreted as an
+     * infinite timeout.
+     * <p/>
+     * A timeout value of zero is interpreted as an infinite timeout. A negative
+     * value is interpreted as undefined (system default).
+     * <p/>
+     * Default: <code>10000</code>
+     */
+    public int getRequestTimeout() {
+        return _requestTimeOut;
+    }
+
+    public void setRequestTimeout(int requestTimeOut) {
+        this._requestTimeOut = requestTimeOut;
+    }
+
+    /**
+     * Defines the socket timeout (<code>SO_TIMEOUT</code>) in milliseconds,
+     * which is the timeout for waiting for data or, put differently, a maximum
+     * period inactivity between two consecutive data packets).
+     * <p/>
+     * A timeout value of zero is interpreted as an infinite timeout. A negative
+     * value is interpreted as undefined (system default).
+     * <p/>
+     * Default: <code>10000</code>
+     */
+    public int getSocketTimeout() {
+        return _socketTimeOut;
+    }
+
+    public void setSocketTimeout(int socketTimeOut) {
+        this._socketTimeOut = socketTimeOut;
+    }
+
+    /**
+     * Determines the timeout in milliseconds until a connection is established.
+     * A timeout value of zero is interpreted as an infinite timeout.
+     * <p/>
+     * A timeout value of zero is interpreted as an infinite timeout. A negative
+     * value is interpreted as undefined (system default).
+     * <p/>
+     * Default: <code>10000</code>
+     */
+    public int getConnectTimeout() {
+        return _connectTimeOut;
+    }
+
+    public void setConnectTimeout(int connectTimeOut) {
+        this._connectTimeOut = connectTimeOut;
+    }
+
+    /**
+     * Gets the maximum HTTP connections which can be established to the target service.
+     *
+     * @return the maximum HTTP connections which can be established to the target service
+     */
+    public int getMaxConnections() {
+        return _maxConnections;
+    }
+
+    public void setMaxConnections(int maxConnections_) {
+        if (this._maxConnections != maxConnections_) {
+            this._maxConnections = maxConnections_;
+            reloadClient();
+        }
     }
 
     /**
@@ -90,36 +211,38 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
      * @param config provides the global config
      */
     public static void initialize(ServiceClientConfig config) {
-        CLIENT_CONFIG = config;
+        CLIENT_CONFIG = config != null ? config : new ServiceClientConfig();
+        String registryServiceUrl = CLIENT_CONFIG.getServiceRegistryUrl();
+        if (registryServiceUrl == null) {
+            _registryClient = null;
+        } else {
+            try {
+                _registryClient = new EtcdRegistryClient(URI.create(registryServiceUrl));
+            } catch (Exception ex) {
+                _registryClient = null;
+            }
+        }
     }
 
-    protected ServiceClientBase(Class<DerivedClient> clientClass) {
+    protected ServiceClientBase(Class<DerivedClient> clientClass, ConnectionMode connectionMode) {
         _logger = LoggerFactory.getLogger(clientClass);
+        _connectionMode = connectionMode;
     }
 
     protected ServiceClientBase(Class<DerivedClient> clientClass, String baseUri) {
-        this(clientClass);
-        _registryMode = false;
-        _baseUri = baseUri;
+        this(clientClass, ConnectionMode.DIRECT);
+        _serviceUris = new String[]{baseUri};
     }
 
     protected ServiceClientBase(Class<DerivedClient> clientClass, String serviceName, String serviceNamespace,
                                 String subEnv) throws ServiceLookupException {
-        this(clientClass);
+        this(clientClass, ConnectionMode.INDIRECT);
 
         _serviceName = serviceName;
         _serviceNamespace = serviceNamespace;
         _subEnv = subEnv;
 
-        resolveServiceBaseUri();
-
-        if (_baseUri == null || _baseUri.isEmpty()) {
-            String message = String.format("Unable to find service(%s-%s}) url mapping in registry",
-                    _serviceName, _serviceNamespace);
-            throw new ServiceLookupException(message);
-        }
-
-        _registryMode = true;
+        initServiceBaseUriFromReg();
     }
 
     /**
@@ -167,7 +290,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                         try {
                             Field field = clientClass.getDeclaredField(fieldName);
                             field.setAccessible(true);
-                            if (String.class.equals(field.getClass())) {
+                            if (String.class.equals(field.getType())) {
                                 String fieldValue = (String) field.get(null);
                                 metadata.put(fieldName, fieldValue);
                             }
@@ -177,7 +300,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
                     if (metadata.size() != requiredFieldNames.length) {
                         String message = String.format(
-                                "Service name and namespace constants are not in the generated service client code: {0}, {1}",
+                                "Service name and namespace constants are not in the generated service client code: %s, %s",
                                 ORIGINAL_SERVICE_NAME_FIELD_NAME,
                                 ORIGINAL_SERVICE_NAMESPACE_FIELD_NAME);
                         throw new RuntimeException(message);
@@ -188,19 +311,10 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
             }
         }
 
-        // TODO: Support subEnv.
-        //string subEnvKey = string.Format(
-        //    SERVICE_REGISTRY_SUBENV_KEY_FORMAT,
-        //    serviceMetadataCache[type.FullName][OriginalServiceNameFieldName],
-        //    serviceMetadataCache[type.FullName][OriginalServiceNamespaceFieldName]);
-        //string subEnv = ConfigUtils.GetNullableAppSetting(subEnvKey);
-        //subEnv = string.IsNullOrWhiteSpace(subEnv) ? SERVICE_REGISTRY_SUBENV : subEnv.Trim().ToLower();
-        String subEnv = null;
-
         return getInstanceInternal(clientClass,
                 _serviceMetadataCache.get(clientName).get(ORIGINAL_SERVICE_NAME_FIELD_NAME),
                 _serviceMetadataCache.get(clientName).get(ORIGINAL_SERVICE_NAMESPACE_FIELD_NAME),
-                subEnv);
+                CLIENT_CONFIG.getSubEnv());
     }
 
 
@@ -222,7 +336,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                     }
 
                     if (!registryClient) {
-                        //log.Info(string.Format("Initialized client instance with direct service url {0}", baseUri));
+                        //log.Info(string.Format("Initialized client instance with direct service url %s", baseUri));
                         //log.Warn(
                         //    "Client is initialized in direct connection mode(without registry), this is only recommended for local testing, not for formal testing or production!");
                     }
@@ -306,7 +420,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                 .setSocketTimeout(_socketTimeOut)
                 .build();
 
-        String baseUri = _baseUri.endsWith("/") ? _baseUri : _baseUri + "/";
+        String baseUri = getServiceBaseUri();
         String requestUri = baseUri + operationName + "." + _format;
         HttpPost httpPost = new HttpPost(requestUri);
         httpPost.setConfig(config);
@@ -415,129 +529,87 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         }
     }
 
-    /**
-     * Gets the collection of headers to be added to outgoing requests.
-     *
-     * @return
-     */
-    public Map<String, String> headers() {
-        return _headers;
-    }
+    private void initServiceBaseUriFromReg() {
+        Runnable syncRegTask = new SyncRegistryTask();
 
-    /**
-     * Gets the base URI of the target service.
-     *
-     * @return
-     */
-    public String getBaseUri() {
-        return _baseUri;
-    }
+        // First time sync
+        for (int i = 1; i <= MAX_INIT_REG_SYNC_ATTEMPTS; i++) {
+            syncRegTask.run();
+            if (_serviceUris != null && _serviceUris.length != 0) {
+                String msg = String.format("Initialized client instance with registry %s. Targeting service: %s-%s. TargetURLs: %s.",
+                        CLIENT_CONFIG.getServiceRegistryUrl(), _serviceName, _serviceNamespace, Joiner.on(";").join(_serviceUris));
+                break;
+            }
 
-    /**
-     * Gets the name of target service.
-     *
-     * @return
-     */
-    public String getServiceName() {
-        return _serviceName;
-    }
-
-    /**
-     * Gets
-     *
-     * @return
-     */
-    public String getServiceNamespace() {
-        return _serviceNamespace;
-    }
-
-    public String getSubEnv() {
-        return _subEnv;
-    }
-
-    /**
-     * Gets the current calling format.
-     *
-     * @return
-     */
-    public String getFormat() {
-        return _format;
-    }
-
-    public void setFormat(String format) {
-        _format = format;
-    }
-
-    /**
-     * Returns the timeout in milliseconds used when requesting a connection
-     * from the connection manager. A timeout value of zero is interpreted as an
-     * infinite timeout.
-     * <p/>
-     * A timeout value of zero is interpreted as an infinite timeout. A negative
-     * value is interpreted as undefined (system default).
-     * <p/>
-     * Default: <code>10000</code>
-     */
-    public int getRequestTimeout() {
-        return _requestTimeOut;
-    }
-
-    public void setRequestTimeout(int requestTimeOut) {
-        this._requestTimeOut = requestTimeOut;
-    }
-
-    /**
-     * Defines the socket timeout (<code>SO_TIMEOUT</code>) in milliseconds,
-     * which is the timeout for waiting for data or, put differently, a maximum
-     * period inactivity between two consecutive data packets).
-     * <p/>
-     * A timeout value of zero is interpreted as an infinite timeout. A negative
-     * value is interpreted as undefined (system default).
-     * <p/>
-     * Default: <code>10000</code>
-     */
-    public int getSocketTimeout() {
-        return _socketTimeOut;
-    }
-
-    public void setSocketTimeout(int socketTimeOut) {
-        this._socketTimeOut = socketTimeOut;
-    }
-
-    /**
-     * Determines the timeout in milliseconds until a connection is established.
-     * A timeout value of zero is interpreted as an infinite timeout.
-     * <p/>
-     * A timeout value of zero is interpreted as an infinite timeout. A negative
-     * value is interpreted as undefined (system default).
-     * <p/>
-     * Default: <code>10000</code>
-     */
-    public int getConnectTimeout() {
-        return _connectTimeOut;
-    }
-
-    public void setConnectTimeout(int connectTimeOut) {
-        this._connectTimeOut = connectTimeOut;
-    }
-
-    /**
-     * Gets the maximum HTTP connections which can be established to the target service.
-     *
-     * @return the maximum HTTP connections which can be established to the target service
-     */
-    public int getMaxConnections() {
-        return _maxConnections;
-    }
-
-    public void setMaxConnections(int maxConnections_) {
-        if (this._maxConnections != maxConnections_) {
-            this._maxConnections = maxConnections_;
-            reloadClient();
+            if (i < MAX_INIT_REG_SYNC_ATTEMPTS) {
+                try {
+                    Thread.sleep(INIT_REG_SYNC_INTERVAL);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            } else {
+                String msg = String.format("Unable to find service(%s-%s) url mapping in registry %s", _serviceName,
+                        _serviceNamespace, CLIENT_CONFIG.getServiceRegistryUrl());
+            }
         }
+
+        // Periodically sync registry
+        _registrySyncService.scheduleAtFixedRate(syncRegTask, 0, DEFAULT_REG_SYNC_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
-    private void resolveServiceBaseUri() {
-        // TODO: Implement service registry support.
+    private String getServiceBaseUri() {
+        String serviceUri = null;
+        if (_connectionMode == ConnectionMode.DIRECT) {
+            serviceUri = _serviceUris[0];
+        } else if (_connectionMode == ConnectionMode.INDIRECT) {
+            if (_serviceUris.length == 0) {
+                _lastUsedServiceIndex.set(-1);
+                serviceUri = null;
+            } else {
+                int index;
+                while (true) {
+                    index = _lastUsedServiceIndex.incrementAndGet();
+                    if (index >= 0 && index < _serviceUris.length) {
+                        break;
+                    }
+                    if (_lastUsedServiceIndex.compareAndSet(index, 0)) {
+                        index = 0;
+                        break;
+                    }
+                }
+                try {
+                    serviceUri = _serviceUris[index];
+                } catch (Exception ex) {
+                    serviceUri = _serviceUris.length != 0 ? _serviceUris[0] : null;
+                }
+            }
+        }
+
+        if (serviceUri != null) {
+            serviceUri = serviceUri.endsWith("/") ? serviceUri : serviceUri + "/";
+        }
+        return serviceUri;
+    }
+
+    private class SyncRegistryTask implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                List<InstanceInfo> instances = _registryClient.getServiceInstances(_serviceName, _serviceNamespace, _subEnv);
+                if (instances != null) {
+                    ArrayList<String> uris = new ArrayList<String>();
+                    for (InstanceInfo instance : instances) {
+                        if (instance.isUp()) {
+                            uris.add(instance.getServiceUrl());
+                        }
+                    }
+                    _serviceUris = uris.toArray(new String[0]);
+                } else {
+                    _serviceUris = new String[0];
+                }
+            } catch (Exception ex) {
+            }
+        }
     }
 }
