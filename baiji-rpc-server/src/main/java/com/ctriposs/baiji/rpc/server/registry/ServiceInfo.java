@@ -81,7 +81,7 @@ public class ServiceInfo {
         _dirty = true;
     }
 
-    public boolean isDirty() {
+    boolean isDirty() {
         return _dirty;
     }
 

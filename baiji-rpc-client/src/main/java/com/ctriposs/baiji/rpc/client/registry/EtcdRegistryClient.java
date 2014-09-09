@@ -9,6 +9,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Client used to access etcd service registry.
+ */
 public class EtcdRegistryClient implements RegistryClient {
 
     private static final String BASE_KEY = "/soa4j";
@@ -19,6 +22,14 @@ public class EtcdRegistryClient implements RegistryClient {
         _client = new CEtcdClient(uri);
     }
 
+    /**
+     * Gets all instances of the given service from registry.
+     *
+     * @param serviceName the name of the service
+     * @param serviceNamespace the namespace of the service
+     * @param subEnv the sub environment of the instances to be fetched. nullable.
+     * @return
+     */
     @Override
     public List<InstanceInfo> getServiceInstances(String serviceName, String serviceNamespace, String subEnv) {
 

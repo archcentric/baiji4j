@@ -168,20 +168,20 @@ public class EtcdServiceRegistry implements ServiceRegistry {
 
         private String getServiceKey(ServiceInfo service) {
             String key = String.format(BASE_KEY + "/%s/%s",
-                    normalizeText(service.getServiceName()),
-                    normalizeText(service.getServiceNamespace()));
+                    normalizeKey(service.getServiceName()),
+                    normalizeKey(service.getServiceNamespace()));
             if (service.getSubEnv() != null && !service.getSubEnv().isEmpty()) {
-                key += "/" + normalizeText(service.getSubEnv());
+                key += "/" + normalizeKey(service.getSubEnv());
             }
             return key;
         }
 
         private String getInstanceKey(ServiceInfo service) {
-            return getServiceKey(service) + "/" + normalizeText(service.getServiceUrl());
+            return getServiceKey(service) + "/" + normalizeKey(service.getServiceUrl());
         }
     }
 
-    private static String normalizeText(String text) {
-        return text.replace('/', '_');
+    private static String normalizeKey(String key) {
+        return key.replace('/', '_');
     }
 }
