@@ -14,7 +14,7 @@ public class OperationContext {
         _requestObject = requestObject;
     }
 
-    public RequestContext get_environment() {
+    public RequestContext getEnvironment() {
         return this._environment;
     }
 
