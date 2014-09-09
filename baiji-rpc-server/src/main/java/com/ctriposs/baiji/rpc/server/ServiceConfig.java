@@ -21,7 +21,7 @@ public class ServiceConfig {
     private Map<String, ContentFormatter> _specifiedFormatters;
 
     public ServiceConfig() {
-        this._defaultFormatter = new BinaryContentFormatter();
+        this._defaultFormatter = new JsonContentFormatter();
         _specifiedFormatters = new HashMap<String, ContentFormatter>();
         registerSpecifiedFormatters(new JsonContentFormatter());
     }
