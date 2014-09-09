@@ -23,6 +23,7 @@ public class ServiceConfig {
     public ServiceConfig() {
         this._defaultFormatter = new JsonContentFormatter();
         _specifiedFormatters = new HashMap<String, ContentFormatter>();
+        registerSpecifiedFormatters(new BinaryContentFormatter());
         registerSpecifiedFormatters(new JsonContentFormatter());
     }
 
