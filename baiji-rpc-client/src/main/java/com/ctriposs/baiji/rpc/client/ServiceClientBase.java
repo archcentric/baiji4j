@@ -427,6 +427,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         String requestUri = baseUri + operationName + "." + _format;
         HttpPost httpPost = new HttpPost(requestUri);
         httpPost.setConfig(config);
+        httpPost.addHeader("Content-Type", contentFormatter.getMediaType());
         for (Map.Entry<String, String> header : _headers.entrySet()) {
             httpPost.addHeader(header.getKey(), header.getValue());
         }
