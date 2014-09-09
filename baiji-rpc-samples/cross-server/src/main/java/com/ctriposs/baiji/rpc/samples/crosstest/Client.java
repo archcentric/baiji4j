@@ -1,5 +1,7 @@
 package com.ctriposs.baiji.rpc.samples.crosstest;
 
+import org.junit.Assert;
+
 import java.util.*;
 
 public class Client {
@@ -10,7 +12,8 @@ public class Client {
         CrossTestResponseType responseType = client.testSerialize(requestType);
         System.out.println(responseType.getMessage());
         System.out.println(responseType.getResponseStatus());
-        System.out.println(responseType.getSampleList().getSamples().size());
+        checkStatus(requestType.getSample(), responseType.getSampleList().getSamples());
+        System.out.println("Passed!!!");
     }
 
     private static TestSerializerSample createSample() {
@@ -32,6 +35,13 @@ public class Client {
         map.put("3c", 3);
         sample.map1 = map;
         sample.record = new Record(1, true, "testRecord");
+        TestSerializerSample innerSample = new TestSerializerSample();
+        innerSample.bigint1 = random.nextLong();
+        innerSample.boolean1 = true;
+        innerSample.double1 = random.nextDouble();
+        innerSample.list1 = Arrays.asList("a", "b", "c");
+        innerSample.map1 = map;
+        sample.innerSample = innerSample;
         Record2 record2 = new Record2();
         record2.bigint2 = random.nextLong();
         record2.enum2 = Enum2Values.PLANE;
@@ -42,5 +52,38 @@ public class Client {
         sample.container1 = new Record2Container(Arrays.asList(record2));
 
         return sample;
+    }
+
+    private static void checkStatus(TestSerializerSample expected, List<TestSerializerSample> actualList) {
+        for (int i = 0; i < actualList.size(); i++) {
+            TestSerializerSample actual = actualList.get(i);
+
+            Assert.assertEquals(expected.bigint1, actual.bigint1);
+            Assert.assertEquals(expected.boolean1, actual.boolean1);
+            Assert.assertEquals(expected.double1, actual.double1);
+            Assert.assertEquals(expected.enum1, Enum1Values.GREEN);
+            Assert.assertEquals(expected.string1, actual.string1);
+            Assert.assertEquals((long)actual.int1, (long)(i + 2048));
+            Assert.assertEquals(expected.list1.size(), actual.list1.size());
+            Assert.assertEquals(expected.map1.size(), actual.map1.size());
+            Assert.assertEquals(expected.list1, actual.list1);
+            Assert.assertEquals(expected.map1, actual.map1);
+            Assert.assertEquals(expected.record, actual.record);
+            Assert.assertArrayEquals(expected.bytes1, actual.bytes1);
+
+            Assert.assertNotNull(actual.innerSample);
+            Assert.assertEquals(expected.innerSample.bigint1, actual.innerSample.bigint1);
+            Assert.assertEquals(expected.innerSample.boolean1, actual.innerSample.boolean1);
+            Assert.assertEquals(expected.innerSample.double1, actual.innerSample.double1);
+            Assert.assertEquals(expected.innerSample.list1, actual.innerSample.list1);
+            Assert.assertEquals(expected.innerSample.map1, actual.innerSample.map1);
+
+            Record2 expectedRecord2 = expected.container1.getRecord2list().get(0);
+            Record2 actualRecord2 = actual.container1.getRecord2list().get(0);
+
+            Assert.assertEquals(expectedRecord2.bigint2, actualRecord2.bigint2);
+            Assert.assertEquals(expectedRecord2.enum2, actualRecord2.enum2);
+            Assert.assertEquals(expectedRecord2.map2, actualRecord2.map2);
+        }
     }
 }
