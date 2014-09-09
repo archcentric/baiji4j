@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase> {
 
-    private static final String DEFAULT_FORMAT = BinaryContentFormatter.EXTENSION;
+    private static final String DEFAULT_FORMAT = JsonContentFormatter.EXTENSION;
     private static final int DEFAULT_REQUEST_TIME_OUT = 10 * 1000;
     private static final int DEFAULT_SOCKET_TIME_OUT = 10 * 1000;
     private static final int DEFAULT_CONNECT_TIME_OUT = 10 * 1000;
@@ -131,6 +131,9 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     }
 
     public void setFormat(String format) {
+        if (!_contentFormatters.containsKey(format)) {
+            throw new IllegalArgumentException(String.format("Format %s is not supported.", format));
+        }
         _format = format;
     }
 
