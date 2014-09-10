@@ -3,8 +3,8 @@ include 'common.bjsc'
 namespace java 'com.ctriposs.baiji.rpc.samples.movie'
 namespace csharp 'CTripOSS.Baiji.Rpc.Samples.Movie'
 
-struct MovieDto {
-    i64 id;
+class MovieDto {
+    long id;
     string imdbId;
     string title;
     double rating;
@@ -14,67 +14,67 @@ struct MovieDto {
     list<string> genres;
 }
 
-struct AddMovieRequestType {
+class AddMovieRequestType {
     /* The movie to be updated */
     MovieDto movie;
 }
 
-struct AddMovieResponseType {
+class AddMovieResponseType {
     common.ResponseStatusType responseStatus;
     /* The movie id of the added movie */
-    i64 id;
+    long id;
 }
 
-struct UpdateMovieRequestType {
+class UpdateMovieRequestType {
     /* The movie to be added */
     MovieDto movie;
 }
 
-struct UpdateMovieResponseType {
+class UpdateMovieResponseType {
     common.ResponseStatusType responseStatus;
 }
 
-struct GetMovieByIdRequestType {
-    i64 id;
+class GetMovieByIdRequestType {
+    long id;
 }
 
-struct GetMovieByIdResponseType {
+class GetMovieByIdResponseType {
     common.ResponseStatusType responseStatus;
     /* Movie with specific id */
     MovieDto movie;
 }
 
-struct DeleteMovieByIdRequestType {
+class DeleteMovieByIdRequestType {
     /* The identifier of the movie to delete */
-    i64 id;
+    long id;
 }
 
-struct DeleteMovieByIdResponseType {
+class DeleteMovieByIdResponseType {
     common.ResponseStatusType responseStatus;
 }
 
-struct FindMoviesByGenreRequestType {
+class FindMoviesByGenreRequestType {
     /* Genre to search */
     string Genre;
 }
 
-struct FindMoviesByGenreResponseType {
+class FindMoviesByGenreResponseType {
     common.ResponseStatusType responseStatus;
     list<MovieDto> movies;
 }
 
-struct ResetMovieRequestType {  
+class ResetMovieRequestType {  
 }
 
-struct ResetMovieResponseType {
+class ResetMovieResponseType {
     common.ResponseStatusType responseStatus;
 }
 
-struct GetMoviesRequestType {
-    i32 count;
+class GetMoviesRequestType {
+    int count;
 }
 
-struct GetMoviesResponseType {
+class GetMoviesResponseType {
     common.ResponseStatusType responseStatus;
     list<MovieDto> movies;
 }

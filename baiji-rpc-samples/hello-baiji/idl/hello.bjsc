@@ -3,11 +3,11 @@ include 'common.bjsc'
 namespace java com.ctriposs.baiji.rpc.samples.hello
 namespace csharp CTripOSS.Baiji.Rpc.Samples.Hello
 
-struct HelloRequestType {
+class HelloRequestType {
     string name;
 }
 
-struct HelloResponseType {
+class HelloResponseType {
     common.ResponseStatusType responseStatus;
     string message;
 }

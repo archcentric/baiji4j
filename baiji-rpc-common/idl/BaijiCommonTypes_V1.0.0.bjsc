@@ -5,7 +5,7 @@ namespace csharp CTripOSS.Baiji.Rpc.Common.Types
    this common type for optional versioning and output selecting requirements. The recommended
    naming convention we use for the concrete type names is the name of the service (the verb or call name)
    followed by "RequestType": VerbNameRequestType */
-struct CommonRequestType {
+class CommonRequestType {
     /* The version number of the API code that you are programming against (e.g., 1.2.0).
        If not set, defaults to latest version. Whether and how this field is leveraged depends on specific service. */
     string version;
@@ -27,7 +27,7 @@ struct CommonRequestType {
    This is required for unified response status/error handling at framework level.
    The recommended naming convention we use for the concrete type names is the name of
    the service (the verb or call name) followed by "ResponseType": VerbNameResponseType */
-struct ResponseStatusType {
+class ResponseStatusType {
     /* This value represents the date and time when a Baiji service processed the request.
     The value of this element is set by framework automatically, value set by service implementation will be overwritten. */
     required string timestamp;
@@ -64,7 +64,7 @@ enum AckCodeType {
 }
 
 /* This is service, validation or framework-level error.*/
-struct ErrorDataType {
+class ErrorDataType {
     /* A brief description of the condition that raised the error. */
     string message;
     /* A unique code that identifies the particular error condition that occurred. */
@@ -83,7 +83,7 @@ struct ErrorDataType {
 For example, in request validation failure case, the problematic field name might be returned as an error field.
 Use error fields to flag fields that users need to correct.
 Also use error fields to distinguish between errors when multiple errors are returned. */
-struct ErrorFieldType {
+class ErrorFieldType {
     /* The name of the field caused the error. */
     string fieldName;
     /* Error code */
@@ -132,9 +132,9 @@ enum ErrorClassificationCodeType {
 }
 
 /* Reserved for future use. */
-struct ExtensionType {
+class ExtensionType {
     /* Reserved for future use. */
-    i32 id;
+    int id;
     /* Reserved for future use. */
     string version;
     /* Reserved for future use. */
@@ -146,7 +146,7 @@ struct ExtensionType {
 /* Controls the pagination of the result set.
 Child elements specify the maximum number of items to return per call and which page of data to return.
 Controls which items are returned in the response, but does not control the details associated with the returned items. */
-struct PaginationInputType {
+class PaginationInputType {
     /* Specifies which subset of data (or "page") to return in the call response.
     The number of data pages is determined by the total number of items matching
     the request search criteria (returned in paginationOutput.totalEntries)
@@ -155,17 +155,17 @@ struct PaginationInputType {
     and specifying, in sequence, the pages to return.
     Specify a positive value equal to or lower than the number of pages available
     (which you determine by examining the results of your initial request). */
-    i32 pageNumber;
+    int pageNumber;
     /* Specifies the maximum number of entries to return in a single call.
     If the number of entries found on the specified pageNumber is less than the value specified here,
     the number of items returned will be less than the value of entriesPerPage. This indicates the end of the result set. */
-    i32 entriesPerPage;
+    int entriesPerPage;
 }
 
 /* Shows the pagination data for the item search.
 Child elements include the page number returned, the maximum entries returned per page,
 the total number of pages that can be returned, and the total number of items that match the search criteria. */
-struct PaginationOutputType {
+class PaginationOutputType {
     /* The subset of item data returned in the current response.
     Search results are divided into sets, or "pages," of item data.
     The number of pages is equal to the total number of items matching the search criteria
@@ -179,7 +179,7 @@ struct PaginationOutputType {
     However, if the number input for pageNumber is greater than the total possible pages of output,
     Baiji returns the last page of item data in the result set, and the value for pageNumber is set to
     the respective (last) page number. */
-    i32 pageNumber;
+    int pageNumber;
     /* The maximum number of items that can be returned in the response.
     This number is always equal to the value input for paginationInput.entriesPerPage.
     The end of the result set has been reached if the number specified for entriesPerPage is greater than
@@ -187,29 +187,29 @@ struct PaginationOutputType {
     In this case, there will be fewer items returned than the number specified in entriesPerPage.
     This can be determined by comparing the entriesPerPage value with the value returned
     in the count attribute for the searchResult field. */
-    i32 entriesPerPage;
+    int entriesPerPage;
     /* The total number of pages of data that could be returned by repeated search requests.
     Note that if you modify the value of inputPagination.entriesPerPage in a request,
     the value output for totalPages will change.
     A value of "0" is returned if service does not find any items that match the search criteria. */
-    i32 totalPages;
+    int totalPages;
     /* The total number of items found that match the search criteria in your request.
     Depending on the input value for entriesPerPage, the response might include only a portion (a page) of the entire result set.
     A value of "0" is returned if service does not find any items that match the search criteria. */
-    i32 totalEntries;
+    int totalEntries;
 }
 
 /* The health status of the service. Per Baiji SOA policy, CheckHealth API must be implemented by service implementation. */
-struct CheckHealthResponseType {
+class CheckHealthResponseType {
     ResponseStatusType responseStatus;
 }
 
 /* Check the health status of the service. Per Baiji SOA policy, CheckHealth API must be implemented by service implementation. */
-struct CheckHealthRequestType {
+class CheckHealthRequestType {
 }
 
 /* Generic error response container. Only used by Baiji RPC framework internally.
 Please don't use this type in your service implementation. */
-struct GenericErrorResponseType {
+class GenericErrorResponseType {
     ResponseStatusType responseStatus;
 }
