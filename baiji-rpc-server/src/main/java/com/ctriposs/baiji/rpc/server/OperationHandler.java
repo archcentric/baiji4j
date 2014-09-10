@@ -5,6 +5,9 @@ import com.ctriposs.baiji.specific.SpecificRecord;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +26,8 @@ public class OperationHandler {
     private Class<?> _serviceType;
     private Constructor<?> _serviceConstructor;
 
-    private static Object _singletonServiceInstance;
-    private static final Object _singletonServiceInstanceCreationLock = new Object();
+    private static final ConcurrentMap<Class<?>, Object> _singletonServiceInstances
+            = new ConcurrentHashMap<Class<?>, Object>();
 
     private ServiceConfig _config;
 
@@ -110,15 +113,16 @@ public class OperationHandler {
         if (this._config.isNewServiceInstancePerRequest()) {
             return _serviceConstructor.newInstance();
         } else {
-            // lazy initialization
-            if (_singletonServiceInstance == null) {
-                synchronized (_singletonServiceInstanceCreationLock) {
-                    if (_singletonServiceInstance == null) {
-                        _singletonServiceInstance = _serviceConstructor.newInstance();
-                    }
+            // Lazy initialization
+            Object instance = _singletonServiceInstances.get(_serviceType);
+            if (instance == null) {
+                instance = _serviceConstructor.newInstance();
+                Object existedInstance = _singletonServiceInstances.putIfAbsent(_serviceType, instance);
+                if (existedInstance != null) {
+                    instance = existedInstance;
                 }
             }
-            return _singletonServiceInstance;
+            return instance;
         }
     }
 
