@@ -1,7 +1,6 @@
 package com.ctriposs.baiji.schema;
 
 
-import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.util.ObjectUtils;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonNode;
@@ -16,7 +15,7 @@ import java.util.Map;
 public class UnionSchema extends UnnamedSchema {
     private final List<Schema> _schemas;
 
-    private UnionSchema(List<Schema> schemas, PropertyMap props) {
+    public UnionSchema(List<Schema> schemas, PropertyMap props) {
         super(SchemaType.UNION, props);
         if (schemas == null) {
             throw new IllegalArgumentException("schemas");

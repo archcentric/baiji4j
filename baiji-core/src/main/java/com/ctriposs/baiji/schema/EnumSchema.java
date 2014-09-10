@@ -46,6 +46,7 @@ public class EnumSchema extends NamedSchema implements Iterable<String> {
             } else {
                 values[1] = ++lastValue;
             }
+            _symbols.add(symbol.getKey());
             symbolMap.put(symbol.getKey(), values);
         }
         _symbolMap = symbolMap;
