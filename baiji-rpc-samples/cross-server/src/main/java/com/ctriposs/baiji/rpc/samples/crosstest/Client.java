@@ -27,8 +27,8 @@ public class Client {
         sample.enum1 = Enum1Values.GREEN;
         sample.int1 = random.nextInt();
         sample.string1 = UUID.randomUUID().toString();
-        sample.bytes1 = UUID.randomUUID().toString().getBytes();
-        sample.list1 = Arrays.asList("a", "b", "c");
+        sample.bytes1 = "天天daydayup".getBytes();
+        sample.list1 = Arrays.asList("啦", "b", "c");
         Map<String, Integer> map = new HashMap<>();
         map.put("1a", 1);
         map.put("2b", 2);
@@ -39,7 +39,7 @@ public class Client {
         innerSample.bigint1 = random.nextLong();
         innerSample.boolean1 = true;
         innerSample.double1 = random.nextDouble();
-        innerSample.list1 = Arrays.asList("a", "b", "c");
+        innerSample.list1 = Arrays.asList("你", "我", "他");
         innerSample.map1 = map;
         sample.innerSample = innerSample;
         Record2 record2 = new Record2();

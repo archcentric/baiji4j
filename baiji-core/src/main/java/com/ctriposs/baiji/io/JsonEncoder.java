@@ -16,7 +16,7 @@ public class JsonEncoder implements Encoder {
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
 
-    static final String CHARSET = "ISO-8859-1";
+    static final String CHARSET = "UTF-8";
 
     private JsonGenerator out;
 

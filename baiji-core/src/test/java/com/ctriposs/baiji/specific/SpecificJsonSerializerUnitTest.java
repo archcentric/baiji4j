@@ -15,12 +15,12 @@ import java.util.Map;
 
 public class SpecificJsonSerializerUnitTest {
 
-    private SpecificJsonWriter<TestSerializerSample> writer;
+    private OtherJsonWriter<TestSerializerSample> writer;
     private SpecificJsonReader<TestSerializerSample> reader;
 
     @Before
     public void setUp() throws Exception {
-        writer = new SpecificJsonWriter<>();
+        writer = new OtherJsonWriter<>();
         reader = new SpecificJsonReader<>(TestSerializerSample.SCHEMA);
     }
 
@@ -46,12 +46,12 @@ public class SpecificJsonSerializerUnitTest {
 
     @Test
     public void testSerializeString() throws Exception {
-        singleFieldTest("string1", "beepboop");
+        singleFieldTest("string1", "好好学习");
     }
     @Test
     public void testSerializeBytes() throws Exception {
-        TestSerializerSample sample = serializeAndDeserialize("bytes1", "beepboop".getBytes());
-        Assert.assertArrayEquals(sample.getBytes1(), "beepboop".getBytes());
+        TestSerializerSample sample = serializeAndDeserialize("bytes1", "天天向上".getBytes());
+        Assert.assertArrayEquals(sample.getBytes1(), "天天向上".getBytes());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class SpecificJsonSerializerUnitTest {
 
         // First serialize
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        writer.writeR(record.getSchema(), record, new JsonEncoder(TestSerializerSample.SCHEMA, os));
+        writer.write(record.getSchema(), record, os);
 
         // Convert the output-stream to input-stream
         ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
