@@ -1,22 +1,54 @@
 package com.ctriposs.baiji.rpc.samples.movie;
 
 import com.ctriposs.baiji.rpc.common.types.AckCodeType;
+import com.ctriposs.baiji.rpc.server.BaijiHttpRequestRouter;
+import com.ctriposs.baiji.rpc.server.HttpRequestRouter;
+import com.ctriposs.baiji.rpc.server.ServiceConfig;
+import com.ctriposs.baiji.rpc.server.netty.BlockingHttpServerBuilder;
+import com.ctriposs.baiji.rpc.server.netty.HttpServer;
+import io.netty.channel.ChannelOption;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class UnitTest {
 
-    private static final String ServiceBaseUrl = "http://localhost:8112/";
+    private static final int PORT = 18112;
+    private static final String BASE_URL = "http://localhost:" + PORT + "/";
 
+    private static HttpServer _server;
     private MovieServiceClient _client;
+
+    @BeforeClass
+    public static void testClassInitialize() throws Exception {
+        ServiceConfig config = new ServiceConfig();
+        config.setOutputExceptionStackTrace(true);
+        HttpRequestRouter router = new BaijiHttpRequestRouter(config, MovieServiceImpl.class);
+
+        BlockingHttpServerBuilder builder = new BlockingHttpServerBuilder(PORT);
+
+        _server = builder.requestRouter(router)
+                .withWorkerCount(10)
+                .serverSocketOption(ChannelOption.SO_BACKLOG, 100)
+                .clientSocketOption(ChannelOption.TCP_NODELAY, true)
+                .build();
+        _server.startWithoutWaitingForShutdown();
+    }
+
+    @AfterClass
+    public static void testClassUninitialize() throws Exception {
+        _server.stop();
+    }
 
     @Before
     public void testInitialize() {
-        _client = MovieServiceClient.getInstance(MovieServiceClient.class, ServiceBaseUrl);
+        _client = MovieServiceClient.getInstance(MovieServiceClient.class, BASE_URL);
     }
 
     @Test
