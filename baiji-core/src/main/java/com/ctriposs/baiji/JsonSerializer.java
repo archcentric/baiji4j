@@ -1,15 +1,14 @@
 package com.ctriposs.baiji;
 
 
-import com.ctriposs.baiji.generic.DatumReader;
-import com.ctriposs.baiji.generic.DatumWriter;
-import com.ctriposs.baiji.io.JsonDecoder;
 import com.ctriposs.baiji.io.JsonEncoder;
 import com.ctriposs.baiji.specific.SpecificJsonReader;
 import com.ctriposs.baiji.specific.SpecificJsonWriter;
 import com.ctriposs.baiji.specific.SpecificRecord;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 

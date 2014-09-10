@@ -6,6 +6,8 @@ import com.ctriposs.baiji.schema.*;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,6 +18,14 @@ import java.util.Map;
 public class OtherJsonWriter<T> {
 
     static final String CHARSET = "UTF-8";
+
+    static final JsonFactory FACTORY = new JsonFactory();
+    static final ObjectMapper MAPPER = new ObjectMapper(FACTORY);
+
+    static {
+        FACTORY.enable(JsonParser.Feature.ALLOW_COMMENTS);
+        FACTORY.setCodec(MAPPER);
+    }
 
     /**
      * The only public write interface
@@ -28,7 +38,7 @@ public class OtherJsonWriter<T> {
             if (os != null) {
                 try {
                     RecordSchema recordSchema = (RecordSchema) schema;
-                    JsonGenerator g = new JsonFactory().createJsonGenerator(os, JsonEncoding.UTF8);
+                    JsonGenerator g = FACTORY.createJsonGenerator(os, JsonEncoding.UTF8);
                     writeRecord(recordSchema, obj, g);
                     g.flush();
                 } catch (IOException e) {
