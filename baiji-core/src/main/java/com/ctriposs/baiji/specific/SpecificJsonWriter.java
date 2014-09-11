@@ -1,182 +1,185 @@
 package com.ctriposs.baiji.specific;
 
-import com.ctriposs.baiji.io.Encoder;
-import com.ctriposs.baiji.io.JsonEncoder;
+
+import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.schema.*;
+import org.codehaus.jackson.JsonEncoding;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class SpecificJsonWriter<T> {
 
-    /** The only write interface.*/
-    public void writeR(Schema schema, T datum, Encoder out) throws IOException {
-        writeRecord(schema, datum, out);
-    }
+    static final String CHARSET = "UTF-8";
 
-    /** Called to write data.*/
-    protected void write(Schema schema, Object datum, JsonEncoder out) throws IOException {
-        try {
-            switch (schema.getType()) {
-                case INT:
-                    out.writeInt(((Number)datum).intValue());
-                    break;
-                case LONG:
-                    out.writeLong((Long)datum);
-                    break;
-                case FLOAT:
-                    out.writeFloat((Float)datum);
-                    break;
-                case DOUBLE:
-                    out.writeDouble((Double)datum);
-                    break;
-                case BOOLEAN:
-                    out.writeBoolean((Boolean) datum);
-                    break;
-                case STRING:
-                    out.writeString(datum.toString());
-                    break;
-                case BYTES:
-                    out.writeBytes((byte[])datum);
-                    break;
-                case NULL:
-                    out.writeNull();
-                    break;
-                case RECORD:
-                    writeInnerRecord(schema, datum, out);
-                    break;
-                case ENUM:
-                    writeEnum(schema, datum, out);
-                    break;
-                case ARRAY:
-                    writeArray(schema, datum, out);
-                    break;
-                case MAP:
-                    writeMap(schema, datum, out);
-                    break;
-                case UNION:
-                    writeUnion(schema, datum, out);
-                    break;
-                default:
-            }
-        } catch (NullPointerException e) {
+    static final JsonFactory FACTORY = new JsonFactory();
+    static final ObjectMapper MAPPER = new ObjectMapper(FACTORY);
 
-        }
-    }
-
-    /** Called to write a record.*/
-    protected void writeRecord(Schema schema, Object datum, Encoder out) throws IOException {
-        JsonEncoder jsonEncoder = (JsonEncoder) out;
-        RecordSchema recordSchema = (RecordSchema) schema;
-        jsonEncoder.writeStartObject();
-        for (Field field : recordSchema.getFields()) {
-            Object value = ((SpecificRecord) datum).get(field.getPos());
-            if (value == null)
-                continue;
-            jsonEncoder.writeFieldName(field.getName());
-            writeFieldValue(value, field, jsonEncoder);
-        }
-        jsonEncoder.writeEndObject();
-        jsonEncoder.flush();
-    }
-
-    /** Called to write inner record.*/
-    //TODO:NECESSARY?
-    protected void writeInnerRecord(Schema schema, Object datum, Encoder out) throws IOException {
-        JsonEncoder jsonEncoder = (JsonEncoder) out;
-        RecordSchema recordSchema = (RecordSchema) schema;
-        jsonEncoder.writeStartObject();
-        for (Field field : recordSchema.getFields()) {
-            Object value = ((SpecificRecord) datum).get(field.getPos());
-            if (value == null)
-                continue;
-            jsonEncoder.writeFieldName(field.getName());
-            writeFieldValue(value, field, jsonEncoder);
-        }
-        jsonEncoder.writeEndObject();
-    }
-
-    /** Called to write a single field of a record.*/
-    protected void writeFieldValue(Object datum, Field f, JsonEncoder out) throws IOException {
-        try {
-            write(f.getSchema(), datum, out);
-        } catch (NullPointerException e) {
-
-        }
-    }
-
-    /** Called to write a array.*/
-    protected void writeArray(Schema schema, Object datum, JsonEncoder out) throws IOException {
-        ArraySchema arraySchema = (ArraySchema) schema;
-        Schema element = arraySchema.getItemSchema();
-        long size = getArraySize(datum);
-        out.writeArrayStart();
-        out.setItemCount(size);
-        for (Iterator iterator = getArrayElements(datum); iterator.hasNext();) {
-            out.startItem();
-            write(element, iterator.next(), out);
-        }
-        out.writeArrayEnd();
+    static {
+        FACTORY.enable(JsonParser.Feature.ALLOW_COMMENTS);
+        FACTORY.setCodec(MAPPER);
     }
 
     /**
-     * Called by {@link #writeArray} to get the size of an array.
-     * @param array an array
-     * @return the size of an array
+     * The only public write interface
+     * @param schema the object schema
+     * @param obj the object
+     * @param os the final output stream
      */
-    protected long getArraySize(Object array) {
-        return ((List)array).size();
+    public void write(Schema schema, T obj, OutputStream os) {
+        if (schema instanceof RecordSchema) {
+            if (os != null) {
+                try {
+                    RecordSchema recordSchema = (RecordSchema) schema;
+                    JsonGenerator g = FACTORY.createJsonGenerator(os, JsonEncoding.UTF8);
+                    writeRecord(recordSchema, obj, g);
+                    g.flush();
+                } catch (IOException e) {
+                    throw new BaijiRuntimeException("Serialize process wrong");
+                }
+            } else {
+                throw new BaijiRuntimeException("Output stream can't be null");
+            }
+        } else {
+            throw new BaijiRuntimeException("schema must be RecordSchema");
+        }
+    }
+
+    /** Called to write record.*/
+    protected void writeRecord(RecordSchema recordSchema, Object datum, JsonGenerator generator) throws IOException {
+        generator.writeStartObject();
+        for (Field field : recordSchema.getFields()) {
+            Object value = ((SpecificRecord) datum).get(field.getPos());
+            if (value == null)
+                continue;
+            generator.writeFieldName(field.getName());
+            writeValue(field.getSchema(), value, generator);
+        }
+        generator.writeEndObject();
+    }
+
+    /** Called to write value.*/
+    protected void writeValue(Schema fieldSchema, Object datum, JsonGenerator generator) throws IOException {
+        try {
+            switch (fieldSchema.getType()) {
+                case INT:
+                    generator.writeNumber(((Number) datum).intValue());
+                    break;
+                case LONG:
+                    generator.writeNumber((Long) datum);
+                    break;
+                case FLOAT:
+                    generator.writeNumber((Float) datum);
+                    break;
+                case DOUBLE:
+                    generator.writeNumber((Double) datum);
+                    break;
+                case BOOLEAN:
+                    generator.writeBoolean((Boolean) datum);
+                    break;
+                case STRING:
+                    generator.writeString(datum.toString());
+                    break;
+                case BYTES:
+                    writeBytes(datum, generator);
+                    break;
+                case NULL:
+                    generator.writeNull();
+                    break;
+                case RECORD:
+                    writeRecord((RecordSchema) fieldSchema, datum, generator);
+                    break;
+                case ENUM:
+                    writeEnum((EnumSchema) fieldSchema, (Enum) datum, generator);
+                    break;
+                case ARRAY:
+                    writeArray((ArraySchema) fieldSchema, (List) datum, generator);
+                    break;
+                case MAP:
+                    writeMap((MapSchema) fieldSchema, (Map) datum, generator);
+                    break;
+                case UNION:
+                    writeUnion((UnionSchema) fieldSchema, datum, generator);
+                    break;
+                default:
+                    error(fieldSchema, datum);
+            }
+        } catch (NullPointerException e) {
+            throw npe(e, " of "+ fieldSchema.getName());
+        }
+    }
+
+    /** Called to write bytes.*/
+    private void writeBytes(Object datum, JsonGenerator generator) throws IOException {
+        byte[] bytes = (byte[]) datum;
+        //generator.writeString(new String(bytes, 0, bytes.length, CHARSET));
+        generator.writeBinary(bytes, 0, bytes.length);
+    }
+
+    /** Called to write enum.*/
+    private void writeEnum(EnumSchema enumSchema, Enum en, JsonGenerator generator) throws IOException {
+        String value = enumSchema.get(en.ordinal());
+        generator.writeString(value);
+    }
+
+    /** Called to write array.*/
+    private void writeArray(ArraySchema arraySchema, List array, JsonGenerator generator) throws IOException {
+        Schema itemSchema = arraySchema.getItemSchema();
+        generator.writeStartArray();
+        for (Iterator iterator = getArrayElements(array); iterator.hasNext();) {
+            writeValue(itemSchema, iterator.next(), generator);
+        }
+        generator.writeEndArray();
     }
 
     /** Called by {@link #writeArray} to enumerate array elements.*/
-    protected Iterator getArrayElements(Object array) {
-        return ((List) array).iterator();
+    private Iterator getArrayElements(List array) {
+        return array.iterator();
     }
 
-    /** Called to write an enum value.*/
-    protected void writeEnum(Schema schema, Object datum, JsonEncoder out) throws IOException {
-        EnumSchema enumSchema = (EnumSchema) schema;
-        String value = enumSchema.get(((Enum) datum).ordinal());
-        out.writeString(value);
-    }
-
-    /** Called to write a map.*/
-    protected void writeMap(Schema schema, Object datum, JsonEncoder out) throws IOException {
-        MapSchema mapSchema = (MapSchema) schema;
-        Schema value = mapSchema.getValueSchema();
-        int size = getMapSize(datum);
-        out.writeMapStart();
-        out.setItemCount(size);
-        for (Map.Entry<Object, Object> entry : getMapEntries(datum)) {
-            out.startItem();
-            out.writeFieldName(entry.getKey().toString());
-            write(value, entry.getValue(), out);
+    /** Called to write map.*/
+    private void writeMap(MapSchema mapSchema, Map map, JsonGenerator generator) throws IOException {
+        Schema valueSchema = mapSchema.getValueSchema();
+        generator.writeStartObject();
+        for (Map.Entry<Object, Object> entry : getMapEntries(map)) {
+            generator.writeFieldName(entry.getKey().toString());
+            writeValue(valueSchema, entry.getValue(), generator);
         }
-        out.writeMapEnd();
-    }
-
-    /** Called by {@link #writeMap} to get the size of a map.*/
-    protected int getMapSize(Object map) {
-        return ((Map) map).size();
+        generator.writeEndObject();
     }
 
     /** Called by {@link #writeMap} to enumerate map elements.*/
-    protected Iterable<Map.Entry<Object, Object>> getMapEntries(Object map) {
-        return ((Map) map).entrySet();
+    private Iterable<Map.Entry<Object, Object>> getMapEntries(Map map) {
+        return map.entrySet();
     }
 
-    /** Called to write an union.*/
-    protected void writeUnion(Schema schema, Object datum, JsonEncoder out) throws IOException {
-        UnionSchema unionSchema = (UnionSchema) schema;
+    /** Called to write union.*/
+    private void writeUnion(UnionSchema unionSchema, Object datum, JsonGenerator generator) throws IOException {
         for (int i = 0; i < unionSchema.size(); i++) {
-            if (unionSchema.get(i).getType() == SchemaType.NULL) {
+            if (unionSchema.get(i).getType() == SchemaType.NULL)
                 continue;
-            }
 
-            write(unionSchema.get(i), datum, out);
+            writeValue(unionSchema.get(i), datum, generator);
             return;
         }
+    }
+
+    /** Error method.*/
+    private void error(Schema schema, Object datum) {
+        throw new BaijiRuntimeException("Not a " + schema + ": " + datum);
+    }
+
+    /** Helper method for adding a message to an NPE. */
+    protected NullPointerException npe(NullPointerException e, String s) {
+        NullPointerException result = new NullPointerException(e.getMessage()+s);
+        result.initCause(e.getCause() == null ? e : e.getCause());
+        return result;
     }
 }

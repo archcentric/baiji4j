@@ -158,12 +158,7 @@ public class SpecificJsonReader<T> {
     }
 
     private byte[] readBytes(Object obj) throws IOException {
-
-        if (obj instanceof JsonNode && ((JsonNode) obj).isBinary()) {
-            return ((JsonNode) obj).getBinaryValue();
-        } else {
-            return ((TextNode) obj).getTextValue().getBytes(CHARSET);
-        }
+        return ((JsonNode) obj).getBinaryValue();
     }
 
     private Map readMap(Object obj, MapSchema mapSchema) throws Exception {

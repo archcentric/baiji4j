@@ -1,7 +1,5 @@
 package com.ctriposs.baiji.specific;
 
-import com.ctriposs.baiji.JsonSerializer;
-import com.ctriposs.baiji.io.JsonEncoder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,12 +13,12 @@ import java.util.Map;
 
 public class SpecificJsonSerializerUnitTest {
 
-    private OtherJsonWriter<TestSerializerSample> writer;
+    private SpecificJsonWriter<TestSerializerSample> writer;
     private SpecificJsonReader<TestSerializerSample> reader;
 
     @Before
     public void setUp() throws Exception {
-        writer = new OtherJsonWriter<>();
+        writer = new SpecificJsonWriter<>();
         reader = new SpecificJsonReader<>(TestSerializerSample.SCHEMA);
     }
 
@@ -48,6 +46,7 @@ public class SpecificJsonSerializerUnitTest {
     public void testSerializeString() throws Exception {
         singleFieldTest("string1", "好好学习");
     }
+
     @Test
     public void testSerializeBytes() throws Exception {
         TestSerializerSample sample = serializeAndDeserialize("bytes1", "天天向上".getBytes());

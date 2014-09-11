@@ -23,7 +23,7 @@ public class JsonSerializer implements Serializer {
     @Override
     public <T extends SpecificRecord> void serialize(T obj, OutputStream stream) throws IOException {
         SpecificJsonWriter<T> writer = getWriter(obj);
-        writer.writeR(obj.getSchema(), obj, new JsonEncoder(obj.getSchema(), stream));
+        writer.write(obj.getSchema(), obj, stream);
     }
 
     @Override
