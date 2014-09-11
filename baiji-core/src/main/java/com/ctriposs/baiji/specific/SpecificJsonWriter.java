@@ -17,8 +17,6 @@ import java.util.Map;
 
 public class SpecificJsonWriter<T> {
 
-    static final String CHARSET = "UTF-8";
-
     static final JsonFactory FACTORY = new JsonFactory();
     static final ObjectMapper MAPPER = new ObjectMapper(FACTORY);
 

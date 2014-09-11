@@ -19,8 +19,6 @@ import java.util.Map;
 
 public class SpecificJsonReader<T> {
 
-    static final String CHARSET = "UTF-8";
-
     private Schema root;
     private ObjectMapper objectMapper = new ObjectMapper();
 
