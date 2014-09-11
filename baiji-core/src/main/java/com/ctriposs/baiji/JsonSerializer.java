@@ -1,7 +1,6 @@
 package com.ctriposs.baiji;
 
 
-import com.ctriposs.baiji.io.JsonEncoder;
 import com.ctriposs.baiji.specific.SpecificJsonReader;
 import com.ctriposs.baiji.specific.SpecificJsonWriter;
 import com.ctriposs.baiji.specific.SpecificRecord;
