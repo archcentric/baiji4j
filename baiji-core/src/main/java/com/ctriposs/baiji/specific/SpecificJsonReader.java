@@ -1,18 +1,14 @@
 package com.ctriposs.baiji.specific;
 
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
-import com.ctriposs.baiji.generic.DatumReader;
-import com.ctriposs.baiji.io.Decoder;
 import com.ctriposs.baiji.schema.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.node.TextNode;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
-import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +16,8 @@ import java.util.Map;
 public class SpecificJsonReader<T> {
 
     private Schema root;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    // ObjectMapper is thread safe
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public SpecificJsonReader(Schema schema) {
         this.root = schema;
@@ -37,7 +34,7 @@ public class SpecificJsonReader<T> {
      * @return a record instance
      */
     public T read(T reuse, InputStream is) throws IOException {
-        JsonNode jsonNode = objectMapper.readTree(is);
+        JsonNode jsonNode = MAPPER.readTree(is);
         if (root instanceof RecordSchema) {
             RecordSchema recordSchema = (RecordSchema) root;
             try {
@@ -46,7 +43,7 @@ public class SpecificJsonReader<T> {
                 throw new BaijiRuntimeException(e);
             }
         } else {
-            throw new BaijiRuntimeException("schema wrong");
+            throw new BaijiRuntimeException("Schema must be RecordSchema");
         }
     }
 
@@ -274,6 +271,10 @@ public class SpecificJsonReader<T> {
             String value = ((JsonNode) reuse).getTextValue();
             return Enum.valueOf((Class)ObjectCreator.INSTANCE.getClass(enumSchema), value);
         }
+    }
+
+    private interface JsonReadable {
+        Object read(Object reuse) throws Exception;
     }
 
     private static Constructor getConstructor(Schema schema) {
