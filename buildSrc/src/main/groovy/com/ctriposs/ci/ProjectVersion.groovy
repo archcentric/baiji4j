@@ -4,11 +4,13 @@ class ProjectVersion {
     final Integer major
     final Integer minor
     final String build
+    final Boolean isSnapshot
 
-    ProjectVersion(Integer major, Integer minor, String build) {
+    ProjectVersion(Integer major, Integer minor, String build, Boolean isSnapshot) {
         this.major = major
         this.minor = minor
         this.build = build
+        this.isSnapshot = isSnapshot
     }
 
     @Override
@@ -18,7 +20,11 @@ class ProjectVersion {
         if (build) {
             fullVersion += ".$build"
         }
-
+        
+        if (isSnapshot) {
+            fullVersion += "-SNAPSHOT"
+        }
+        
         fullVersion
     }
 }

@@ -2,6 +2,8 @@ package com.ctriposs.baiji.rpc.samples.crosstest;
 
 import java.util.*;
 
+import com.ctriposs.baiji.exception.BaijiRuntimeException;
+
 public class TestServiceImpl implements TestService {
 
     @Override
@@ -11,6 +13,15 @@ public class TestServiceImpl implements TestService {
         }
 
         TestSerializerSample sample = request.getSample();
+
+        byte[] bytes1 = sample.bytes1;
+        for(int i = 0; i < 256; i++){
+        	if((bytes1[i]- (byte)i) == 0)
+        		continue;
+        	else
+        		throw new BaijiRuntimeException("bytes serialize mismatched!");
+        }
+
         TestSerializerSampleList sampleList = new TestSerializerSampleList();
         List<TestSerializerSample> list = new ArrayList<>();
         for (int i = 0; i < 5; i++) {

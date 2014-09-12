@@ -2,7 +2,8 @@ subprojects { project ->
 	apply plugin: 'java' // Plugin as major conventions
 
 	sourceCompatibility = 1.6
-
+    
+    [ compileJava, compileTestJava, javadoc ]*.options*.encoding = 'UTF-8'
 	
 	task sourcesJar(type: Jar, dependsOn:classes) {
 		from sourceSets.main.allSource
@@ -27,6 +28,9 @@ subprojects { project ->
 		repositories.mavenDeployer {
 			repository(url: mavenRepoUrl) {
 				authentication(userName: mavenRepoUser, password: mavenRepoPassword)
+			}
+			snapshotRepository(url: mavenSnapshotRepoUrl) {
+				authentication(userName: mavenSnapshotRepoUser, password: mavenSnapshotRepoPassword)
 			}
 		}
 	}
