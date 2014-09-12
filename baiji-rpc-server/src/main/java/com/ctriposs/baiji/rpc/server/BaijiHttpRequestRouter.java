@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.sql.Timestamp;
@@ -190,14 +191,21 @@ public class BaijiHttpRequestRouter implements HttpRequestRouter {
             // Invocation
             OperationContext operationContext = new OperationContext(request, handler.getMethodName(), requestObject);
 
-            SpecificRecord responseObject = null;
+            SpecificRecord responseObject;
             try {
                 responseObject = handler.invoke(operationContext);
             } catch (Exception ex) {
-                String errMsg = "Fail to invoke target service method " + handler.getMethodName();
-                _logger.error(errMsg, ex);
+                Throwable actualEx;
+                if (ex instanceof InvocationTargetException) {
+                    actualEx = ((InvocationTargetException) ex).getTargetException();
+                } else {
+                    actualEx = ex;
+                }
+                String errMsg = actualEx.getClass().getName() + " - " + actualEx.getMessage();
+                _logger.error("Fail to invoke target service method " + handler.getMethodName() + ": " + errMsg,
+                        actualEx);
                 SpecificRecord errorResponse = (SpecificRecord) this.buildErrorResponse(
-                        handler, "ServiceInvocationError", errMsg, ErrorClassificationCodeType.SERVICE_ERROR, ex);
+                        handler, "ServiceInvocationError", errMsg, ErrorClassificationCodeType.SERVICE_ERROR, actualEx);
                 this.writeBaijiResponse(responseWriter, errorResponse, request, formatter);
                 return; // Nothing more to do
             }
@@ -212,14 +220,13 @@ public class BaijiHttpRequestRouter implements HttpRequestRouter {
             }
 
             this.writeBaijiResponse(responseWriter, responseObject, request, formatter);
-
-        } catch (Exception ex) {
+        } catch (Throwable t) {
             if (request != null && formatter != null && handler != null) {
-                String errMsg = ex.getMessage();
-                _logger.error(errMsg, ex);
+                String errMsg = t.getMessage();
+                _logger.error(errMsg, t);
                 try {
                     SpecificRecord errorResponse = (SpecificRecord) this.buildErrorResponse(
-                            handler, "RequestException", errMsg, ErrorClassificationCodeType.FRAMEWORK_ERROR, ex);
+                            handler, "RequestException", errMsg, ErrorClassificationCodeType.FRAMEWORK_ERROR, t);
                     this.writeBaijiResponse(responseWriter, errorResponse, request, formatter);
                 } catch (Exception e) {
                     _logger.error("Internal server error", e);
@@ -227,7 +234,7 @@ public class BaijiHttpRequestRouter implements HttpRequestRouter {
                 }
                 return; // Nothing more to do
             } else {
-                _logger.error("Internal server error", ex);
+                _logger.error("Internal server error", t);
                 this.writeHttpResponse(responseWriter, HttpStatus.SC_INTERNAL_SERVER_ERROR);
                 return; // Nothing more to do
             }
