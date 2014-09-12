@@ -62,4 +62,9 @@ public class JsonSerializer implements Serializer {
 
         return datumReader;
     }
+
+    public void clearCache() {
+        _readerCache.clear();
+        _writerCache.clear();
+    }
 }
