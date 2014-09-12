@@ -1,6 +1,9 @@
 package com.ctriposs.baiji.rpc.samples.crosstest;
 
+import java.io.UnsupportedEncodingException;
 import java.util.*;
+
+import com.ctriposs.baiji.exception.BaijiRuntimeException;
 
 public class TestServiceImpl implements TestService {
 
@@ -11,6 +14,18 @@ public class TestServiceImpl implements TestService {
         }
 
         TestSerializerSample sample = request.getSample();
+
+        // Check bytes encoding/decoding function.
+        // string1 is the reference of bytes1 using UTF8 encoding from client.
+        try {
+            String byteString = new String(sample.getBytes1(), 0, sample.getBytes1().length, "UTF-8");
+            if (!sample.getString1().equals(byteString)) {
+                throw new BaijiRuntimeException("bytes serialize mismatched!");
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
         TestSerializerSampleList sampleList = new TestSerializerSampleList();
         List<TestSerializerSample> list = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
