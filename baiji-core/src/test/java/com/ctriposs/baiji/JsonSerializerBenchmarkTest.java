@@ -35,54 +35,52 @@ public class JsonSerializerBenchmarkTest {
     public void testBenchmark() throws Exception {
         loop = 1000;
         run = true;
+        testJsonSerializerBenchmark();
+        testBinaryBenchmark();
+        testJacksonBenchmark();
+        print(records);
     }
 
     public void testJsonSerializerBenchmark() throws Exception {
         serializer = new JsonSerializerBenchmark();
-        for (int i = 0; i < loop; i++) {
-            intBenchmark();
-            booleanBenchmark();
-            longBenchmark();
-            doubleBenchmark();
-            stringBenchmark();
-            bytesBenchmark();
-            enumBenchmark();
-            arrayBenchmark();
-            mapBenchmark();
-            recordBenchmark();
-        }
+        intBenchmark();
+        booleanBenchmark();
+        longBenchmark();
+        doubleBenchmark();
+        stringBenchmark();
+        bytesBenchmark();
+        enumBenchmark();
+        arrayBenchmark();
+        mapBenchmark();
+        recordBenchmark();
     }
 
     public void testJacksonBenchmark() throws Exception {
         serializer = new JacksonBenchmark();
-        for (int i = 0; i < loop; i++) {
-            intBenchmark();
-            booleanBenchmark();
-            longBenchmark();
-            doubleBenchmark();
-            stringBenchmark();
-            bytesBenchmark();
-            enumBenchmark();
-            arrayBenchmark();
-            mapBenchmark();
-            recordBenchmark();
-        }
+        intBenchmark();
+        booleanBenchmark();
+        longBenchmark();
+        doubleBenchmark();
+        stringBenchmark();
+        bytesBenchmark();
+        enumBenchmark();
+        arrayBenchmark();
+        mapBenchmark();
+        recordBenchmark();
     }
 
     public void testBinaryBenchmark() throws Exception {
         serializer = new BinaryBenchmark();
-        for (int i = 0; i < loop; i++) {
-            intBenchmark();
-            booleanBenchmark();
-            longBenchmark();
-            doubleBenchmark();
-            stringBenchmark();
-            bytesBenchmark();
-            enumBenchmark();
-            arrayBenchmark();
-            mapBenchmark();
-            recordBenchmark();
-        }
+        intBenchmark();
+        booleanBenchmark();
+        longBenchmark();
+        doubleBenchmark();
+        stringBenchmark();
+        bytesBenchmark();
+        enumBenchmark();
+        arrayBenchmark();
+        mapBenchmark();
+        recordBenchmark();
     }
 
     @After
@@ -95,6 +93,7 @@ public class JsonSerializerBenchmarkTest {
         testJsonSerializerBenchmark();
         testBinaryBenchmark();
         testJacksonBenchmark();
+        System.out.println("warm up done");
     }
 
     private void intBenchmark() {
@@ -207,8 +206,8 @@ public class JsonSerializerBenchmarkTest {
 
     private double aggregateResults(List<Long> results) {
         double sum = 0;
-        for (int i = 0; i < results.size(); i++) {
-            sum += results.get(i);
+        for (Long result : results) {
+            sum += result;
         }
 
         return sum/results.size();
