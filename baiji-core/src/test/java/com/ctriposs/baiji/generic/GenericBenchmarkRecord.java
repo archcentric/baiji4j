@@ -6,18 +6,15 @@ import com.ctriposs.baiji.specific.SpecificRecordBase;
 
 public class GenericBenchmarkRecord extends SpecificRecordBase {
 
-    private Schema _schema;
     private Object fieldValue;
 
     public static String recordType;
 
-    public GenericBenchmarkRecord() {
-        _schema = generateSchema(recordType);
-    }
-
     @Override
     public Schema getSchema() {
-        return _schema;
+        String s = "{\"type\":\"record\",\"name\":\"GenericBenchmarkRecord\",\"namespace\":\"com.ctriposs.baiji.generic\","
+                + "\"fields\":[{\"name\":\"fieldName\",\"type\": " + recordType + "}]}";
+        return Schema.parse(s);
     }
 
     @Override
@@ -28,11 +25,5 @@ public class GenericBenchmarkRecord extends SpecificRecordBase {
     @Override
     public void put(int fieldPos, Object fieldValue) {
         this.fieldValue = fieldValue;
-    }
-
-    private Schema generateSchema(String recordType) {
-        String s = "{\"type\":\"record\",\"name\":\"BenchmarkRecord\",\"namespace\":\"com.ctriposs.baiji\","
-                + "\"fields\":[{\"name\":\"fieldName\",\"type\": " + recordType + "}]}";
-        return Schema.parse(s);
     }
 }

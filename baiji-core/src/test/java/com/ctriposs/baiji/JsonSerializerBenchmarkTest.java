@@ -1,9 +1,9 @@
 package com.ctriposs.baiji;
 
 import com.ctriposs.baiji.generic.GenericBenchmarkRecord;
-import com.ctriposs.baiji.specific.Enum1Values;
-import com.ctriposs.baiji.specific.SpecificRecord;
+import com.ctriposs.baiji.specific.*;
 import com.google.common.collect.Lists;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -49,6 +49,7 @@ public class JsonSerializerBenchmarkTest {
             enumBenchmark();
             arrayBenchmark();
             mapBenchmark();
+            recordBenchmark();
         }
     }
 
@@ -64,6 +65,7 @@ public class JsonSerializerBenchmarkTest {
             enumBenchmark();
             arrayBenchmark();
             mapBenchmark();
+            recordBenchmark();
         }
     }
 
@@ -79,6 +81,7 @@ public class JsonSerializerBenchmarkTest {
             enumBenchmark();
             arrayBenchmark();
             mapBenchmark();
+            recordBenchmark();
         }
     }
 
@@ -90,6 +93,8 @@ public class JsonSerializerBenchmarkTest {
     private void warmUp() throws Exception {
         // Pre-run until the JVM Stable
         testJsonSerializerBenchmark();
+        testBinaryBenchmark();
+        testJacksonBenchmark();
     }
 
     private void intBenchmark() {
@@ -162,6 +167,10 @@ public class JsonSerializerBenchmarkTest {
 
     private void recordBenchmark() {
         serializer.clearCache();
+        ModelFilling2 record = new ModelFilling2(1024 * 1024 * 16L, "testRecord", Lists.newArrayList("a", "b", "c"), Enum2Values.BIKE);
+        double[] results = singleFieldBenchmark(record, record.getSchema().toString());
+        appendResults("serialize record", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("deserialize record", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private double[] singleFieldBenchmark(Object fieldValue, String fieldType) {
@@ -183,7 +192,6 @@ public class JsonSerializerBenchmarkTest {
 
                 byte[] bytes = ((ByteArrayOutputStream) os).toByteArray();
                 bytesSize = bytes.length;
-                System.out.println(bytesSize);
                 InputStream is = new ByteArrayInputStream(bytes);
                 long startTimeTwo = System.nanoTime();
                 serializer.deserialize(GenericBenchmarkRecord.class, is);
@@ -263,6 +271,10 @@ public class JsonSerializerBenchmarkTest {
 
         private ObjectMapper objectMapper = new ObjectMapper();
 
+        {
+            objectMapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
+        }
+
         @Override
         public String getName() {
             return "Jackson DataBind";
@@ -280,7 +292,6 @@ public class JsonSerializerBenchmarkTest {
 
         @Override
         public void clearCache() {
-
         }
     }
 
@@ -305,7 +316,7 @@ public class JsonSerializerBenchmarkTest {
 
         @Override
         public void clearCache() {
-
+            binarySerializer.clearCache();
         }
     }
 

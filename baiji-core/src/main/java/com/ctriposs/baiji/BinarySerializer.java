@@ -67,4 +67,9 @@ public class BinarySerializer implements Serializer {
         }
         return reader;
     }
+
+    public void clearCache() {
+        _readerCache.clear();
+        _writerCache.clear();
+    }
 }
