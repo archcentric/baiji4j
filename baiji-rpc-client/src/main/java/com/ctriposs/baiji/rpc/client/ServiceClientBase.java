@@ -3,7 +3,7 @@ package com.ctriposs.baiji.rpc.client;
 import com.ctriposs.baiji.rpc.client.registry.EtcdRegistryClient;
 import com.ctriposs.baiji.rpc.client.registry.InstanceInfo;
 import com.ctriposs.baiji.rpc.client.registry.RegistryClient;
-import com.ctriposs.baiji.rpc.client.util.DaemonThreadFactory;
+import com.ctriposs.baiji.rpc.common.util.DaemonThreadFactory;
 import com.ctriposs.baiji.rpc.common.HasResponseStatus;
 import com.ctriposs.baiji.rpc.common.formatter.BinaryContentFormatter;
 import com.ctriposs.baiji.rpc.common.formatter.ContentFormatter;

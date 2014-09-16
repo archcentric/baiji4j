@@ -1,4 +1,4 @@
-package com.ctriposs.baiji.rpc.client.util;
+package com.ctriposs.baiji.rpc.common.util;
 
 import java.util.concurrent.ThreadFactory;
 

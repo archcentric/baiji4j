@@ -1,5 +1,6 @@
 package com.ctriposs.baiji.rpc.server;
 
+import com.ctriposs.baiji.rpc.common.util.DaemonThreadFactory;
 import com.ctriposs.baiji.rpc.server.util.ConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,21 +46,24 @@ public class AsyncBaijiServlet extends BaijiServletBase {
         _keepAliveTime = ConfigUtil.getIntConfig(servletConfig, KEEP_ALIVE_TIME_PARAM, DEFAULT_KEEP_ALIVE_TIME);
 
         _poolExecutor = new ThreadPoolExecutor(_coreThreadCount, _maxThreadCount, _keepAliveTime, TimeUnit.MILLISECONDS,
-                new SynchronousQueue<Runnable>());
+                new SynchronousQueue<Runnable>(), new DaemonThreadFactory());
     }
 
     @Override
     public void service(ServletRequest req, ServletResponse resp)
             throws ServletException, IOException {
-        req.setAttribute("org.apache.catalina.ASYNC_SUPPORTED", true);
-        AsyncContext asyncContext = req.startAsync();
-        asyncContext.setTimeout(_asyncTimeout);
-        asyncContext.addListener(new AsyncGateListener());
         if (_poolExecutor == null) {
             throw new IllegalStateException("The servlet has been destroyed.");
         }
+
+        req.setAttribute("org.apache.catalina.ASYNC_SUPPORTED", true);
+
+        AsyncContext asyncContext = req.startAsync();
+        asyncContext.setTimeout(_asyncTimeout);
+        AsyncBaijiListener listener = new AsyncBaijiListener();
+        asyncContext.addListener(listener);
         try {
-            _poolExecutor.submit(new BaijiCallable(asyncContext));
+            _poolExecutor.submit(new BaijiCallable(asyncContext, listener));
         } catch (RuntimeException e) {
             throw e;
         }
@@ -69,7 +73,7 @@ public class AsyncBaijiServlet extends BaijiServletBase {
     public void destroy() {
         if (_poolExecutor != null) {
             try {
-                _poolExecutor.awaitTermination(5, TimeUnit.MINUTES);
+                _poolExecutor.awaitTermination(_asyncTimeout, TimeUnit.MILLISECONDS);
                 _poolExecutor.shutdown();
             } catch (InterruptedException e) {
                 _poolExecutor.shutdownNow();
@@ -81,9 +85,11 @@ public class AsyncBaijiServlet extends BaijiServletBase {
 
     private class BaijiCallable implements Callable {
         private final AsyncContext _context;
+        private final AsyncBaijiListener _listener;
 
-        public BaijiCallable(AsyncContext context) {
+        public BaijiCallable(AsyncContext context, AsyncBaijiListener listener) {
             _context = context;
+            _listener = listener;
         }
 
         @Override
@@ -91,20 +97,28 @@ public class AsyncBaijiServlet extends BaijiServletBase {
             try {
                 processRequest(_context.getRequest(), _context.getResponse());
             } catch (Throwable t) {
-                _logger.error("GateCallable execute error.", t);
+                _logger.error("BaijiCallable execute error.", t);
             } finally {
-                try {
-                    _context.complete();
-                } catch (Throwable t) {
-                    _logger.error("AsyncContext complete error.", t);
+                if (!_listener.isTimedOut()) {
+                    try {
+                        _context.complete();
+                    } catch (Throwable t) {
+                        _logger.error("AsyncContext complete error.", t);
+                    }
                 }
             }
             return null;
         }
     }
 
-    private static class AsyncGateListener implements AsyncListener {
-        private static final Logger _logger = LoggerFactory.getLogger(AsyncGateListener.class);
+    private static class AsyncBaijiListener implements AsyncListener {
+        private static final Logger _logger = LoggerFactory.getLogger(AsyncBaijiListener.class);
+
+        private boolean _timedOut;
+
+        public boolean isTimedOut() {
+            return _timedOut;
+        }
 
         @Override
         public void onComplete(AsyncEvent event) throws IOException {
@@ -112,6 +126,7 @@ public class AsyncBaijiServlet extends BaijiServletBase {
 
         @Override
         public void onTimeout(AsyncEvent event) throws IOException {
+            _timedOut = true;
             _logger.error("Access {} timeout in AsyncBaijiServlet.",
                     ((HttpServletRequest) event.getAsyncContext().getRequest()).getRequestURL());
         }
