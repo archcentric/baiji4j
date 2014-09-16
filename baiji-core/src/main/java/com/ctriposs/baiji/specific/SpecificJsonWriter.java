@@ -40,7 +40,7 @@ public class SpecificJsonWriter<T> {
                     writeRecord(recordSchema, obj, g);
                     g.flush();
                 } catch (IOException e) {
-                    throw new BaijiRuntimeException("Serialize process wrong");
+                    throw new BaijiRuntimeException("Serialize process failed.", e);
                 }
             } else {
                 throw new BaijiRuntimeException("Output stream can't be null");
