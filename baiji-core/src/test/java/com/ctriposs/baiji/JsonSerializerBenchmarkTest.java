@@ -3,7 +3,6 @@ package com.ctriposs.baiji;
 import com.ctriposs.baiji.generic.GenericBenchmarkRecord;
 import com.ctriposs.baiji.specific.*;
 import com.google.common.collect.Lists;
-import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
@@ -208,7 +207,7 @@ public class JsonSerializerBenchmarkTest {
                 public ArrayList<Double> call() throws Exception {
                     ModelFilling2 record = new ModelFilling2(1024 * 1024 * 16L, "testRecord", Lists.newArrayList("a", "b", "c"), Enum2Values.BIKE);
                     double[] results = singleFieldBenchmark(record, record.getSchema().toString());
-                    ArrayList<Double> result = new ArrayList<Double>();
+                    ArrayList<Double> result = new ArrayList<>();
                     result.add(results[0]);
                     result.add(results[1]);
                     result.add(results[2]);
