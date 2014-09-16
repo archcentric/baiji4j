@@ -3,6 +3,7 @@ package com.ctriposs.baiji.generic;
 
 import com.ctriposs.baiji.schema.Schema;
 import com.ctriposs.baiji.specific.SpecificRecordBase;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class GenericBenchmarkRecord extends SpecificRecordBase {
 
@@ -11,10 +12,18 @@ public class GenericBenchmarkRecord extends SpecificRecordBase {
     public static String recordType;
 
     @Override
-    public Schema getSchema() {
+    @JsonIgnore public Schema getSchema() {
         String s = "{\"type\":\"record\",\"name\":\"GenericBenchmarkRecord\",\"namespace\":\"com.ctriposs.baiji.generic\","
                 + "\"fields\":[{\"name\":\"fieldName\",\"type\": " + recordType + "}]}";
         return Schema.parse(s);
+    }
+
+    public Object getFieldValue() {
+        return fieldValue;
+    }
+
+    public void setFieldValue(Object fieldValue) {
+        this.fieldValue = fieldValue;
     }
 
     @Override

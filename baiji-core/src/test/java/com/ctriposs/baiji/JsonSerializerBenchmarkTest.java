@@ -270,10 +270,6 @@ public class JsonSerializerBenchmarkTest {
 
         private ObjectMapper objectMapper = new ObjectMapper();
 
-        {
-            objectMapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
-        }
-
         @Override
         public String getName() {
             return "Jackson DataBind";
