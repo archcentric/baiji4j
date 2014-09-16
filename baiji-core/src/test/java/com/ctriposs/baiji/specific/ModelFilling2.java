@@ -5,6 +5,7 @@ import com.ctriposs.baiji.exception.*;
 import com.ctriposs.baiji.schema.*;
 import com.ctriposs.baiji.specific.*;
 import com.google.common.base.Objects;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 @SuppressWarnings("all")
 public class ModelFilling2 extends SpecificRecordBase implements SpecificRecord {
@@ -13,7 +14,7 @@ public class ModelFilling2 extends SpecificRecordBase implements SpecificRecord 
     public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"ModelFilling2\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"fields\":[{\"name\":\"longfilling\",\"type\":[\"long\",\"null\"]},{\"name\":\"stringfilling\",\"type\":[\"string\",\"null\"]},{\"name\":\"listfilling\",\"type\":[{\"type\":\"array\",\"items\":\"string\"},\"null\"]},{\"name\":\"enumfilling\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum2Values\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"symbols\":[\"CAR\",\"BIKE\",\"PLANE\"]},\"null\"]}]}");
 
     @Override
-    public Schema getSchema() { return SCHEMA; }
+    @JsonIgnore public Schema getSchema() { return SCHEMA; }
 
     public ModelFilling2(
         Long longfilling,

@@ -10,11 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class JsonSerializerBenchmarkTest {
 
@@ -53,6 +50,11 @@ public class JsonSerializerBenchmarkTest {
         arrayBenchmark();
         mapBenchmark();
         recordBenchmark();
+        if (run) {
+            benchmarkFiveThreads();
+            benchmarkTenThreads();
+            benchmarkTwentyThreads();
+        }
     }
 
     public void testJacksonBenchmark() throws Exception {
@@ -67,6 +69,11 @@ public class JsonSerializerBenchmarkTest {
         arrayBenchmark();
         mapBenchmark();
         recordBenchmark();
+        if (run) {
+            benchmarkFiveThreads();
+            benchmarkTenThreads();
+            benchmarkTwentyThreads();
+        }
     }
 
     public void testBinaryBenchmark() throws Exception {
@@ -81,6 +88,11 @@ public class JsonSerializerBenchmarkTest {
         arrayBenchmark();
         mapBenchmark();
         recordBenchmark();
+        if (run) {
+            benchmarkFiveThreads();
+            benchmarkTenThreads();
+            benchmarkTwentyThreads();
+        }
     }
 
     @After
@@ -172,6 +184,64 @@ public class JsonSerializerBenchmarkTest {
         appendResults("deserialize record", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
+    private void benchmarkFiveThreads() throws ExecutionException, InterruptedException {
+        benchmarkMultiThread(5);
+    }
+
+    private void benchmarkTenThreads() throws ExecutionException, InterruptedException {
+        benchmarkMultiThread(10);
+    }
+
+    private void benchmarkTwentyThreads() throws ExecutionException, InterruptedException {
+        benchmarkMultiThread(20);
+    }
+
+    private void benchmarkMultiThread(int threadNum) throws ExecutionException, InterruptedException {
+        serializer.clearCache();
+
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        ArrayList<Future<ArrayList<Double>>> futures = new ArrayList<>();
+
+        for (int i = 0; i < threadNum; i++) {
+            futures.add(executorService.submit(new Callable<ArrayList<Double>>() {
+                @Override
+                public ArrayList<Double> call() throws Exception {
+                    ModelFilling2 record = new ModelFilling2(1024 * 1024 * 16L, "testRecord", Lists.newArrayList("a", "b", "c"), Enum2Values.BIKE);
+                    double[] results = singleFieldBenchmark(record, record.getSchema().toString());
+                    ArrayList<Double> result = new ArrayList<Double>();
+                    result.add(results[0]);
+                    result.add(results[1]);
+                    result.add(results[2]);
+                    return result;
+                }
+            }));
+        }
+
+        ArrayList<ArrayList<Double>> results = new ArrayList<>();
+        for (Future<ArrayList<Double>> future : futures) {
+            results.add(future.get());
+        }
+
+        executorService.shutdown();
+
+        double serialize = 0;
+        double deserialize = 0;
+        int bytesSize = 0;
+
+        for (int i = 0; i < results.size(); i++) {
+            ArrayList<Double> perThread = results.get(i);
+            serialize += perThread.get(0);
+            deserialize += perThread.get(1);
+            bytesSize = perThread.get(2).intValue();
+        }
+
+        serialize = serialize/results.size();
+        deserialize = deserialize/results.size();
+
+        appendResults(threadNum + " threads serialize records", new ExecutionResult(serializer.getName(), serialize, bytesSize));
+        appendResults(threadNum + " threads deserialize records", new ExecutionResult(serializer.getName(), deserialize, bytesSize));
+    }
+
     private double[] singleFieldBenchmark(Object fieldValue, String fieldType) {
         GenericBenchmarkRecord.recordType = fieldType;
         GenericBenchmarkRecord benchmarkRecord = new GenericBenchmarkRecord();
@@ -187,7 +257,7 @@ public class JsonSerializerBenchmarkTest {
                 long startTime = System.nanoTime();
                 serializer.serialize(benchmarkRecord, os);
                 long endTime = System.nanoTime();
-                serializeTimes.add(endTime - startTime);
+                serializeTimes.add((endTime - startTime)/1000);
 
                 byte[] bytes = ((ByteArrayOutputStream) os).toByteArray();
                 bytesSize = bytes.length;
@@ -195,7 +265,7 @@ public class JsonSerializerBenchmarkTest {
                 long startTimeTwo = System.nanoTime();
                 serializer.deserialize(GenericBenchmarkRecord.class, is);
                 long endTimeTwo = System.nanoTime();
-                deserializeTimes.add(endTimeTwo - startTimeTwo);
+                deserializeTimes.add((endTimeTwo - startTimeTwo)/1000);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -235,7 +305,7 @@ public class JsonSerializerBenchmarkTest {
             System.out.println(key + str);
             List<ExecutionResult> re = result.get(key);
             for (ExecutionResult r : re) {
-                System.out.println("\t\t\t" + r.serializer + " " + ": " + r.time + "(avg) ns/op, " + r.bytesSize + " bytes");
+                System.out.println("\t\t\t" + r.serializer + " " + ": " + r.time + "(avg) μs/op, " + r.bytesSize + " bytes");
             }
         }
     }
