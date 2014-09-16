@@ -20,13 +20,9 @@ public class RequestContext {
      */
     public String RequestMethod;
     /**
-     * Required:Yes, A string containing the request path. The path MUST be relative to the "root" of the application.
+     * Required:Yes, A string containing the request path. The path MUST be relative to the "root" of the service mapping.
      */
     public String RequestPath;
-    /**
-     * Required:Yes, A string containing the portion of the request path corresponding to the "root" of the application.
-     */
-    public String RequestPathBase;
     /**
      * Required:Yes, A string containing the protocol name and version (e.g. "HTTP/1.0" or "HTTP/1.1").
      */

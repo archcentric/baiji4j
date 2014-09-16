@@ -64,7 +64,6 @@ public class ServerHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         context.RequestPath = uri.getPath();
         context.RequestProtocol = request.getProtocolVersion().toString();
         context.RequestQueryString = uri.getQuery();
-        context.RequestPathBase = "/"; // Since the netty server does not have a context path element as such, so base uri is always /
         context.RequestScheme = uri.getScheme();
         return context;
     }

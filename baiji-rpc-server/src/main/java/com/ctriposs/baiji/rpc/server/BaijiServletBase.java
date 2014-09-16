@@ -179,7 +179,6 @@ public abstract class BaijiServletBase extends HttpServlet {
         environment.RequestPath = request.getPathInfo();
         environment.RequestProtocol = request.getProtocol();
         environment.RequestQueryString = request.getQueryString();
-        environment.RequestPathBase = request.getContextPath();
         environment.RequestScheme = uri.getScheme();
         return environment;
     }
