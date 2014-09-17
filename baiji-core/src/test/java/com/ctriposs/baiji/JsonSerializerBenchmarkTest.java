@@ -21,7 +21,6 @@ public class JsonSerializerBenchmarkTest {
     private ConcurrentHashMap<String, List<ExecutionResult>> records = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws Exception {
-        System.out.println("main");
         JsonSerializerBenchmarkTest test = new JsonSerializerBenchmarkTest();
         test.setUp();
         test.testBenchmark();
