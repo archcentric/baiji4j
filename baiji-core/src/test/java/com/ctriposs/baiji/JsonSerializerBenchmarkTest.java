@@ -20,14 +20,22 @@ public class JsonSerializerBenchmarkTest {
 
     private ConcurrentHashMap<String, List<ExecutionResult>> records = new ConcurrentHashMap<>();
 
-    @Before
+    public static void main(String[] args) throws Exception {
+        System.out.println("main");
+        JsonSerializerBenchmarkTest test = new JsonSerializerBenchmarkTest();
+        test.setUp();
+        test.testBenchmark();
+        test.tearDown();
+    }
+
+    /*@Before*/
     public void setUp() throws Exception {
         loop = 50;
         run = false;
         warmUp();
     }
 
-    @Test
+    /*@Test*/
     public void testBenchmark() throws Exception {
         loop = 1000;
         run = true;
@@ -110,57 +118,57 @@ public class JsonSerializerBenchmarkTest {
     private void intBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(42, "\"int\"");
-        appendResults("serialize int", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("deserialize int", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        appendResults("write int", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("parse int", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void booleanBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(true, "\"boolean\"");
-        appendResults("serialize boolean", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("deserialize boolean", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        appendResults("write boolean", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("parse boolean", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void longBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(1024 * 1024 * 16L, "\"long\"");
-        appendResults("serialize long", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("deserialize long", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        appendResults("write long", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("parse long", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void doubleBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(24.00000001, "\"double\"");
-        appendResults("serialize double", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("deserialize double", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        appendResults("write double", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("parse double", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void stringBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark("testString", "\"string\"");
-        appendResults("serialize string", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("deserialize string", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        appendResults("write string", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("parse string", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void bytesBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark("testBytes".getBytes(), "\"bytes\"");
-        appendResults("serialize bytes", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("deserialize bytes", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        appendResults("write bytes", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("parse bytes", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void enumBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(Enum1Values.RED, "{\"type\":\"enum\",\"name\":\"Enum1Values\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"symbols\":[\"BLUE\",\"RED\",\"GREEN\"]}");
-        appendResults("serialize enum", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("deserialize enum", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        appendResults("write enum", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("parse enum", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void arrayBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(Lists.newArrayList(1, 2, 3, 4, 5), "{\"type\":\"array\",\"items\":\"int\"}");
-        appendResults("serialize array", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("deserialize array", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        appendResults("write array", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("parse array", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
 
     }
 
@@ -171,16 +179,16 @@ public class JsonSerializerBenchmarkTest {
         map.put("2b", 2);
         map.put("3c", 3);
         double[] results = singleFieldBenchmark(map, "{\"type\":\"map\",\"values\":\"int\"}");
-        appendResults("serialize map", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("deserialize map", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        appendResults("write map", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("parse map", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void recordBenchmark() {
         serializer.clearCache();
         ModelFilling2 record = new ModelFilling2(1024 * 1024 * 16L, "testRecord", Lists.newArrayList("a", "b", "c"), Enum2Values.BIKE);
         double[] results = singleFieldBenchmark(record, record.getSchema().toString());
-        appendResults("serialize record", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("deserialize record", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        appendResults("write record", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
+        appendResults("parse record", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void benchmarkFiveThreads() throws ExecutionException, InterruptedException {

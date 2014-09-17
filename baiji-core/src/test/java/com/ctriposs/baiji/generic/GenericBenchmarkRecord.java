@@ -14,7 +14,7 @@ public class GenericBenchmarkRecord extends SpecificRecordBase {
     @Override
     @JsonIgnore public Schema getSchema() {
         String s = "{\"type\":\"record\",\"name\":\"GenericBenchmarkRecord\",\"namespace\":\"com.ctriposs.baiji.generic\","
-                + "\"fields\":[{\"name\":\"fieldName\",\"type\": " + recordType + "}]}";
+                + "\"fields\":[{\"name\":\"fieldValue\",\"type\": " + recordType + "}]}";
         return Schema.parse(s);
     }
 
