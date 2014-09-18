@@ -73,9 +73,6 @@ public class SpecificJsonWriter<T> {
                 case LONG:
                     generator.writeNumber((Long) datum);
                     break;
-                case FLOAT:
-                    generator.writeNumber((Float) datum);
-                    break;
                 case DOUBLE:
                     generator.writeNumber((Double) datum);
                     break;

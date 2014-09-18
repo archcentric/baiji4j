@@ -337,7 +337,7 @@ public class JsonSerializerBenchmarkTest {
 
         @Override
         public void clearCache() {
-            jsonSerializer.clearCache();
+            //jsonSerializer.clearCache();
         }
     }
 

@@ -1,5 +1,6 @@
 package com.ctriposs.baiji;
 
+import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.specific.*;
 import org.junit.Assert;
 import org.junit.Before;
@@ -149,6 +150,32 @@ public class JsonSerializerUnitTest {
             if (is != null) {
                 is.close();
             }
+        }
+    }
+
+    @Test
+    public void testNotSupportSchemaType() throws Exception {
+        OutputStream os = null;
+        InputStream is = null;
+
+        try {
+            Record3 expected = new Record3();
+            expected.bigint2 = 1.0f;
+            expected.enum2 = Enum2Values.BIKE;
+
+            os = serialize(expected);
+        } catch (BaijiRuntimeException e) {
+        }
+    }
+
+    @Test
+    public void testNoRecordSerialize() throws Exception {
+        OutputStream os = null;
+        InputStream is = null;
+
+        try {
+            os = serialize(EnumTest.CAR);
+        } catch (BaijiRuntimeException e) {
         }
     }
 

@@ -15,16 +15,12 @@ import java.util.Map;
 
 public class SpecificJsonReader<T> {
 
-    private Schema root;
+    private final Schema root;
     // ObjectMapper is thread safe
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public SpecificJsonReader(Schema schema) {
         this.root = schema;
-    }
-
-    public Schema getSchema() {
-        return root;
     }
 
     /**
@@ -77,10 +73,6 @@ public class SpecificJsonReader<T> {
         ((SpecificRecord) obj).put(fieldPos, fieldValue);
     }
 
-    protected void put(Object obj, String fieldName, Object fieldValue) {
-        ((SpecificRecord) obj).put(fieldName, fieldValue);
-    }
-
     /** Called to read a field of a record.*/
     protected Object readField(Schema schema, Object datum) throws Exception {
         try {
@@ -95,8 +87,6 @@ public class SpecificJsonReader<T> {
                     return readDouble(datum);
                 case LONG:
                     return readLong(datum);
-                case FLOAT:
-                    return readFloat(datum);
                 case STRING:
                     return readString(datum);
                 case BYTES:
@@ -142,10 +132,6 @@ public class SpecificJsonReader<T> {
 
     private Object readLong(Object obj) {
         return (obj instanceof JsonNode) ? ((JsonNode) obj).getLongValue() : obj;
-    }
-
-    private Object readFloat(Object obj) {
-        return (obj instanceof JsonNode) ? ((JsonNode) obj).getNumberValue().floatValue() : obj;
     }
 
     private Object readString(Object obj) {
