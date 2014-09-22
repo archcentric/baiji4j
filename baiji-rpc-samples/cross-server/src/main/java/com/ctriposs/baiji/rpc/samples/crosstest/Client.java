@@ -27,7 +27,10 @@ public class Client {
         sample.enum1 = Enum1Values.GREEN;
         sample.int1 = random.nextInt();
         sample.string1 = UUID.randomUUID().toString();
-        sample.bytes1 = "天天daydayup".getBytes();
+        sample.bytes1 = new byte[256];
+        for (int i= 0; i < 256; ++i) {
+            sample.bytes1[i] = (byte)i;
+        }
         sample.list1 = Arrays.asList("啦", "b", "c");
         Map<String, Integer> map = new HashMap<>();
         map.put("1a", 1);
