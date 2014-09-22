@@ -15,14 +15,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class SpecificJsonWriter<T> {
+public final class SpecificJsonWriter<T> {
 
     static final JsonFactory FACTORY = new JsonFactory();
-    static final ObjectMapper MAPPER = new ObjectMapper(FACTORY);
 
     static {
         FACTORY.enable(JsonParser.Feature.ALLOW_COMMENTS);
-        FACTORY.setCodec(MAPPER);
     }
 
     /**
@@ -39,6 +37,7 @@ public class SpecificJsonWriter<T> {
                     JsonGenerator g = FACTORY.createJsonGenerator(os, JsonEncoding.UTF8);
                     writeRecord(recordSchema, obj, g);
                     g.flush();
+                    g.close();
                 } catch (IOException e) {
                     throw new BaijiRuntimeException("Serialize process failed.", e);
                 }
@@ -68,7 +67,7 @@ public class SpecificJsonWriter<T> {
         try {
             switch (fieldSchema.getType()) {
                 case INT:
-                    generator.writeNumber(((Number) datum).intValue());
+                    generator.writeNumber((Integer) datum);
                     break;
                 case LONG:
                     generator.writeNumber((Long) datum);
@@ -105,6 +104,7 @@ public class SpecificJsonWriter<T> {
                     break;
                 default:
                     error(fieldSchema, datum);
+                    break;
             }
         } catch (NullPointerException e) {
             throw npe(e, " of "+ fieldSchema.getName());

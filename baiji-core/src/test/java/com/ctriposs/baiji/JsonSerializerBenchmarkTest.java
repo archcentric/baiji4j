@@ -4,9 +4,6 @@ import com.ctriposs.baiji.generic.GenericBenchmarkRecord;
 import com.ctriposs.baiji.specific.*;
 import com.google.common.collect.Lists;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.io.*;
 import java.util.*;
@@ -14,7 +11,7 @@ import java.util.concurrent.*;
 
 public class JsonSerializerBenchmarkTest {
 
-    private BenchmarkSerializer serializer;
+    private BenchmarkSerializer serializer = new JsonSerializerBenchmark();
     private int loop;
     private boolean run;
 
@@ -22,25 +19,15 @@ public class JsonSerializerBenchmarkTest {
 
     public static void main(String[] args) throws Exception {
         JsonSerializerBenchmarkTest test = new JsonSerializerBenchmarkTest();
-        test.setUp();
-        test.testBenchmark();
-        test.tearDown();
+        while (true) {
+            test.testBenchmark();
+        }
     }
 
-    /*@Before*/
-    public void setUp() throws Exception {
-        loop = 50;
-        run = false;
-        warmUp();
-    }
-
-    /*@Test*/
     public void testBenchmark() throws Exception {
-        loop = 1000;
-        run = true;
-        testJsonSerializerBenchmark();
-        testBinaryBenchmark();
-        testJacksonBenchmark();
+        /*testBinaryBenchmark();
+        testJacksonBenchmark();*/
+        testJson();
         print(records);
     }
 
@@ -56,11 +43,11 @@ public class JsonSerializerBenchmarkTest {
         arrayBenchmark();
         mapBenchmark();
         recordBenchmark();
-        if (run) {
+        /*if (run) {
             benchmarkFiveThreads();
             benchmarkTenThreads();
             benchmarkTwentyThreads();
-        }
+        }*/
     }
 
     public void testJacksonBenchmark() throws Exception {
@@ -75,11 +62,11 @@ public class JsonSerializerBenchmarkTest {
         arrayBenchmark();
         mapBenchmark();
         recordBenchmark();
-        if (run) {
+        /*if (run) {
             benchmarkFiveThreads();
             benchmarkTenThreads();
             benchmarkTwentyThreads();
-        }
+        }*/
     }
 
     public void testBinaryBenchmark() throws Exception {
@@ -94,24 +81,37 @@ public class JsonSerializerBenchmarkTest {
         arrayBenchmark();
         mapBenchmark();
         recordBenchmark();
-        if (run) {
+        /*if (run) {
             benchmarkFiveThreads();
             benchmarkTenThreads();
             benchmarkTwentyThreads();
-        }
+        }*/
     }
 
-    @After
-    public void tearDown() throws Exception {
-
-    }
-
-    private void warmUp() throws Exception {
-        // Pre-run until the JVM Stable
+    private void jsonWarmUp() throws Exception {
+        loop = 500;
+        run = false;
         testJsonSerializerBenchmark();
+        System.out.println("Json Warm Up Done");
+    }
+
+    private void testJson() throws Exception {
+        jsonWarmUp();
+        loop = 20000;
+        run = true;
+        testJsonSerializerBenchmark();
+    }
+
+    private void binaryWarmUp() throws Exception {
+        loop = 400;
+        run = false;
         testBinaryBenchmark();
+    }
+
+    private void jacksonWarmUp() throws Exception {
+        loop = 400;
+        run = false;
         testJacksonBenchmark();
-        System.out.println("warm up done");
     }
 
     private void intBenchmark() {
@@ -257,15 +257,18 @@ public class JsonSerializerBenchmarkTest {
         List<Long> deserializeTimes = new ArrayList<>();
 
         int bytesSize = 0;
+        OutputStream os = new ByteArrayOutputStream();
 
         for (int i = 0; i < loop; i++) {
-            try (OutputStream os = new ByteArrayOutputStream()) {
+            try {
                 long startTime = System.nanoTime();
                 serializer.serialize(benchmarkRecord, os);
                 long endTime = System.nanoTime();
                 serializeTimes.add((endTime - startTime)/1000);
 
                 byte[] bytes = ((ByteArrayOutputStream) os).toByteArray();
+                ((ByteArrayOutputStream) os).reset();
+
                 bytesSize = bytes.length;
                 InputStream is = new ByteArrayInputStream(bytes);
                 long startTimeTwo = System.nanoTime();
@@ -322,7 +325,7 @@ public class JsonSerializerBenchmarkTest {
 
         @Override
         public String getName() {
-            return "Self JsonSerializer";
+            return "Json Serializer";
         }
 
         @Override
@@ -337,7 +340,7 @@ public class JsonSerializerBenchmarkTest {
 
         @Override
         public void clearCache() {
-            //jsonSerializer.clearCache();
+            jsonSerializer.clearCache();
         }
     }
 
@@ -372,7 +375,7 @@ public class JsonSerializerBenchmarkTest {
 
         @Override
         public String getName() {
-            return "Self Binary Serializer";
+            return "Binary Serializer";
         }
 
         @Override

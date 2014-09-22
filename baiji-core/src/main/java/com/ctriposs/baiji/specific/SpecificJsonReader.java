@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class SpecificJsonReader<T> {
+public final class SpecificJsonReader<T> {
 
     private final Schema root;
     // ObjectMapper is thread safe
