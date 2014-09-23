@@ -30,7 +30,7 @@ class CommonRequestType {
 class ResponseStatusType {
     /* This value represents the date and time when a Baiji service processed the request.
     The value of this element is set by framework automatically, value set by service implementation will be overwritten. */
-    required string timestamp;
+    required datetime timestamp;
     /* Indicates whether the call was successfully processed by Baiji. */
     required AckCodeType ack;
     /* A list of framework, validation or service-level errors or warnings (if any)

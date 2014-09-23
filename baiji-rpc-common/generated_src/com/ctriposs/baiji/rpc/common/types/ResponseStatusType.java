@@ -2,6 +2,7 @@ package com.ctriposs.baiji.rpc.common.types;
 
 import java.util.*;
 import com.ctriposs.baiji.exception.*;
+import com.ctriposs.baiji.rpc.common.*;
 import com.ctriposs.baiji.schema.*;
 import com.ctriposs.baiji.specific.*;
 import com.google.common.base.Objects;
@@ -18,13 +19,13 @@ import com.google.common.base.Objects;
 public class ResponseStatusType extends SpecificRecordBase implements SpecificRecord {
     private static final long serialVersionUID = 1L;
 
-    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"ResponseStatusType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"fields\":[{\"name\":\"timestamp\",\"type\":[\"string\",\"null\"]},{\"name\":\"ack\",\"type\":[{\"type\":\"enum\",\"name\":\"AckCodeType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"symbols\":[\"SUCCESS\",\"FAILURE\",\"WARNING\",\"PARTIAL_FAILURE\"]},\"null\"]},{\"name\":\"errors\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ErrorDataType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"fields\":[{\"name\":\"message\",\"type\":[\"string\",\"null\"]},{\"name\":\"errorCode\",\"type\":[\"string\",\"null\"]},{\"name\":\"stackTrace\",\"type\":[\"string\",\"null\"]},{\"name\":\"severityCode\",\"type\":[{\"type\":\"enum\",\"name\":\"SeverityCodeType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"symbols\":[\"ERROR\",\"WARNING\"]},\"null\"]},{\"name\":\"errorFields\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ErrorFieldType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"fields\":[{\"name\":\"fieldName\",\"type\":[\"string\",\"null\"]},{\"name\":\"errorCode\",\"type\":[\"string\",\"null\"]},{\"name\":\"message\",\"type\":[\"string\",\"null\"]}]}},\"null\"]},{\"name\":\"errorClassification\",\"type\":[{\"type\":\"enum\",\"name\":\"ErrorClassificationCodeType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"symbols\":[\"SERVICE_ERROR\",\"VALIDATION_ERROR\",\"FRAMEWORK_ERROR\",\"SLAERROR\",\"SECURITY_ERROR\"]},\"null\"]}]}},\"null\"]},{\"name\":\"build\",\"type\":[\"string\",\"null\"]},{\"name\":\"version\",\"type\":[\"string\",\"null\"]},{\"name\":\"extension\",\"type\":[{\"type\":\"record\",\"name\":\"ExtensionType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"fields\":[{\"name\":\"id\",\"type\":[\"int\",\"null\"]},{\"name\":\"version\",\"type\":[\"string\",\"null\"]},{\"name\":\"contentType\",\"type\":[\"string\",\"null\"]},{\"name\":\"value\",\"type\":[\"string\",\"null\"]}]},\"null\"]}]}");
+    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"ResponseStatusType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"fields\":[{\"name\":\"timestamp\",\"type\":[\"datetime\",\"null\"]},{\"name\":\"ack\",\"type\":[{\"type\":\"enum\",\"name\":\"AckCodeType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"symbols\":[\"SUCCESS\",\"FAILURE\",\"WARNING\",\"PARTIAL_FAILURE\"]},\"null\"]},{\"name\":\"errors\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ErrorDataType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"fields\":[{\"name\":\"message\",\"type\":[\"string\",\"null\"]},{\"name\":\"errorCode\",\"type\":[\"string\",\"null\"]},{\"name\":\"stackTrace\",\"type\":[\"string\",\"null\"]},{\"name\":\"severityCode\",\"type\":[{\"type\":\"enum\",\"name\":\"SeverityCodeType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"symbols\":[\"ERROR\",\"WARNING\"]},\"null\"]},{\"name\":\"errorFields\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"ErrorFieldType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"fields\":[{\"name\":\"fieldName\",\"type\":[\"string\",\"null\"]},{\"name\":\"errorCode\",\"type\":[\"string\",\"null\"]},{\"name\":\"message\",\"type\":[\"string\",\"null\"]}]}},\"null\"]},{\"name\":\"errorClassification\",\"type\":[{\"type\":\"enum\",\"name\":\"ErrorClassificationCodeType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"symbols\":[\"SERVICE_ERROR\",\"VALIDATION_ERROR\",\"FRAMEWORK_ERROR\",\"SLAERROR\",\"SECURITY_ERROR\"]},\"null\"]}]}},\"null\"]},{\"name\":\"build\",\"type\":[\"string\",\"null\"]},{\"name\":\"version\",\"type\":[\"string\",\"null\"]},{\"name\":\"extension\",\"type\":[{\"type\":\"record\",\"name\":\"ExtensionType\",\"namespace\":\"com.ctriposs.baiji.rpc.common.types\",\"doc\":null,\"fields\":[{\"name\":\"id\",\"type\":[\"int\",\"null\"]},{\"name\":\"version\",\"type\":[\"string\",\"null\"]},{\"name\":\"contentType\",\"type\":[\"string\",\"null\"]},{\"name\":\"value\",\"type\":[\"string\",\"null\"]}]},\"null\"]}]}");
 
     @Override
     public Schema getSchema() { return SCHEMA; }
 
     public ResponseStatusType(
-        String timestamp,
+        java.util.Calendar timestamp,
         AckCodeType ack,
         List<ErrorDataType> errors,
         String build,
@@ -46,7 +47,7 @@ public class ResponseStatusType extends SpecificRecordBase implements SpecificRe
      * This value represents the date and time when a Baiji service processed the request.
      * The value of this element is set by framework automatically, value set by service implementation will be overwritten.
      */
-    public String timestamp;
+    public java.util.Calendar timestamp;
 
 
     /**
@@ -86,7 +87,7 @@ public class ResponseStatusType extends SpecificRecordBase implements SpecificRe
      * This value represents the date and time when a Baiji service processed the request.
      * The value of this element is set by framework automatically, value set by service implementation will be overwritten.
      */
-    public String getTimestamp() {
+    public java.util.Calendar getTimestamp() {
         return timestamp;
     }
 
@@ -94,7 +95,7 @@ public class ResponseStatusType extends SpecificRecordBase implements SpecificRe
      * This value represents the date and time when a Baiji service processed the request.
      * The value of this element is set by framework automatically, value set by service implementation will be overwritten.
      */
-    public void setTimestamp(final String timestamp) {
+    public void setTimestamp(final java.util.Calendar timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -198,7 +199,7 @@ public class ResponseStatusType extends SpecificRecordBase implements SpecificRe
     @SuppressWarnings(value="unchecked")
     public void put(int fieldPos, java.lang.Object fieldValue) {
         switch (fieldPos) {
-            case 0: this.timestamp = (String)fieldValue; break;
+            case 0: this.timestamp = (java.util.Calendar)fieldValue; break;
             case 1: this.ack = (AckCodeType)fieldValue; break;
             case 2: this.errors = (List<ErrorDataType>)fieldValue; break;
             case 3: this.build = (String)fieldValue; break;

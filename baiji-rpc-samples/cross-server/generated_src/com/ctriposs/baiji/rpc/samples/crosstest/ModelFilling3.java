@@ -2,6 +2,7 @@ package com.ctriposs.baiji.rpc.samples.crosstest;
 
 import java.util.*;
 import com.ctriposs.baiji.exception.*;
+import com.ctriposs.baiji.rpc.common.*;
 import com.ctriposs.baiji.schema.*;
 import com.ctriposs.baiji.specific.*;
 import com.google.common.base.Objects;
@@ -71,7 +72,7 @@ public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord 
     }
 
     // Used by DatumWriter. Applications should not call.
-    public Object get(int fieldPos) {
+    public java.lang.Object get(int fieldPos) {
         switch (fieldPos) {
             case 0: return this.intfilling;
             case 1: return this.doublefilling;
@@ -83,7 +84,7 @@ public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord 
 
     // Used by DatumReader. Applications should not call.
     @SuppressWarnings(value="unchecked")
-    public void put(int fieldPos, Object fieldValue) {
+    public void put(int fieldPos, java.lang.Object fieldValue) {
         switch (fieldPos) {
             case 0: this.intfilling = (Integer)fieldValue; break;
             case 1: this.doublefilling = (Double)fieldValue; break;

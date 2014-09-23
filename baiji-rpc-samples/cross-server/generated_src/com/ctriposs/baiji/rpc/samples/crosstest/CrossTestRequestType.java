@@ -1,6 +1,8 @@
 package com.ctriposs.baiji.rpc.samples.crosstest;
 
+import java.util.*;
 import com.ctriposs.baiji.exception.*;
+import com.ctriposs.baiji.rpc.common.*;
 import com.ctriposs.baiji.schema.*;
 import com.ctriposs.baiji.specific.*;
 import com.google.common.base.Objects;
@@ -46,7 +48,7 @@ public class CrossTestRequestType extends SpecificRecordBase implements Specific
     }
 
     // Used by DatumWriter. Applications should not call.
-    public Object get(int fieldPos) {
+    public java.lang.Object get(int fieldPos) {
         switch (fieldPos) {
             case 0: return this.name;
             case 1: return this.sample;
@@ -56,7 +58,7 @@ public class CrossTestRequestType extends SpecificRecordBase implements Specific
 
     // Used by DatumReader. Applications should not call.
     @SuppressWarnings(value="unchecked")
-    public void put(int fieldPos, Object fieldValue) {
+    public void put(int fieldPos, java.lang.Object fieldValue) {
         switch (fieldPos) {
             case 0: this.name = (String)fieldValue; break;
             case 1: this.sample = (TestSerializerSample)fieldValue; break;

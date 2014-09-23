@@ -2,6 +2,7 @@ package com.ctriposs.baiji.rpc.samples.crosstest;
 
 import java.util.*;
 import com.ctriposs.baiji.exception.*;
+import com.ctriposs.baiji.rpc.common.*;
 import com.ctriposs.baiji.schema.*;
 import com.ctriposs.baiji.specific.*;
 import com.google.common.base.Objects;
@@ -107,7 +108,7 @@ public class Record2 extends SpecificRecordBase implements SpecificRecord {
     }
 
     // Used by DatumWriter. Applications should not call.
-    public Object get(int fieldPos) {
+    public java.lang.Object get(int fieldPos) {
         switch (fieldPos) {
             case 0: return this.enum2;
             case 1: return this.bigint2;
@@ -122,7 +123,7 @@ public class Record2 extends SpecificRecordBase implements SpecificRecord {
 
     // Used by DatumReader. Applications should not call.
     @SuppressWarnings(value="unchecked")
-    public void put(int fieldPos, Object fieldValue) {
+    public void put(int fieldPos, java.lang.Object fieldValue) {
         switch (fieldPos) {
             case 0: this.enum2 = (Enum2Values)fieldValue; break;
             case 1: this.bigint2 = (Long)fieldValue; break;

@@ -2,12 +2,13 @@ package com.ctriposs.baiji.rpc.common.types;
 
 import java.util.*;
 import com.ctriposs.baiji.exception.*;
+import com.ctriposs.baiji.rpc.common.*;
 import com.ctriposs.baiji.schema.*;
 import com.ctriposs.baiji.specific.*;
 import com.google.common.base.Objects;
 
 /**
- * Check the health status of the service.Per Baiji SOA policy, CheckHealth API must be implemented by service implementation.
+ * Check the health status of the service. Per Baiji SOA policy, CheckHealth API must be implemented by service implementation.
  */
 @SuppressWarnings("all")
 public class CheckHealthRequestType extends SpecificRecordBase implements SpecificRecord {

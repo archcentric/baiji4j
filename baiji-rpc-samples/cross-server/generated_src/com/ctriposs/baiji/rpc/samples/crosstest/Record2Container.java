@@ -2,6 +2,7 @@ package com.ctriposs.baiji.rpc.samples.crosstest;
 
 import java.util.*;
 import com.ctriposs.baiji.exception.*;
+import com.ctriposs.baiji.rpc.common.*;
 import com.ctriposs.baiji.schema.*;
 import com.ctriposs.baiji.specific.*;
 import com.google.common.base.Objects;
@@ -35,7 +36,7 @@ public class Record2Container extends SpecificRecordBase implements SpecificReco
     }
 
     // Used by DatumWriter. Applications should not call.
-    public Object get(int fieldPos) {
+    public java.lang.Object get(int fieldPos) {
         switch (fieldPos) {
             case 0: return this.record2list;
             default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in get()");
@@ -44,7 +45,7 @@ public class Record2Container extends SpecificRecordBase implements SpecificReco
 
     // Used by DatumReader. Applications should not call.
     @SuppressWarnings(value="unchecked")
-    public void put(int fieldPos, Object fieldValue) {
+    public void put(int fieldPos, java.lang.Object fieldValue) {
         switch (fieldPos) {
             case 0: this.record2list = (List<Record2>)fieldValue; break;
             default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in put()");

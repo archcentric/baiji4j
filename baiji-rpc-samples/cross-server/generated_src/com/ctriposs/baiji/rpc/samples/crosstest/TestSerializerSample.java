@@ -2,6 +2,7 @@ package com.ctriposs.baiji.rpc.samples.crosstest;
 
 import java.util.*;
 import com.ctriposs.baiji.exception.*;
+import com.ctriposs.baiji.rpc.common.*;
 import com.ctriposs.baiji.schema.*;
 import com.ctriposs.baiji.specific.*;
 import com.google.common.base.Objects;
@@ -203,7 +204,7 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
     }
 
     // Used by DatumWriter. Applications should not call.
-    public Object get(int fieldPos) {
+    public java.lang.Object get(int fieldPos) {
         switch (fieldPos) {
             case 0: return this.int1;
             case 1: return this.tinyint1;
@@ -226,7 +227,7 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
 
     // Used by DatumReader. Applications should not call.
     @SuppressWarnings(value="unchecked")
-    public void put(int fieldPos, Object fieldValue) {
+    public void put(int fieldPos, java.lang.Object fieldValue) {
         switch (fieldPos) {
             case 0: this.int1 = (Integer)fieldValue; break;
             case 1: this.tinyint1 = (Integer)fieldValue; break;

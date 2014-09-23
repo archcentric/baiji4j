@@ -264,7 +264,7 @@ public class BaijiHttpRequestRouter implements HttpRequestRouter {
 
         ResponseStatusType responseStatus = new ResponseStatusType();
         responseStatus.ack = AckCodeType.FAILURE;
-        responseStatus.timestamp = this.getCurrentTimestamp();
+        responseStatus.timestamp = Calendar.getInstance();
         ErrorDataType errorData = new ErrorDataType();
         errorData.errorCode = errorCode;
         errorData.errorClassification = errorClassificationCode;
@@ -279,11 +279,6 @@ public class BaijiHttpRequestRouter implements HttpRequestRouter {
 
         responseObj.setResponseStatus(responseStatus);
         return responseObj;
-    }
-
-    private String getCurrentTimestamp() {
-        Date date = new Date();
-        return new Timestamp(date.getTime()).toString();
     }
 
     private void writeBaijiResponse(HttpResponseWrapper responseWriter, SpecificRecord responseObject,
@@ -309,7 +304,7 @@ public class BaijiHttpRequestRouter implements HttpRequestRouter {
         }
 
         if (responseStatus.timestamp == null) {
-            responseStatus.timestamp = this.getCurrentTimestamp();
+            responseStatus.timestamp = Calendar.getInstance();
         }
 
         // Serialization
