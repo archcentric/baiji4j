@@ -46,7 +46,8 @@ public final class SpecificJsonReader<T> {
     /** Called to read a record.*/
     protected Object readRecord(JsonNode node, Object reuse, JsonReadable recordReader, RecordSchema recordSchema) throws Exception {
         Object r = recordReader.read(reuse);
-        for (Field field : recordSchema.getFields()) {
+        List<Field> fields = recordSchema.getFields();
+        for (Field field : fields) {
             if (node.has(field.getName())) {
                 Object value = readField(field.getSchema(), node.get(field.getName()));
                 put(r, field.getPos(), value);
@@ -59,7 +60,8 @@ public final class SpecificJsonReader<T> {
     /** Called to read the inner record.*/
     protected Object readInnerRecord(Object reuse, JsonReadable recordReader, RecordSchema recordSchema) throws Exception {
         Object obj = recordReader.read(null);
-        for (Field field : recordSchema.getFields()) {
+        List<Field> fields = recordSchema.getFields();
+        for (Field field : fields) {
             if (((ObjectNode) reuse).has(field.getName())) {
                 Object value = readField(field.getSchema(), ((ObjectNode) reuse).get(field.getName()));
                 put(obj, field.getPos(), value);
@@ -265,11 +267,10 @@ public final class SpecificJsonReader<T> {
 
     private static Constructor getConstructor(Schema schema) {
         ObjectCreator objectCreator = ObjectCreator.INSTANCE;
-        Constructor constructor = null;
+        Constructor constructor;
         try {
             constructor = objectCreator.getClass(schema).getConstructor(new Class[]{});
         } catch (NoSuchMethodException e) {
-            System.out.println("null pointer exception");
             return null;
         }
 

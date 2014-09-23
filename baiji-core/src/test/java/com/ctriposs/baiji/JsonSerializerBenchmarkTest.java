@@ -19,14 +19,12 @@ public class JsonSerializerBenchmarkTest {
 
     public static void main(String[] args) throws Exception {
         JsonSerializerBenchmarkTest test = new JsonSerializerBenchmarkTest();
-        while (true) {
-            test.testBenchmark();
-        }
+        test.testBenchmark();
     }
 
     public void testBenchmark() throws Exception {
-        /*testBinaryBenchmark();
-        testJacksonBenchmark();*/
+        testJackson();
+        testBinary();
         testJson();
         print(records);
     }
@@ -43,7 +41,7 @@ public class JsonSerializerBenchmarkTest {
         arrayBenchmark();
         mapBenchmark();
         recordBenchmark();
-        /*if (run) {
+       /* if (run) {
             benchmarkFiveThreads();
             benchmarkTenThreads();
             benchmarkTwentyThreads();
@@ -62,7 +60,7 @@ public class JsonSerializerBenchmarkTest {
         arrayBenchmark();
         mapBenchmark();
         recordBenchmark();
-        /*if (run) {
+      /*  if (run) {
             benchmarkFiveThreads();
             benchmarkTenThreads();
             benchmarkTwentyThreads();
@@ -89,7 +87,7 @@ public class JsonSerializerBenchmarkTest {
     }
 
     private void jsonWarmUp() throws Exception {
-        loop = 500;
+        loop = 800;
         run = false;
         testJsonSerializerBenchmark();
         System.out.println("Json Warm Up Done");
@@ -97,20 +95,36 @@ public class JsonSerializerBenchmarkTest {
 
     private void testJson() throws Exception {
         jsonWarmUp();
-        loop = 20000;
+        loop = 40000;
         run = true;
         testJsonSerializerBenchmark();
     }
 
     private void binaryWarmUp() throws Exception {
-        loop = 400;
+        loop = 800;
         run = false;
+        testBinaryBenchmark();
+        System.out.println("Binary warm up done");
+    }
+
+    private void testBinary() throws Exception {
+        binaryWarmUp();
+        loop = 40000;
+        run = true;
         testBinaryBenchmark();
     }
 
     private void jacksonWarmUp() throws Exception {
-        loop = 400;
+        loop = 800;
         run = false;
+        testJacksonBenchmark();
+        System.out.println("Jackson warm up done");
+    }
+
+    private void testJackson() throws Exception {
+        jacksonWarmUp();
+        loop = 40000;
+        run = true;
         testJacksonBenchmark();
     }
 

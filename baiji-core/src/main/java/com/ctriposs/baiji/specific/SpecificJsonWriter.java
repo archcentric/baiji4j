@@ -52,7 +52,8 @@ public final class SpecificJsonWriter<T> {
     /** Called to write record.*/
     protected void writeRecord(RecordSchema recordSchema, Object datum, JsonGenerator generator) throws IOException {
         generator.writeStartObject();
-        for (Field field : recordSchema.getFields()) {
+        List<Field> fields = recordSchema.getFields();
+        for (Field field : fields) {
             Object value = ((SpecificRecord) datum).get(field.getPos());
             if (value == null)
                 continue;
@@ -114,7 +115,6 @@ public final class SpecificJsonWriter<T> {
     /** Called to write bytes.*/
     private void writeBytes(Object datum, JsonGenerator generator) throws IOException {
         byte[] bytes = (byte[]) datum;
-        //generator.writeString(new String(bytes, 0, bytes.length, CHARSET));
         generator.writeBinary(bytes, 0, bytes.length);
     }
 
@@ -142,8 +142,9 @@ public final class SpecificJsonWriter<T> {
     /** Called to write map.*/
     private void writeMap(MapSchema mapSchema, Map map, JsonGenerator generator) throws IOException {
         Schema valueSchema = mapSchema.getValueSchema();
+        Iterable<Map.Entry<Object, Object>> iterable = getMapEntries(map);
         generator.writeStartObject();
-        for (Map.Entry<Object, Object> entry : getMapEntries(map)) {
+        for (Map.Entry<Object, Object> entry : iterable) {
             generator.writeFieldName(entry.getKey().toString());
             writeValue(valueSchema, entry.getValue(), generator);
         }
@@ -157,7 +158,8 @@ public final class SpecificJsonWriter<T> {
 
     /** Called to write union.*/
     private void writeUnion(UnionSchema unionSchema, Object datum, JsonGenerator generator) throws IOException {
-        for (int i = 0; i < unionSchema.size(); i++) {
+        int size = unionSchema.size();
+        for (int i = 0; i < size; i++) {
             if (unionSchema.get(i).getType() == SchemaType.NULL)
                 continue;
 

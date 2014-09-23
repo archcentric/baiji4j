@@ -31,10 +31,12 @@ public class SingleTest {
             jsonSerializer.deserialize(GenericBenchmarkRecord.class, is);
             is.close();
         }*/
-
-        while (true) {
+        long start = System.nanoTime();
+        for (int i = 0; i < 200000; i++) {
             jsonSerializer.serialize(benchmarkRecord, os);
-            ((ByteArrayOutputStream) os).reset();
         }
+        long end = System.nanoTime();
+        ((ByteArrayOutputStream) os).reset();
+        System.out.println((end - start)/(1000*200000));
     }
 }
