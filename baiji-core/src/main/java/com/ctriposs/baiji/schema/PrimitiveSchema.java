@@ -20,6 +20,7 @@ public final class PrimitiveSchema extends UnnamedSchema {
         _typeMap.put("double", SchemaType.DOUBLE);
         _typeMap.put("bytes", SchemaType.BYTES);
         _typeMap.put("string", SchemaType.STRING);
+        _typeMap.put("datetime", SchemaType.DATETIME);
     }
 
     public PrimitiveSchema(SchemaType type, PropertyMap props) {
