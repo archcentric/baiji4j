@@ -33,6 +33,7 @@ public class SpecificDatumReader<T> extends PreresolvingDatumReader<T> {
             case BYTES:
             case ENUM:
             case STRING:
+            case DATETIME:
             case NULL:
                 return false;
         }

@@ -2,6 +2,7 @@ package com.ctriposs.baiji.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 
 /**
  * An abstract {@link Encoder} for Baiji's binary encoding.
@@ -70,6 +71,11 @@ public class BinaryEncoder implements Encoder {
     public void writeBytes(byte[] value) throws IOException {
         writeLong(value.length);
         doWriteBytes(value);
+    }
+
+    @Override
+    public void writeDatetime(Date date) throws IOException {
+        writeLong(date.getTime());
     }
 
     @Override

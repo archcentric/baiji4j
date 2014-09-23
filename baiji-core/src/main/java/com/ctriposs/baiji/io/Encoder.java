@@ -5,6 +5,7 @@ import com.ctriposs.baiji.exception.BaijiTypeException;
 import java.io.Flushable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Date;
 
 /**
  * Low-level support for serializing Baiji values.
@@ -25,7 +26,7 @@ import java.nio.ByteBuffer;
  *
  * @see Decoder
  */
-public interface Encoder extends Flushable{
+public interface Encoder extends Flushable {
 
     /**
      * "Writes" a null value.  (Doesn't actually write anything, but
@@ -96,6 +97,15 @@ public interface Encoder extends Flushable{
      *                            byte-string is not expected
      */
     public void writeBytes(byte[] bytes) throws IOException;
+
+    /**
+     * Write a date
+     * @param date the date
+     * @throws IOException
+     * @throws BaijiTypeException If this is a stateful writer and a
+     *                            date is not expected
+     */
+    public void writeDatetime(Date date) throws IOException;
 
     /**
      * Writes an enumeration.

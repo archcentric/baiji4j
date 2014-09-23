@@ -72,6 +72,8 @@ public abstract class PreresolvingDatumReader<T> implements DatumReader<T> {
                 return StringReader.INSTANCE;
             case BYTES:
                 return BytesReader.INSTANCE;
+            case DATETIME:
+                return DatetimeReader.INSTANCE;
             case RECORD:
                 return resolveRecord((RecordSchema) schema);
             case ENUM:
@@ -208,6 +210,15 @@ public abstract class PreresolvingDatumReader<T> implements DatumReader<T> {
         @Override
         public Object read(Object reuse, Decoder dec) throws IOException {
             return dec.readBytes();
+        }
+    }
+
+    private static class DatetimeReader implements ItemReader {
+        public static final DatetimeReader INSTANCE = new DatetimeReader();
+
+        @Override
+        public Object read(Object reuse, Decoder dec) throws IOException {
+            return dec.readDatetime();
         }
     }
 

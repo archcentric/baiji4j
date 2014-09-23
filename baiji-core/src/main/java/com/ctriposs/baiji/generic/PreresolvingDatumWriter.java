@@ -6,6 +6,7 @@ import com.ctriposs.baiji.io.Encoder;
 import com.ctriposs.baiji.schema.*;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +60,8 @@ public abstract class PreresolvingDatumWriter<T> implements DatumWriter<T> {
                 return StringItemWriter.INSTANCE;
             case BYTES:
                 return BytesItemWriter.INSTANCE;
+            case DATETIME:
+                return DatetimeItemWriter.INSTANCE;
             case RECORD:
                 return resolveRecord((RecordSchema) schema);
             case ENUM:
@@ -289,6 +292,19 @@ public abstract class PreresolvingDatumWriter<T> implements DatumWriter<T> {
                 throw typeMismatch(value, SchemaType.BYTES.toString(), byte[].class.toString());
             }
             encoder.writeBytes((byte[]) value);
+        }
+    }
+
+    private static class DatetimeItemWriter implements ItemWriter {
+        private static final DatetimeItemWriter INSTANCE = new DatetimeItemWriter();
+
+        @Override
+        public void write(Object value, Encoder encoder) throws IOException {
+            if (!(value instanceof Date)) {
+                throw typeMismatch(value, SchemaType.DATETIME.toString(), Date.class.toString());
+            }
+
+            encoder.writeDatetime((Date) value);
         }
     }
 

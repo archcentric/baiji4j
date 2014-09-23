@@ -4,6 +4,7 @@ import com.ctriposs.baiji.exception.BaijiRuntimeException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 /**
  * An {@link Decoder} for binary-format data.
@@ -15,6 +16,7 @@ import java.io.InputStream;
  */
 
 public class BinaryDecoder implements Decoder {
+
     private final InputStream _stream;
 
     public BinaryDecoder(InputStream stream) {
@@ -89,6 +91,12 @@ public class BinaryDecoder implements Decoder {
         byte[] buffer = new byte[length];
         read(buffer, 0, length);
         return new String(buffer, 0, length, "utf-8");
+    }
+
+    @Override
+    public Date readDatetime() throws IOException {
+        long value = readLong();
+        return new Date(value);
     }
 
     @Override

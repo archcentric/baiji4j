@@ -10,6 +10,7 @@ import com.ctriposs.baiji.schema.Schema;
 import com.ctriposs.baiji.schema.SchemaType;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,8 @@ public class SpecificDatumWriter<T> extends PreresolvingDatumWriter<T> {
                 return obj instanceof byte[];
             case STRING:
                 return obj instanceof String;
+            case DATETIME:
+                return obj instanceof Date;
             case RECORD:
                 return obj instanceof SpecificRecord &&
                         (((RecordSchema) ((SpecificRecord) obj).getSchema())).getSchemaName().equals(
