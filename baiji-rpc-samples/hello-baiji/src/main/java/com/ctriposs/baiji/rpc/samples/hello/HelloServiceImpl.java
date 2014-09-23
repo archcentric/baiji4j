@@ -5,7 +5,7 @@ import com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType;
 
 public class HelloServiceImpl implements HelloService {
     @Override
-    public HelloResponseType sayHello(HelloRequestType request) {
+    public HelloResponseType sayHello(HelloRequestType request) throws Exception {
         if (request == null || request.name == null || request.name.isEmpty()) {
             throw new IllegalArgumentException("Missing name parameter");
         }
@@ -13,7 +13,7 @@ public class HelloServiceImpl implements HelloService {
     }
 
     @Override
-    public CheckHealthResponseType checkHealth(CheckHealthRequestType request) {
+    public CheckHealthResponseType checkHealth(CheckHealthRequestType request) throws Exception {
         return new CheckHealthResponseType();
     }
 }

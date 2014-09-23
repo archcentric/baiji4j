@@ -2,8 +2,12 @@ package com.ctriposs.baiji.rpc.samples.movie;
 
 import com.ctriposs.baiji.rpc.common.types.CheckHealthRequestType;
 import com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType;
-import com.ctriposs.baiji.rpc.samples.movie.filter.*;
-import com.ctriposs.baiji.rpc.server.filter.*;
+import com.ctriposs.baiji.rpc.samples.movie.filter.TestRequestFilter;
+import com.ctriposs.baiji.rpc.samples.movie.filter.TestResponseFilter;
+import com.ctriposs.baiji.rpc.server.filter.WithRequestFilter;
+import com.ctriposs.baiji.rpc.server.filter.WithRequestFilters;
+import com.ctriposs.baiji.rpc.server.filter.WithResponseFilter;
+import com.ctriposs.baiji.rpc.server.filter.WithResponseFilters;
 import org.apache.commons.lang.NullArgumentException;
 
 import java.util.ArrayList;
@@ -69,7 +73,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public AddMovieResponseType addMovie(AddMovieRequestType request) {
+    public AddMovieResponseType addMovie(AddMovieRequestType request) throws Exception {
         if (request.movie == null) {
             throw new NullArgumentException("movie");
         }
@@ -81,7 +85,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public UpdateMovieResponseType updateMovie(UpdateMovieRequestType request) {
+    public UpdateMovieResponseType updateMovie(UpdateMovieRequestType request) throws Exception {
         if (request.movie == null) {
             throw new NullArgumentException("movie");
         }
@@ -106,7 +110,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public GetMovieByIdResponseType getMovieById(GetMovieByIdRequestType request) {
+    public GetMovieByIdResponseType getMovieById(GetMovieByIdRequestType request) throws Exception {
         if (request.id <= 0) {
             throw new IllegalArgumentException("id must be greater than 0.");
         }
@@ -123,7 +127,7 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public DeleteMovieByIdResponseType deleteMovieById(
-            DeleteMovieByIdRequestType request) {
+            DeleteMovieByIdRequestType request) throws Exception {
         if (request.id <= 0) {
             throw new IllegalArgumentException("id must be greater than 0.");
         }
@@ -148,7 +152,7 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public FindMoviesByGenreResponseType findMoviesByGenre(
-            FindMoviesByGenreRequestType request) {
+            FindMoviesByGenreRequestType request) throws Exception {
         if (request.genre == null) {
             throw new NullArgumentException("genre");
         }
@@ -165,7 +169,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public ResetMovieResponseType resetMovie(ResetMovieRequestType request) {
+    public ResetMovieResponseType resetMovie(ResetMovieRequestType request) throws Exception {
         synchronized (syncRoot) {
             movies.clear();
             movies.addAll(defaultMovies);
@@ -182,7 +186,7 @@ public class MovieServiceImpl implements MovieService {
             @WithResponseFilter(value = TestResponseFilter.class, priority = -1),
             @WithResponseFilter(TestResponseFilter.class)
     })
-    public GetMoviesResponseType getMovies(GetMoviesRequestType request) {
+    public GetMoviesResponseType getMovies(GetMoviesRequestType request) throws Exception {
         int totalCount = request.count != null ? Math.max(0, request.count) : movies.size();
 
         int batchCount = totalCount / movies.size();
@@ -198,7 +202,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public CheckHealthResponseType checkHealth(CheckHealthRequestType request) {
+    public CheckHealthResponseType checkHealth(CheckHealthRequestType request) throws Exception {
         return new CheckHealthResponseType();
     }
 }
