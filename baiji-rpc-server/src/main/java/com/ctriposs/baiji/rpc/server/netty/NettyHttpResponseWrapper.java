@@ -79,5 +79,12 @@ class NettyHttpResponseWrapper implements HttpResponseWrapper {
         if (!keepAlive) {
             writeFuture.addListener(ChannelFutureListener.CLOSE);
         }
+
+        _responseSent = true;
+    }
+
+    @Override
+    public boolean isResponseSent() {
+        return _responseSent;
     }
 }

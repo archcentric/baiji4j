@@ -13,10 +13,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Enumeration;
-import java.util.HashMap;
 
 /**
  * Created by yqdong on 2014/9/15.
@@ -31,6 +27,7 @@ public abstract class BaijiServletBase extends HttpServlet {
     // Servlet Init Params
     protected static final String SERVICE_CLASS_PARAM = "service-class";
     protected static final String DETAILED_ERROR_PARAM = "detailed-error";
+    protected static final String DEBUG_MODE_PARAM = "debug";
     protected static final String REUSE_SERVICE_PARAM = "reuse-service";
 
     protected static final Logger _logger = LoggerFactory.getLogger(BaijiServlet.class);
@@ -38,13 +35,13 @@ public abstract class BaijiServletBase extends HttpServlet {
     protected static ServiceRegistry _serviceRegistry;
     protected static int _port;
     protected static String _subEnv;
-    protected HttpRequestRouter _router;
+    protected ServiceHost _serviceHost;
 
     @Override
     public void init() {
         Class<?> serviceClass = getServiceClass();
-        ServiceConfig serviceConfig = buildServiceConfig();
-        _router = new BaijiHttpRequestRouter(serviceConfig, serviceClass);
+        HostConfig config = buildHostConfig();
+        _serviceHost = new BaijiServiceHost(config, serviceClass);
         registerService();
     }
 
@@ -69,19 +66,24 @@ public abstract class BaijiServletBase extends HttpServlet {
         return serviceClass;
     }
 
-    private ServiceConfig buildServiceConfig() {
-        ServiceConfig config = new ServiceConfig();
+    private HostConfig buildHostConfig() {
+        HostConfig config = new HostConfig();
 
         ServletConfig servletConfig = getServletConfig();
 
         String detailedError = servletConfig.getInitParameter(DETAILED_ERROR_PARAM);
         if ("true".equalsIgnoreCase(detailedError)) {
-            config.setOutputExceptionStackTrace(true);
+            config.outputExceptionStackTrace = true;
+        }
+
+        String debugMode = servletConfig.getInitParameter(DEBUG_MODE_PARAM);
+        if ("true".equalsIgnoreCase(debugMode)) {
+            config.debugMode = true;
         }
 
         String reuseService = servletConfig.getInitParameter(REUSE_SERVICE_PARAM);
         if (reuseService != null && !"true".equalsIgnoreCase(reuseService)) {
-            config.setNewServiceInstancePerRequest(true);
+            config.newServiceInstancePerRequest = true;
         }
 
         return config;
@@ -94,7 +96,7 @@ public abstract class BaijiServletBase extends HttpServlet {
             return;
         }
 
-        ServiceMetadata metadata = _router.getServiceMetaData();
+        ServiceMetadata metadata = _serviceHost.getServiceMetaData();
         ServletContext servletContext = getServletContext();
         ServiceInfo serviceInfo = new ServiceInfo.Builder().serviceName(metadata.getServiceName())
                 .serviceNamespace(metadata.getServiceNamespace())
@@ -140,47 +142,26 @@ public abstract class BaijiServletBase extends HttpServlet {
 
     protected void processRequest(ServletRequest req, ServletResponse resp)
             throws ServletException, IOException {
-        if (_router == null) {
+        if (_serviceHost == null) {
             ((HttpServletResponse) resp).sendError(HttpStatus.SC_SERVICE_UNAVAILABLE,
-                    "No service processor is configured.");
+                    "No service hosted here.");
             return;
         }
 
         if (!(req instanceof HttpServletRequest && resp instanceof HttpServletResponse)) {
-            throw new ServletException("non-HTTP request or response");
+            throw new ServletException("Not HTTP request or response");
         }
 
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) resp;
 
-        RequestContext requestContext = createRequestContext(request);
+        HttpRequestWrapper requestWrapper = createRequestWrapper(request);
         HttpResponseWrapper responseWrapper = createResponseWrapper(response);
-        _router.process(requestContext, responseWrapper);
+        _serviceHost.processRequest(requestWrapper, responseWrapper);
     }
 
-    private RequestContext createRequestContext(HttpServletRequest request) throws IOException {
-        RequestContext environment = new RequestContext();
-        environment.RequestBody = request.getInputStream();
-        if (request.getHeaderNames() != null) {
-            environment.RequestHeaders = new HashMap<String, String>();
-            Enumeration<String> headerNames = request.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String headerName = headerNames.nextElement();
-                environment.RequestHeaders.put(headerName, request.getHeader(headerName));
-            }
-        }
-        environment.RequestMethod = request.getMethod();
-        URI uri;
-        try {
-            uri = new URI(request.getRequestURL().toString());
-        } catch (URISyntaxException e) {
-            throw new BaijiRuntimeException(e);
-        }
-        environment.RequestPath = request.getPathInfo();
-        environment.RequestProtocol = request.getProtocol();
-        environment.RequestQueryString = request.getQueryString();
-        environment.RequestScheme = uri.getScheme();
-        return environment;
+    private HttpRequestWrapper createRequestWrapper(HttpServletRequest request) {
+        return new HttpServletRequestWrapper(request);
     }
 
     private HttpResponseWrapper createResponseWrapper(HttpServletResponse response) {

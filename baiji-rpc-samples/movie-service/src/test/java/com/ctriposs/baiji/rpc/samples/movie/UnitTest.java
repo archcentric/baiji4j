@@ -1,9 +1,9 @@
 package com.ctriposs.baiji.rpc.samples.movie;
 
 import com.ctriposs.baiji.rpc.common.types.AckCodeType;
-import com.ctriposs.baiji.rpc.server.BaijiHttpRequestRouter;
-import com.ctriposs.baiji.rpc.server.HttpRequestRouter;
-import com.ctriposs.baiji.rpc.server.ServiceConfig;
+import com.ctriposs.baiji.rpc.server.BaijiServiceHost;
+import com.ctriposs.baiji.rpc.server.HostConfig;
+import com.ctriposs.baiji.rpc.server.ServiceHost;
 import com.ctriposs.baiji.rpc.server.netty.BlockingHttpServerBuilder;
 import com.ctriposs.baiji.rpc.server.netty.HttpServer;
 import io.netty.channel.ChannelOption;
@@ -27,13 +27,13 @@ public class UnitTest {
 
     @BeforeClass
     public static void testClassInitialize() throws Exception {
-        ServiceConfig config = new ServiceConfig();
-        config.setOutputExceptionStackTrace(true);
-        HttpRequestRouter router = new BaijiHttpRequestRouter(config, MovieServiceImpl.class);
+        HostConfig config = new HostConfig();
+        config.outputExceptionStackTrace = true;
+        ServiceHost host = new BaijiServiceHost(config, MovieServiceImpl.class);
 
         BlockingHttpServerBuilder builder = new BlockingHttpServerBuilder(PORT);
 
-        _server = builder.requestRouter(router)
+        _server = builder.serviceHost(host)
                 .withWorkerCount(10)
                 .serverSocketOption(ChannelOption.SO_BACKLOG, 100)
                 .clientSocketOption(ChannelOption.TCP_NODELAY, true)

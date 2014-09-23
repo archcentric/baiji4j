@@ -5,7 +5,7 @@ public class RequestPath {
     private String _methodName;
 
     public RequestPath(String methodName) {
-        _methodName = methodName;
+        _methodName = methodName != null ? methodName.toLowerCase() : null;
     }
 
     @Override

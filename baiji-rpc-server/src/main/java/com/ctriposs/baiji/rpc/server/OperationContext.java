@@ -4,23 +4,18 @@ import com.ctriposs.baiji.specific.SpecificRecord;
 
 public class OperationContext {
 
-    private RequestContext _environment;
-    private String _operationName;
+    private HttpRequestWrapper _request;
     private SpecificRecord _requestObject;
 
-    public OperationContext(RequestContext environment, String operationName, SpecificRecord requestObject) {
-        _environment = environment;
-        _operationName = operationName;
+    public OperationContext(HttpRequestWrapper request, SpecificRecord requestObject) {
+        _request = request;
         _requestObject = requestObject;
     }
 
-    public RequestContext getEnvironment() {
-        return this._environment;
+    public HttpRequestWrapper getRequest() {
+        return this._request;
     }
 
-    public String getOperationName() {
-        return this._operationName;
-    }
 
     public SpecificRecord getRequestObject() {
         return this._requestObject;

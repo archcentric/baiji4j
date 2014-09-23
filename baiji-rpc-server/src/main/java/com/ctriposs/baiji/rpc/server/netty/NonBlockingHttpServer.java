@@ -1,6 +1,6 @@
 package com.ctriposs.baiji.rpc.server.netty;
 
-import com.ctriposs.baiji.rpc.server.HttpRequestRouter;
+import com.ctriposs.baiji.rpc.server.ServiceHost;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
@@ -10,15 +10,15 @@ public class NonBlockingHttpServer extends HttpServer {
 
     private final int _routerExecutorThreads;
 
-    NonBlockingHttpServer(ServerBootstrap bootstrap, HttpRequestRouter requestRouter,
+    NonBlockingHttpServer(ServerBootstrap bootstrap, ServiceHost serviceHost,
                                     int routerExecutorThreads) {
-        super(bootstrap, requestRouter);
+        super(bootstrap, serviceHost);
         _routerExecutorThreads = routerExecutorThreads;
     }
 
     @Override
     protected void addRouterToPipeline(SocketChannel ch) {
         EventExecutorGroup eventExecutor = new DefaultEventExecutorGroup(_routerExecutorThreads);
-        ch.pipeline().addLast(eventExecutor, "router", new ServerHandler(_requestRouter));
+        ch.pipeline().addLast(eventExecutor, "router", new ServerHandler(_serviceHost));
     }
 }

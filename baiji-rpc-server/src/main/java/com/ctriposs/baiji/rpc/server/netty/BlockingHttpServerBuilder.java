@@ -18,7 +18,7 @@ public class BlockingHttpServerBuilder extends HttpServerBuilder<BlockingHttpSer
 
     @Override
     protected BlockingHttpServer createServer() {
-        return new BlockingHttpServer(_nettyBootstrap, _requestRouter);
+        return new BlockingHttpServer(_nettyBootstrap, _serviceHost);
     }
 
     @Override

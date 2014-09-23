@@ -1,6 +1,6 @@
 package com.ctriposs.baiji.rpc.server.netty;
 
-import com.ctriposs.baiji.rpc.server.HttpRequestRouter;
+import com.ctriposs.baiji.rpc.server.ServiceHost;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -18,14 +18,14 @@ public abstract class HttpServer {
 
     private static final Logger _logger = LoggerFactory.getLogger(HttpServer.class);
 
-    protected final HttpRequestRouter _requestRouter;
+    protected final ServiceHost _serviceHost;
     private final ServerBootstrap _bootstrap;
     private int _maxContentLength = 1048576;
     private ChannelFuture _serverShutdownFuture;
 
-    protected HttpServer(ServerBootstrap bootstrap, HttpRequestRouter requestRouter) {
+    protected HttpServer(ServerBootstrap bootstrap, ServiceHost serviceHost) {
         _bootstrap = bootstrap;
-        _requestRouter = requestRouter;
+        _serviceHost = serviceHost;
     }
 
     public void start() throws Exception {

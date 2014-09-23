@@ -8,6 +8,8 @@ public class HttpServletResponseWrapper implements HttpResponseWrapper {
 
     private final HttpServletResponse _response;
 
+    private boolean _responseSent;
+
     public HttpServletResponseWrapper(HttpServletResponse response) {
         _response = response;
     }
@@ -29,5 +31,11 @@ public class HttpServletResponseWrapper implements HttpResponseWrapper {
 
     @Override
     public void sendResponse() {
+        _responseSent = true;
+    }
+
+    @Override
+    public boolean isResponseSent() {
+        return _responseSent;
     }
 }

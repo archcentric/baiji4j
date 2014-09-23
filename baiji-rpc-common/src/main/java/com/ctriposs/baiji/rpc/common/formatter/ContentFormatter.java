@@ -8,7 +8,7 @@ import java.io.OutputStream;
 
 public interface ContentFormatter {
 
-    String getMediaType();
+    String getContentType();
 
     String getExtension();
 

@@ -22,7 +22,7 @@ public abstract class ContentFormatterBase implements ContentFormatter {
     }
 
     @Override
-    public String getMediaType() {
+    public String getContentType() {
         return _mediaType;
     }
 

@@ -1,6 +1,6 @@
 package com.ctriposs.baiji.rpc.server.netty;
 
-import com.ctriposs.baiji.rpc.server.HttpRequestRouter;
+import com.ctriposs.baiji.rpc.server.ServiceHost;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
@@ -8,7 +8,7 @@ import io.netty.channel.ChannelOption;
 public abstract class HttpServerBuilder<T extends HttpServerBuilder, S extends HttpServer> {
 
     protected final ServerBootstrap _nettyBootstrap;
-    protected HttpRequestRouter _requestRouter;
+    protected ServiceHost _serviceHost;
     protected int _maxContentLength = 1024 * 1024;
 
     protected HttpServerBuilder(int serverPort) {
@@ -16,8 +16,8 @@ public abstract class HttpServerBuilder<T extends HttpServerBuilder, S extends H
         _nettyBootstrap.localAddress(serverPort);
     }
 
-    public T requestRouter(HttpRequestRouter requestRouter) {
-        _requestRouter = requestRouter;
+    public T serviceHost(ServiceHost serviceHost) {
+        _serviceHost = serviceHost;
         return returnBuilder();
     }
 
@@ -51,7 +51,7 @@ public abstract class HttpServerBuilder<T extends HttpServerBuilder, S extends H
     protected abstract void configureBootstrap();
 
     protected void validate() {
-        Preconditions.checkState(_requestRouter != null, "Request router is not set.");
+        Preconditions.checkState(_serviceHost != null, "Request router is not set.");
     }
 
     private T returnBuilder() {

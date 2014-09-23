@@ -1,9 +1,10 @@
 package com.ctriposs.baiji.rpc.client;
 
+import com.ctriposs.baiji.rpc.client.filter.HttpRequestFilter;
+import com.ctriposs.baiji.rpc.client.filter.HttpResponseFilter;
 import com.ctriposs.baiji.rpc.client.registry.EtcdRegistryClient;
 import com.ctriposs.baiji.rpc.client.registry.InstanceInfo;
 import com.ctriposs.baiji.rpc.client.registry.RegistryClient;
-import com.ctriposs.baiji.rpc.common.util.DaemonThreadFactory;
 import com.ctriposs.baiji.rpc.common.HasResponseStatus;
 import com.ctriposs.baiji.rpc.common.formatter.BinaryContentFormatter;
 import com.ctriposs.baiji.rpc.common.formatter.ContentFormatter;
@@ -11,10 +12,10 @@ import com.ctriposs.baiji.rpc.common.formatter.JsonContentFormatter;
 import com.ctriposs.baiji.rpc.common.types.AckCodeType;
 import com.ctriposs.baiji.rpc.common.types.ErrorDataType;
 import com.ctriposs.baiji.rpc.common.types.ResponseStatusType;
+import com.ctriposs.baiji.rpc.common.util.DaemonThreadFactory;
 import com.ctriposs.baiji.specific.SpecificRecord;
 import com.google.common.base.Joiner;
-import org.apache.http.HttpEntity;
-import org.apache.http.StatusLine;
+import org.apache.http.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -60,12 +61,12 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
     protected static final Map<String, ContentFormatter> _contentFormatters =
             new HashMap<String, ContentFormatter>();
-
     protected static final Map<String, ServiceClientBase> _clientCache =
             new HashMap<String, ServiceClientBase>();
-
     protected static final Map<String, Map<String, String>> _serviceMetadataCache =
             new HashMap<String, Map<String, String>>();
+    protected static HttpRequestFilter _globalHttpRequestFilter;
+    protected static HttpResponseFilter _globalHttpResponseFilter;
 
     private static RegistryClient _registryClient;
 
@@ -78,6 +79,8 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private int _connectTimeOut = DEFAULT_CONNECT_TIME_OUT;
     private int _maxConnections = DEFAULT_MAX_CONNECTIONS;
     private String[] _serviceUris;
+    private HttpRequestFilter _localHttpRequestFilter;
+    private HttpResponseFilter _localHttpResponseFilter;
     private final AtomicInteger _lastUsedServiceIndex = new AtomicInteger(-1);
     private final ConnectionMode _connectionMode;
     private final Map<String, String> _headers = new HashMap<String, String>();
@@ -199,11 +202,69 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         return _maxConnections;
     }
 
-    public void setMaxConnections(int maxConnections_) {
-        if (this._maxConnections != maxConnections_) {
-            this._maxConnections = maxConnections_;
+    public void setMaxConnections(int maxConnections) {
+        if (this._maxConnections != maxConnections) {
+            this._maxConnections = maxConnections;
             reloadClient();
         }
+    }
+
+    /**
+     * The request filter is called before any request.
+     * This request filter is executed globally.
+     *
+     * @return
+     */
+    public static HttpRequestFilter getGlobalHttpRequestFilter() {
+        return _globalHttpRequestFilter;
+    }
+
+    public static void setGlobalHttpRequestFilter(HttpRequestFilter filter) {
+        _globalHttpRequestFilter = filter;
+    }
+
+
+    /**
+     * Gets the response action is called once the server response is available.
+     * It will allow you to access raw response information.
+     * This response action is executed globally.
+     * Note that you should NOT consume the response stream as this is handled by Baiji RPC
+     */
+    public static HttpResponseFilter getGlobalHttpResponseFilter() {
+        return _globalHttpResponseFilter;
+    }
+
+    public static void setGlobalHttpResponseFilter(HttpResponseFilter filter) {
+        _globalHttpResponseFilter = filter;
+    }
+
+    /**
+     * The request filter is called before any request.
+     * This request filter only works with the instance where it was set (not global).
+     *
+     * @return
+     */
+    public HttpRequestFilter getLocalHttpRequestFilter() {
+        return _localHttpRequestFilter;
+    }
+
+    public void setLocalHttpRequestFilter(HttpRequestFilter filter) {
+        _localHttpRequestFilter = filter;
+    }
+
+    /**
+     * The response action is called once the server response is available.
+     * It will allow you to access raw response information.
+     * Note that you should NOT consume the response stream as this is handled by Baiji RPC
+     *
+     * @return
+     */
+    public HttpResponseFilter getLocalHttpResponseFilter() {
+        return _localHttpResponseFilter;
+    }
+
+    public void setLocalHttpResponseFilter(HttpResponseFilter filter) {
+        _localHttpResponseFilter = filter;
     }
 
     /**
@@ -398,6 +459,9 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
             ContentFormatter formatter = _contentFormatters.get(_format);
             HttpPost httpPost = prepareWebRequest(operationName, request, formatter);
             httpResponse = _client.get().execute(httpPost);
+
+            applyHttpResponseFilters(httpResponse);
+
             checkHttpResponseStatus(httpResponse);
             TResp response = formatter.deserialize(responseClass, httpResponse.getEntity().getContent());
             if (response instanceof HasResponseStatus) {
@@ -427,13 +491,17 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         String requestUri = baseUri + operationName + "." + _format;
         HttpPost httpPost = new HttpPost(requestUri);
         httpPost.setConfig(config);
-        httpPost.addHeader("Content-Type", contentFormatter.getMediaType());
+
         for (Map.Entry<String, String> header : _headers.entrySet()) {
             httpPost.addHeader(header.getKey(), header.getValue());
         }
         if (CLIENT_CONFIG != null && CLIENT_CONFIG.getAppId() != null) {
             httpPost.addHeader(APP_ID_HTTP_HEADER, CLIENT_CONFIG.getAppId());
         }
+
+        applyHttpRequestFilters(httpPost);
+
+        httpPost.addHeader(HttpHeaders.CONTENT_TYPE, contentFormatter.getContentType());
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         contentFormatter.serialize(output, request);
@@ -491,10 +559,34 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         if (errors != null && !errors.isEmpty() && errors.get(0) != null) {
             ErrorDataType error = responseStatus.getErrors().get(0);
             throw new ServiceException(error.getMessage(), response, error.getErrorCode());
-        } else // should not happen in real case, just for defensive programming
-        {
+        } else {
+            // should not happen in real case, just for defensive programming
             String message = "Failed response without error data, please file a bug to the service owner!";
             throw new ServiceException(message, response);
+        }
+    }
+
+    private void applyHttpRequestFilters(HttpRequest request) {
+        HttpRequestFilter filter = _globalHttpRequestFilter;
+        if (filter != null) {
+            filter.apply(request);
+        }
+
+        filter = _localHttpRequestFilter;
+        if (filter != null) {
+            filter.apply(request);
+        }
+    }
+
+    private void applyHttpResponseFilters(HttpResponse response) {
+        HttpResponseFilter filter = _localHttpResponseFilter;
+        if (filter != null) {
+            filter.apply(response);
+        }
+
+        filter = _globalHttpResponseFilter;
+        if (filter != null) {
+            filter.apply(response);
         }
     }
 

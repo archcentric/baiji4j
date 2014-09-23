@@ -2,6 +2,8 @@ package com.ctriposs.baiji.rpc.samples.movie;
 
 import com.ctriposs.baiji.rpc.common.types.CheckHealthRequestType;
 import com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType;
+import com.ctriposs.baiji.rpc.samples.movie.filter.*;
+import com.ctriposs.baiji.rpc.server.filter.*;
 import org.apache.commons.lang.NullArgumentException;
 
 import java.util.ArrayList;
@@ -172,8 +174,16 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @WithRequestFilters({
+            @WithRequestFilter(value = TestRequestFilter.class, priority = -1),
+            @WithRequestFilter(TestRequestFilter.class)
+    })
+    @WithResponseFilters({
+            @WithResponseFilter(value = TestResponseFilter.class, priority = -1),
+            @WithResponseFilter(TestResponseFilter.class)
+    })
     public GetMoviesResponseType getMovies(GetMoviesRequestType request) {
-        int totalCount = Math.max(0, request.count);
+        int totalCount = request.count != null ? Math.max(0, request.count) : movies.size();
 
         int batchCount = totalCount / movies.size();
         int extraCount = totalCount % movies.size();

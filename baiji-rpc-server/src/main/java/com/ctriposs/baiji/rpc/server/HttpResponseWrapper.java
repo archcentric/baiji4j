@@ -12,4 +12,6 @@ public interface HttpResponseWrapper {
     OutputStream getResponseStream() throws IOException;
 
     void sendResponse();
+
+    boolean isResponseSent();
 }
