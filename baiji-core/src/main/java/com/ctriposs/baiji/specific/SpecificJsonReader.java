@@ -93,6 +93,8 @@ public final class SpecificJsonReader<T> {
                     return readString(datum);
                 case BYTES:
                     return readBytes(datum);
+                case DATETIME:
+                    return readDatetime(datum);
                 case RECORD:
                     RecordReader recordReader = new RecordReader((RecordSchema) schema);
                     return readInnerRecord(datum, recordReader, (RecordSchema) schema);
@@ -142,6 +144,10 @@ public final class SpecificJsonReader<T> {
 
     private byte[] readBytes(Object obj) throws IOException {
         return ((JsonNode) obj).getBinaryValue();
+    }
+
+    private Object readDatetime(Object obj) {
+        return (obj instanceof JsonNode) ? ((JsonNode) obj).getLongValue() : obj;
     }
 
     private Map readMap(Object obj, MapSchema mapSchema) throws Exception {

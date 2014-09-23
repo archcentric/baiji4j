@@ -11,6 +11,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +88,9 @@ public final class SpecificJsonWriter<T> {
                     break;
                 case NULL:
                     generator.writeNull();
+                    break;
+                case DATETIME:
+                    generator.writeNumber(((Date) datum).getTime());
                     break;
                 case RECORD:
                     writeRecord((RecordSchema) fieldSchema, datum, generator);
