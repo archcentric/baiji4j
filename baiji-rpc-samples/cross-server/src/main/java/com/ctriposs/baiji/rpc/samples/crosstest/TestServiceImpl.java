@@ -36,7 +36,7 @@ public class TestServiceImpl implements TestService {
     private static TestSerializerSample generateSample(TestSerializerSample sample, int id) {
 
         TestSerializerSample copySample = new TestSerializerSample(
-                id, sample.tinyint1, sample.smallint1, sample.bigint1, sample.boolean1, sample.double1,
+                id, sample.tinyint1, sample.smallint1, sample.bigint1, sample.boolean1, sample.double1, sample.date1,
                 sample.string1, sample.record, sample.list1, sample.map1, sample.enum1, sample.nullableint,
                 sample.bytes1, sample.container1, sample.innerSample);
         copySample.enum1 = Enum1Values.BLUE;

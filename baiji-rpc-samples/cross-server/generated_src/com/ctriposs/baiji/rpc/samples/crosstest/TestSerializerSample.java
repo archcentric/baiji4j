@@ -11,7 +11,7 @@ import com.google.common.base.Objects;
 public class TestSerializerSample extends SpecificRecordBase implements SpecificRecord {
     private static final long serialVersionUID = 1L;
 
-    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"TestSerializerSample\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"int1\",\"type\":[\"int\",\"null\"]},{\"name\":\"tinyint1\",\"type\":[\"int\",\"null\"]},{\"name\":\"smallint1\",\"type\":[\"int\",\"null\"]},{\"name\":\"bigint1\",\"type\":[\"long\",\"null\"]},{\"name\":\"boolean1\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"double1\",\"type\":[\"double\",\"null\"]},{\"name\":\"string1\",\"type\":[\"string\",\"null\"]},{\"name\":\"record\",\"type\":[{\"type\":\"record\",\"name\":\"Record\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"sInt\",\"type\":[\"int\",\"null\"]},{\"name\":\"sBoolean\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"sString\",\"type\":[\"string\",\"null\"]}]},\"null\"]},{\"name\":\"list1\",\"type\":[{\"type\":\"array\",\"items\":\"string\"},\"null\"]},{\"name\":\"map1\",\"type\":[{\"type\":\"map\",\"values\":\"int\"},\"null\"]},{\"name\":\"enum1\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum1Values\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"symbols\":[\"BLUE\",\"RED\",\"GREEN\"]},\"null\"]},{\"name\":\"nullableint\",\"type\":[\"int\",\"null\"]},{\"name\":\"bytes1\",\"type\":[\"bytes\",\"null\"]},{\"name\":\"container1\",\"type\":[{\"type\":\"record\",\"name\":\"Record2Container\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"record2list\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Record2\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"enum2\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum2Values\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"symbols\":[\"CAR\",\"BIKE\",\"PLANE\"]},\"null\"]},{\"name\":\"bigint2\",\"type\":[\"long\",\"null\"]},{\"name\":\"nullablebigint\",\"type\":[\"long\",\"null\"]},{\"name\":\"list2\",\"type\":[{\"type\":\"array\",\"items\":\"int\"},\"null\"]},{\"name\":\"map2\",\"type\":[{\"type\":\"map\",\"values\":\"Record\"},\"null\"]},{\"name\":\"byteslist\",\"type\":[{\"type\":\"array\",\"items\":\"bytes\"},\"null\"]},{\"name\":\"filling\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"stringfilling1\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling2\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling3\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling4\",\"type\":[\"string\",\"null\"]},{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"boolfilling\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"modelfilling\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling2\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"longfilling\",\"type\":[\"long\",\"null\"]},{\"name\":\"stringfilling\",\"type\":[\"string\",\"null\"]},{\"name\":\"listfilling\",\"type\":[{\"type\":\"array\",\"items\":\"string\"},\"null\"]},{\"name\":\"enumfilling\",\"type\":[\"Enum2Values\",\"null\"]}]},\"null\"]},{\"name\":\"modelfilling3\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling3\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"doublefilling\",\"type\":[\"double\",\"null\"]},{\"name\":\"listsfilling\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":\"int\"}},\"null\"]},{\"name\":\"mapsfilling\",\"type\":[{\"type\":\"map\",\"values\":{\"type\":\"map\",\"values\":\"string\"}},\"null\"]}]},\"null\"]},{\"name\":\"enumfilling\",\"type\":[\"Enum1Values\",\"null\"]}]},\"null\"]}]}},\"null\"]}]},\"null\"]},{\"name\":\"innerSample\",\"type\":[\"TestSerializerSample\",\"null\"]}]}");
+    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"TestSerializerSample\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"int1\",\"type\":[\"int\",\"null\"]},{\"name\":\"tinyint1\",\"type\":[\"int\",\"null\"]},{\"name\":\"smallint1\",\"type\":[\"int\",\"null\"]},{\"name\":\"bigint1\",\"type\":[\"long\",\"null\"]},{\"name\":\"boolean1\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"double1\",\"type\":[\"double\",\"null\"]},{\"name\":\"date1\",\"type\":[\"datetime\",\"null\"]},{\"name\":\"string1\",\"type\":[\"string\",\"null\"]},{\"name\":\"record\",\"type\":[{\"type\":\"record\",\"name\":\"Record\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"sInt\",\"type\":[\"int\",\"null\"]},{\"name\":\"sBoolean\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"sString\",\"type\":[\"string\",\"null\"]}]},\"null\"]},{\"name\":\"list1\",\"type\":[{\"type\":\"array\",\"items\":\"string\"},\"null\"]},{\"name\":\"map1\",\"type\":[{\"type\":\"map\",\"values\":\"int\"},\"null\"]},{\"name\":\"enum1\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum1Values\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"symbols\":[\"BLUE\",\"RED\",\"GREEN\"]},\"null\"]},{\"name\":\"nullableint\",\"type\":[\"int\",\"null\"]},{\"name\":\"bytes1\",\"type\":[\"bytes\",\"null\"]},{\"name\":\"container1\",\"type\":[{\"type\":\"record\",\"name\":\"Record2Container\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"record2list\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"record\",\"name\":\"Record2\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"enum2\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum2Values\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"symbols\":[\"CAR\",\"BIKE\",\"PLANE\"]},\"null\"]},{\"name\":\"bigint2\",\"type\":[\"long\",\"null\"]},{\"name\":\"nullablebigint\",\"type\":[\"long\",\"null\"]},{\"name\":\"list2\",\"type\":[{\"type\":\"array\",\"items\":\"int\"},\"null\"]},{\"name\":\"map2\",\"type\":[{\"type\":\"map\",\"values\":\"Record\"},\"null\"]},{\"name\":\"byteslist\",\"type\":[{\"type\":\"array\",\"items\":\"bytes\"},\"null\"]},{\"name\":\"filling\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"stringfilling1\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling2\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling3\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling4\",\"type\":[\"string\",\"null\"]},{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"boolfilling\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"modelfilling\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling2\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"longfilling\",\"type\":[\"long\",\"null\"]},{\"name\":\"stringfilling\",\"type\":[\"string\",\"null\"]},{\"name\":\"listfilling\",\"type\":[{\"type\":\"array\",\"items\":\"string\"},\"null\"]},{\"name\":\"enumfilling\",\"type\":[\"Enum2Values\",\"null\"]}]},\"null\"]},{\"name\":\"modelfilling3\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling3\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"doublefilling\",\"type\":[\"double\",\"null\"]},{\"name\":\"listsfilling\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":\"int\"}},\"null\"]},{\"name\":\"mapsfilling\",\"type\":[{\"type\":\"map\",\"values\":{\"type\":\"map\",\"values\":\"string\"}},\"null\"]}]},\"null\"]},{\"name\":\"enumfilling\",\"type\":[\"Enum1Values\",\"null\"]}]},\"null\"]}]}},\"null\"]}]},\"null\"]},{\"name\":\"innerSample\",\"type\":[\"TestSerializerSample\",\"null\"]}]}");
 
     @Override
     public Schema getSchema() { return SCHEMA; }
@@ -23,6 +23,7 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
         Long bigint1,
         Boolean boolean1,
         Double double1,
+        java.util.Calendar date1,
         String string1,
         Record record,
         List<String> list1,
@@ -39,6 +40,7 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
         this.bigint1 = bigint1;
         this.boolean1 = boolean1;
         this.double1 = double1;
+        this.date1 = date1;
         this.string1 = string1;
         this.record = record;
         this.list1 = list1;
@@ -64,6 +66,8 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
     public Boolean boolean1;
 
     public Double double1;
+
+    public java.util.Calendar date1;
 
     public String string1;
 
@@ -129,6 +133,14 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
 
     public void setDouble1(final Double double1) {
         this.double1 = double1;
+    }
+
+    public java.util.Calendar getDate1() {
+        return date1;
+    }
+
+    public void setDate1(final java.util.Calendar date1) {
+        this.date1 = date1;
     }
 
     public String getString1() {
@@ -212,15 +224,16 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
             case 3: return this.bigint1;
             case 4: return this.boolean1;
             case 5: return this.double1;
-            case 6: return this.string1;
-            case 7: return this.record;
-            case 8: return this.list1;
-            case 9: return this.map1;
-            case 10: return this.enum1;
-            case 11: return this.nullableint;
-            case 12: return this.bytes1;
-            case 13: return this.container1;
-            case 14: return this.innerSample;
+            case 6: return this.date1;
+            case 7: return this.string1;
+            case 8: return this.record;
+            case 9: return this.list1;
+            case 10: return this.map1;
+            case 11: return this.enum1;
+            case 12: return this.nullableint;
+            case 13: return this.bytes1;
+            case 14: return this.container1;
+            case 15: return this.innerSample;
             default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in get()");
         }
     }
@@ -235,15 +248,16 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
             case 3: this.bigint1 = (Long)fieldValue; break;
             case 4: this.boolean1 = (Boolean)fieldValue; break;
             case 5: this.double1 = (Double)fieldValue; break;
-            case 6: this.string1 = (String)fieldValue; break;
-            case 7: this.record = (Record)fieldValue; break;
-            case 8: this.list1 = (List<String>)fieldValue; break;
-            case 9: this.map1 = (Map<String, Integer>)fieldValue; break;
-            case 10: this.enum1 = (Enum1Values)fieldValue; break;
-            case 11: this.nullableint = (Integer)fieldValue; break;
-            case 12: this.bytes1 = (byte[])fieldValue; break;
-            case 13: this.container1 = (Record2Container)fieldValue; break;
-            case 14: this.innerSample = (TestSerializerSample)fieldValue; break;
+            case 6: this.date1 = (java.util.Calendar)fieldValue; break;
+            case 7: this.string1 = (String)fieldValue; break;
+            case 8: this.record = (Record)fieldValue; break;
+            case 9: this.list1 = (List<String>)fieldValue; break;
+            case 10: this.map1 = (Map<String, Integer>)fieldValue; break;
+            case 11: this.enum1 = (Enum1Values)fieldValue; break;
+            case 12: this.nullableint = (Integer)fieldValue; break;
+            case 13: this.bytes1 = (byte[])fieldValue; break;
+            case 14: this.container1 = (Record2Container)fieldValue; break;
+            case 15: this.innerSample = (TestSerializerSample)fieldValue; break;
             default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in put()");
         }
     }
@@ -261,6 +275,7 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
             Objects.equal(this.bigint1, other.bigint1) &&
             Objects.equal(this.boolean1, other.boolean1) &&
             Objects.equal(this.double1, other.double1) &&
+            Objects.equal(this.date1, other.date1) &&
             Objects.equal(this.string1, other.string1) &&
             Objects.equal(this.record, other.record) &&
             Objects.equal(this.list1, other.list1) &&
@@ -282,6 +297,7 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
         result = 31 * result + (this.bigint1 == null ? 0 : this.bigint1.hashCode());
         result = 31 * result + (this.boolean1 == null ? 0 : this.boolean1.hashCode());
         result = 31 * result + (this.double1 == null ? 0 : this.double1.hashCode());
+        result = 31 * result + (this.date1 == null ? 0 : this.date1.hashCode());
         result = 31 * result + (this.string1 == null ? 0 : this.string1.hashCode());
         result = 31 * result + (this.record == null ? 0 : this.record.hashCode());
         result = 31 * result + (this.list1 == null ? 0 : this.list1.hashCode());
@@ -304,6 +320,7 @@ public class TestSerializerSample extends SpecificRecordBase implements Specific
             .add("bigint1", bigint1)
             .add("boolean1", boolean1)
             .add("double1", double1)
+            .add("date1", date1)
             .add("string1", string1)
             .add("record", record)
             .add("list1", list1)
