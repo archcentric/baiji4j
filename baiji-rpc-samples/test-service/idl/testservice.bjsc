@@ -1,0 +1,159 @@
+include 'common.bjsc'
+
+namespace java com.ctriposs.baiji.rpc.testservice
+namespace csharp CTripOSS.Baiji.Rpc.TestService
+
+class Category {
+    string categoryId;
+    string categoryName;
+}
+
+enum GallerySize {
+    Small,
+    Medium,
+    Large
+}
+
+class GalleryUrl {
+    GallerySize gallerySize;
+    string value;
+}
+
+class ProductId {
+    string type;
+    string value;
+}
+
+class StoreFront {
+    string storeName;
+    string storeUrl;
+}
+
+class SellerInfo {
+    string sellerUserName;
+    long feedbackScore;
+    double positiveFeedbackPercent;
+    string feedbackRatingStar;
+    bool topRatedSeller;
+}
+
+class Amount {
+    string currencyId;
+    double value;
+}
+
+class ShippingInfo {
+    Amount shippingServiceCost;
+    string shippingType;
+    list<string> shipToLocations;
+    bool expeditedShipping;
+    bool oneDayShippingAvailable;
+    int handlingTime;
+    bool intermediatedShipping;
+}
+
+class SellingStatus {
+    Amount currentPrice;
+    Amount convertedCurrentPrice;
+    int bidCount;
+    string sellingState;
+    string timeLeft;
+}
+
+class ListingInfo {
+    bool bestOfferEnabled;
+    bool buyItNowAvailable;
+    Amount buyItNowPrice;
+    Amount convertedBuyItNowPrice;
+    datetime startTime;
+    datetime endTime;
+    string listingType;
+    bool gift;
+}
+
+class Distance {
+    string unit;
+    double value;
+}
+
+class Condition {
+    int conditionId;
+    string conditionDisplayName;
+}
+
+enum MapExposure {
+    PreCheckout,
+    DuringCheckout
+}
+
+enum PriceTreatment {
+    STP,
+    MAP
+}
+
+class DiscountPriceInfo {
+    Amount originalRetailPrice;
+    MapExposure minimunAdvertisedPriceExposure;
+    PriceTreatment pricingTreatment;
+    bool soldOnEbay;
+    bool soldOffEbay;
+}
+
+class UnitPriceInfo {
+    string type;
+    double quantity;
+}
+
+class Item {
+    string itemId;
+    string title;
+    string globalId;
+    string subtitle;
+    Category primaryCategory;
+    Category secondaryCategory;
+    string galleryUrl;
+    list<GalleryUrl> galleryInfoContainer;
+    string viewItemUrl;
+    string charityId;
+    ProductId productId;
+    list<string> paymentMethods;
+    bool autoPay;
+    string postalCode;
+    string location;
+    string country;
+    StoreFront storeInfo;
+    SellerInfo sellerInfo;
+    ShippingInfo shippingInfo;
+    SellingStatus sellingStatus;
+    ListingInfo listingInfo;
+    bool returnsAccepted;
+    list<string> galleryPlusPictureUrls;
+    string compatibility;
+    Distance distance;
+    Condition condition;
+    bool isMultiVariationListing;
+    DiscountPriceInfo discountPriceInfo;
+    string pictureUrlSuperSize;
+    string pictureUrlLarge;
+    UnitPriceInfo unitPrice;
+    bool topRatedListing;
+}
+
+class GetItemsRequestType {
+    int take;
+    int sleep;
+    string validationString;
+    bool generateRandomException;
+    bool returnWrappedErrorResponse
+}
+
+class GetItemsResponseType {
+    common.ResponseStatusType responseStatus;
+    list<Item> items;
+}
+
+@serviceName='TestService'
+@serviceNamespace='http://soa.ctriposs.com/baijirpc/testservice'
+service TestService {
+    GetItemsResponseType getItems(GetItemsRequestType request);
+}
