@@ -12,10 +12,8 @@ import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 
 import java.io.OutputStream;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 /**
