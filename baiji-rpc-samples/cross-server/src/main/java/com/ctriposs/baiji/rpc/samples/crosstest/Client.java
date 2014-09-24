@@ -25,6 +25,7 @@ public class Client {
         sample.boolean1 = false;
         sample.double1 = random.nextDouble();
         sample.enum1 = Enum1Values.GREEN;
+        sample.date1 = Calendar.getInstance();
         sample.int1 = random.nextInt();
         sample.string1 = UUID.randomUUID().toString();
         sample.bytes1 = new byte[256];
