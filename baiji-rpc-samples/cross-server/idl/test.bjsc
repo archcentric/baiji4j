@@ -14,6 +14,7 @@ class TestSerializerSample {
     required long bigint1;
     required bool boolean1;
     required double double1;
+    required datetime date1;
 	string string1;
     Record record;
     list<string> list1;
