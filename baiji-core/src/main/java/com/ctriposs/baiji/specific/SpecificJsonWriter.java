@@ -7,14 +7,10 @@ import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class SpecificJsonWriter<T> {
 
@@ -90,7 +86,7 @@ public final class SpecificJsonWriter<T> {
                     generator.writeNull();
                     break;
                 case DATETIME:
-                    generator.writeNumber(((Date) datum).getTime());
+                    generator.writeNumber(((Calendar) datum).getTimeInMillis());
                     break;
                 case RECORD:
                     writeRecord((RecordSchema) fieldSchema, datum, generator);

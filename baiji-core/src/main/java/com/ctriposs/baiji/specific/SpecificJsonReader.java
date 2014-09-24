@@ -9,6 +9,7 @@ import org.codehaus.jackson.node.ObjectNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -147,7 +148,10 @@ public final class SpecificJsonReader<T> {
     }
 
     private Object readDatetime(Object obj) {
-        return (obj instanceof JsonNode) ? ((JsonNode) obj).getLongValue() : obj;
+        Calendar calendar = Calendar.getInstance();
+        long ms = ((JsonNode) obj).getLongValue();
+        calendar.setTimeInMillis(ms);
+        return calendar;
     }
 
     private Map readMap(Object obj, MapSchema mapSchema) throws Exception {
