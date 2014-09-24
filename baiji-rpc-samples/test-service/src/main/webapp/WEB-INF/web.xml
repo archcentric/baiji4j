@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          version="3.0">
-    <display-name>Hello Baiji</display-name>
+    <display-name>Test Service</display-name>
 
     <context-param>
         <param-name>etcd-service-url</param-name>
@@ -11,7 +11,7 @@
     </context-param>
     <context-param>
         <param-name>service-port</param-name>
-        <param-value>8111</param-value>
+        <param-value>8114</param-value>
     </context-param>
 
     <servlet>
@@ -19,7 +19,7 @@
         <servlet-class>com.ctriposs.baiji.rpc.server.BaijiServlet</servlet-class>
         <init-param>
             <param-name>service-class</param-name>
-            <param-value>com.ctriposs.baiji.rpc.samples.hello.HelloServiceImpl</param-value>
+            <param-value>com.ctriposs.baiji.rpc.testservice.TestServiceImpl</param-value>
         </init-param>
     </servlet>
     <!--<servlet>
@@ -27,7 +27,7 @@
         <servlet-class>com.ctriposs.baiji.rpc.server.AsyncBaijiServlet</servlet-class>
         <init-param>
             <param-name>service-class</param-name>
-            <param-value>com.ctriposs.baiji.rpc.samples.hello.HelloServiceImpl</param-value>
+            <param-value>com.ctriposs.baiji.rpc.testservice.TestServiceImpl</param-value>
         </init-param>
         <async-supported>true</async-supported>
     </servlet>-->

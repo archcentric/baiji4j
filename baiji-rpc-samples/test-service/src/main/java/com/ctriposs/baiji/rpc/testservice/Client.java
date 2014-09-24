@@ -16,7 +16,6 @@ public class Client {
         TestServiceClient client = TestServiceClient.getInstance(TestServiceClient.class, "http://localhost:8114/");
         GetItemsRequestType request = new GetItemsRequestType();
         request.setTake(5);
-        request.returnWrappedErrorResponse = true;
         GetItemsResponseType response = client.getItems(request);
         if (response.items == null || response.items.isEmpty()) {
             System.out.println("No item found.");
