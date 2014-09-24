@@ -3,6 +3,7 @@ package com.ctriposs.baiji.io;
 import com.ctriposs.baiji.exception.BaijiTypeException;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -92,12 +93,12 @@ public interface Decoder {
     public String readString() throws IOException;
 
     /**
-     * Reads a date time written by {@link Encoder#writeDatetime(java.util.Date)}
+     * Reads a date time written by {@link Encoder#writeDatetime(java.util.Calendar)}
      * @return a date time
      * @throws BaijiTypeException If this is a stateful reader and
      *                            date time is not the type of the next value to be read
      */
-    public Date readDatetime() throws IOException;
+    public Calendar readDatetime() throws IOException;
 
     /**
      * Reads an enumeration.

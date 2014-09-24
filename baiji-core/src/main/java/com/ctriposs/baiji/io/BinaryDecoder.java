@@ -4,6 +4,7 @@ import com.ctriposs.baiji.exception.BaijiRuntimeException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -94,9 +95,11 @@ public class BinaryDecoder implements Decoder {
     }
 
     @Override
-    public Date readDatetime() throws IOException {
+    public Calendar readDatetime() throws IOException {
         long value = readLong();
-        return new Date(value);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(value);
+        return calendar;
     }
 
     @Override

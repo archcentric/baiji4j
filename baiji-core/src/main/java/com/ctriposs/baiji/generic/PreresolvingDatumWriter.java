@@ -6,6 +6,7 @@ import com.ctriposs.baiji.io.Encoder;
 import com.ctriposs.baiji.schema.*;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -304,7 +305,7 @@ public abstract class PreresolvingDatumWriter<T> implements DatumWriter<T> {
                 throw typeMismatch(value, SchemaType.DATETIME.toString(), Date.class.toString());
             }
 
-            encoder.writeDatetime((Date) value);
+            encoder.writeDatetime((Calendar) value);
         }
     }
 

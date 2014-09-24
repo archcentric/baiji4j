@@ -4,8 +4,7 @@ import com.ctriposs.baiji.exception.BaijiTypeException;
 
 import java.io.Flushable;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Date;
+import java.util.Calendar;
 
 /**
  * Low-level support for serializing Baiji values.
@@ -105,7 +104,7 @@ public interface Encoder extends Flushable {
      * @throws BaijiTypeException If this is a stateful writer and a
      *                            date is not expected
      */
-    public void writeDatetime(Date date) throws IOException;
+    public void writeDatetime(Calendar date) throws IOException;
 
     /**
      * Writes an enumeration.
