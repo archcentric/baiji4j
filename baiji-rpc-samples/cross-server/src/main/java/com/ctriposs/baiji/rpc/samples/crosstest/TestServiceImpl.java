@@ -23,6 +23,9 @@ public class TestServiceImpl implements TestService {
                 throw new BaijiRuntimeException("bytes serialize mismatched!");
         }
 
+        if (Math.abs(sample.getDate1().getTimeInMillis() - java.util.Calendar.getInstance().getTimeInMillis()) > 1000)
+            throw new BaijiRuntimeException("Date time is parsed incorrectly.");
+        
         TestSerializerSampleList sampleList = new TestSerializerSampleList();
         List<TestSerializerSample> list = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
