@@ -27,6 +27,7 @@ public class Client {
         sample.enum1 = Enum1Values.GREEN;
         sample.date1 = Calendar.getInstance();
         sample.int1 = random.nextInt();
+        sample.date1 = Calendar.getInstance();
         sample.string1 = UUID.randomUUID().toString();
         sample.bytes1 = new byte[256];
         for (int i= 0; i < 256; ++i) {
@@ -68,6 +69,7 @@ public class Client {
             Assert.assertEquals(expected.enum1, Enum1Values.GREEN);
             Assert.assertEquals(expected.string1, actual.string1);
             Assert.assertEquals((long)actual.int1, (long)(i + 2048));
+            Assert.assertEquals(expected.date1, actual.date1);
             Assert.assertEquals(expected.list1.size(), actual.list1.size());
             Assert.assertEquals(expected.map1.size(), actual.map1.size());
             Assert.assertEquals(expected.list1, actual.list1);
