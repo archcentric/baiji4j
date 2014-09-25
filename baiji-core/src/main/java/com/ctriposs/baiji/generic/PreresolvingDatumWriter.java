@@ -301,8 +301,8 @@ public abstract class PreresolvingDatumWriter<T> implements DatumWriter<T> {
 
         @Override
         public void write(Object value, Encoder encoder) throws IOException {
-            if (!(value instanceof Date)) {
-                throw typeMismatch(value, SchemaType.DATETIME.toString(), Date.class.toString());
+            if (!(value instanceof Calendar)) {
+                throw typeMismatch(value, SchemaType.DATETIME.toString(), Calendar.class.toString());
             }
 
             encoder.writeDatetime((Calendar) value);
