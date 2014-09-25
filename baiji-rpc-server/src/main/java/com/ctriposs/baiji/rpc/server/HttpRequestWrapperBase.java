@@ -5,6 +5,7 @@ import com.google.common.net.HttpHeaders;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -94,7 +95,7 @@ public abstract class HttpRequestWrapperBase implements HttpRequestWrapper {
     public Map<String, String> queryMap() {
         String queryString = queryString();
         if (queryString == null || queryString.isEmpty()) {
-            return null;
+            return new HashMap<String, String>(0);
         }
         Map<String, String> queryMap = new LinkedHashMap<String, String>();
         String[] pairs = queryString.split("&");

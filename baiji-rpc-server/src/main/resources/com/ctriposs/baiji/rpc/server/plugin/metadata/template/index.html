@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>{ServiceName}{{ServiceNamespace}}</title>
+    <style type="text/css">
+        BODY {
+            background-color: white;
+            color: #000000;
+            font-family: Verdana, Helvetica, Arial, "Lucida Grande", sans-serif;
+            margin: 0;
+            font-size: 12px;
+        }
+
+        H1 {
+            background-color: #036;
+            color: #FFF;
+            font-family: Tahoma;
+            font-size: 26px;
+            font-weight: normal;
+            margin: 0;
+            padding: 10px 0 3px 15px;
+        }
+
+        FORM {
+            margin-left: 20px;
+            padding-bottom: 2em;
+        }
+
+        UL {
+            margin: 10px 0 0 10px;
+            padding: 0px 0px 0px 10px;
+        }
+
+        LI {
+            clear: left;
+            margin-top: 10px;
+        }
+
+        A {
+            color: #369;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        A:hover {
+            color: #C30;
+            text-decoration: underline;
+        }
+
+        .operations TABLE {
+            margin-left: 1.5em;
+            border-collapse: collapse;
+        }
+
+        TABLE, TR, TH, TD {
+            border: none;
+        }
+
+        .operations TH {
+            text-align: left;
+            font-weight: normal;
+            line-height: 18px;
+            min-width: 27em;
+            white-space: nowrap;
+        }
+
+        .operations TD {
+            font-size: 11px;
+            line-height: 18px;
+            font-weight: bold;
+            color: #CCC;
+            padding-left: 1.5em;
+        }
+
+        .version {
+            margin-top: 20px;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>{ServiceName}{{ServiceNamespace}}</h1>
+
+<form id="mainForm">
+    <p>The following operations are supported:</p>
+
+    <h3>Operations:</h3>
+
+    <div class="operations">
+        <table>
+            <tbody>
+            {Operations}
+            </tbody>
+        </table>
+    </div>
+</form>
+
+<p class="version">
+    Baiji4j Version: {Baiji4jVersion}
+    <br/>
+    CodeGenerator Version: {CodeGenVersion}
+</p>
+
+</body>
+</html>

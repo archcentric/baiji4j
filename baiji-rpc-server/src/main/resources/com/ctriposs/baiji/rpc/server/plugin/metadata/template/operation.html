@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>{ServiceName}{{ServiceNamespace}}</title>
+    <style type="text/css">
+        BODY {
+            background-color: white;
+            color: #000000;
+            font-family: Verdana;
+            margin: 0;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin: 0 0 20px 0;
+            font-size: 12px;
+        }
+
+        caption {
+            text-align: left;
+            font-size: 14px;
+            padding: 10px 0;
+            white-space: nowrap;
+        }
+
+        tbody th {
+            text-align: left;
+        }
+
+        thead th {
+            background-color: #E5E5CC;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 5px 15px;
+        }
+
+        .call-info {
+            margin: 0 0 20px 0;
+        }
+
+        #desc {
+            margin: 0;
+            padding: 0 0 15px 15px;
+            font-size: 16px;
+        }
+
+        #desc P {
+            margin: 5px 0;
+            padding: 0;
+            line-height: 20px;
+            color: #444;
+        }
+
+        H1 {
+            background-color: #036;
+            color: #FFF;
+            font-family: Tahoma;
+            font-size: 26px;
+            font-weight: normal;
+            margin: 0;
+            padding: 10px 0 3px 15px;
+        }
+
+        FORM {
+            font-size: 0.7em;
+            margin-left: 20px;
+            padding-bottom: 2em;
+        }
+
+        UL {
+            margin: 10px 0 0 20px;
+        }
+
+        LI {
+            margin-top: 10px;
+        }
+
+        LI A {
+            color: #369;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        LI A:hover {
+            color: #C30;
+        }
+
+        H2 {
+            border-top: 1px solid #003366;
+            color: #036;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 25px 0 20px 0;
+        }
+
+        .example {
+            padding-left: 15px;
+        }
+
+        .example h3 {
+            color: #000000;
+            font-size: 1.1em;
+            margin: 10px 0 0 -15px;
+        }
+
+        .example pre {
+            background-color: #E5E5CC;
+            border: 1px solid #F0F0E0;
+            font-family: Courier New;
+            font-size: small;
+            padding: 5px;
+            margin-right: 15px;
+            white-space: pre-wrap;
+            overflow: auto;
+        }
+
+        .example .value {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+<h1>{ServiceName}{{ServiceNamespace}}</h1>
+
+<form id="mainForm">
+    <div>
+        <p><a href="../../metadata">&lt;back to all web services</a></p>
+
+        <h2>{OperationName}</h2>
+
+        <table>
+            <caption>The following routes are available for this service:</caption>
+            <tbody>
+            <tr>
+                <th width="100px">GET, POST</th>
+                <th>/{OperationNameLower}</th>
+            </tr>
+            </tbody>
+        </table>
+        <div class="call-info">
+            <p>To override the Content-type in your clients, set the HTTP <b>Accept</b> header, or append the <b>.{ExtLower}</b>
+                suffix.</p>
+        </div>
+
+        <div class="example">
+            <h3>HTTP + {ExtUpper}</h3>
+
+            <p> The following are sample HTTP requests and responses.
+                The placeholders shown need to be replaced with actual values.</p>
+
+            <div class="request">
+<pre>
+POST /{ExtLower}/{OperationNameLower} HTTP/1.1
+Host: {RequestHost}
+Content-Type: {ContentType}
+Content-Length: <span class="value">length</span>
+
+{RequestContent}
+</pre>
+            </div>
+            <div class="response">
+<pre>
+HTTP/1.1 200 OK
+Content-Type: {ContentType}
+Content-Length: length
+
+{ResponseContent}
+</pre>
+            </div>
+        </div>
+    </div>
+</form>
+</body>
+</html>

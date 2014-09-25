@@ -1,5 +1,6 @@
 package com.ctriposs.baiji.util;
 
+import java.io.File;
 import java.security.CodeSource;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -20,10 +21,13 @@ public final class VersionUtils {
         try {
             CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
             if (codeSource != null) {
-                JarFile jar = new JarFile(codeSource.getLocation().getFile());
-                Manifest manifest = jar.getManifest();
-                if (manifest != null) {
-                    version = manifest.getMainAttributes().getValue(SPEC_VERSION_ATTRIBUTE);
+                File file = new File(codeSource.getLocation().getFile());
+                if (file.isFile()) {
+                    JarFile jar = new JarFile(file);
+                    Manifest manifest = jar.getManifest();
+                    if (manifest != null) {
+                        version = manifest.getMainAttributes().getValue(SPEC_VERSION_ATTRIBUTE);
+                    }
                 }
             }
         } catch (Exception e) {

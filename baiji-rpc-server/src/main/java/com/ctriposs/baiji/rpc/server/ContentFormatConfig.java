@@ -23,7 +23,7 @@ public class ContentFormatConfig {
     /**
      * Map from registered extension to the corresponding content type.
      */
-    private final Map<String, String> _extContentTypes= new HashMap<String, String>();
+    private final Map<String, String> _extContentTypes = new HashMap<String, String>();
 
     public ContentFormatConfig() {
         reset();
@@ -37,20 +37,25 @@ public class ContentFormatConfig {
         if (_registeredFormatters.isEmpty()) {
             _defaultContentType = formatter.getContentType();
         }
-        _registeredFormatters.put(formatter.getContentType(), formatter);
-        _extContentTypes.put(formatter.getExtension(), formatter.getContentType());
+        _registeredFormatters.put(formatter.getContentType().toLowerCase(), formatter);
+        _extContentTypes.put(formatter.getExtension().toLowerCase(), formatter.getContentType());
     }
 
     public ContentFormatter getDefaultFormatter() {
-        return _defaultContentType != null ? _registeredFormatters.get(_defaultContentType) : null;
+        return _defaultContentType != null ? _registeredFormatters.get(_defaultContentType.toLowerCase()) : null;
     }
 
     public ContentFormatter getFormatter(String contentType) {
-        return _registeredFormatters.get(contentType);
+        return _registeredFormatters.get(contentType.toLowerCase());
     }
 
     public String getContentTypeFromExt(String extension) {
         return _extContentTypes.get(extension);
+    }
+
+    public ContentFormatter getFormatterFromExt(String extension) {
+        String contentType = _extContentTypes.get(extension.toLowerCase());
+        return contentType != null ? _registeredFormatters.get(_extContentTypes.get(extension)) : null;
     }
 
     public String getDefaultContentType() {
