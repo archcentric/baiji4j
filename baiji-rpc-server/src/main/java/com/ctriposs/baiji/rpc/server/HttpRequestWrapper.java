@@ -34,6 +34,11 @@ public interface HttpRequestWrapper {
     public String requestPath();
 
     /**
+     * The full request URL.
+     */
+    public String requestUrl();
+
+    /**
      * The URI scheme used for the request (e.g., "http", "https").
      */
     public String httpScheme();

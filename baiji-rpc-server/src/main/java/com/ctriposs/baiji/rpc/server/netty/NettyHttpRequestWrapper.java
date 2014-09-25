@@ -63,6 +63,11 @@ public class NettyHttpRequestWrapper extends HttpRequestWrapperBase {
     }
 
     @Override
+    public String requestUrl() {
+        return _requestUri.toString();
+    }
+
+    @Override
     public String requestPath() {
         return _requestUri.getPath();
     }

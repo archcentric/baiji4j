@@ -3,6 +3,7 @@ package com.ctriposs.baiji.rpc.server;
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.rpc.common.BaijiContract;
 import com.ctriposs.baiji.rpc.server.handler.NotFoundRequestHandler;
+import com.ctriposs.baiji.rpc.server.handler.RedirectRequestHandler;
 import com.ctriposs.baiji.rpc.server.handler.RequestHandler;
 import com.ctriposs.baiji.rpc.server.plugin.Plugin;
 import org.slf4j.Logger;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 
 /**
  * Created by yqdong on 2014/9/18.
@@ -21,7 +23,8 @@ public class BaijiServiceHost implements ServiceHost {
 
     private final HostConfig _config;
     private final ServiceMetadata _serviceMetadata;
-    private final RequestHandler _fallBackHandler = new NotFoundRequestHandler();
+    private final RequestHandler _redirectMetadataHandler;
+    private final RequestHandler _fallBackHandler;
 
     public BaijiServiceHost(Class<?> serviceClass) {
         this(new HostConfig(), serviceClass);
@@ -34,6 +37,9 @@ public class BaijiServiceHost implements ServiceHost {
 
         _serviceMetadata = buildServiceMetadata(serviceClass);
         _config = config;
+
+        _redirectMetadataHandler = new RedirectRequestHandler("~/metadata", true);
+        _fallBackHandler = new NotFoundRequestHandler();
 
         validateConfig();
         initializePlugins();
@@ -52,6 +58,12 @@ public class BaijiServiceHost implements ServiceHost {
     @Override
     public void processRequest(HttpRequestWrapper request, HttpResponseWrapper response) {
         try {
+            String requestPath = request.requestPath();
+            if (requestPath == null || requestPath.isEmpty() || requestPath.equals("/")) {
+                _redirectMetadataHandler.handle(this, request,response);;
+                return;
+            }
+
             for (RequestHandler handler : _config.requestHandlers) {
                 handler.handle(this, request, response);
                 if (response.isResponseSent()) {

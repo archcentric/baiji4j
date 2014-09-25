@@ -56,6 +56,11 @@ public class HttpServletRequestWrapper extends HttpRequestWrapperBase {
     }
 
     @Override
+    public String requestUrl() {
+        return _request.getRequestURL().toString();
+    }
+
+    @Override
     public String requestPath() {
         return _request.getPathInfo();
     }

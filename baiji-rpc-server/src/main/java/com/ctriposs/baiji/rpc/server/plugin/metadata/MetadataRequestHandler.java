@@ -19,7 +19,7 @@ public class MetadataRequestHandler implements RequestHandler {
         String firstSeg = pathSegs[0].toLowerCase();
 
         if (pathSegs.length == 1) {
-            if (firstSeg.isEmpty() || "metadata".equals(firstSeg)) {
+            if ("metadata".equals(firstSeg)) {
                 renderFullMetadata(host, response);
             }
             return;
