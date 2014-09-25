@@ -74,8 +74,6 @@ class ModelFilling2{
 class ModelFilling3{
 	int intfilling;
 	double doublefilling;
-	list<list<int>> listsfilling;
-	map<string, map<string,string>> mapsfilling;
 }
 
 enum Enum2Values{

@@ -11,21 +11,17 @@ import com.google.common.base.Objects;
 public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord {
     private static final long serialVersionUID = 1L;
 
-    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"ModelFilling3\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"doublefilling\",\"type\":[\"double\",\"null\"]},{\"name\":\"listsfilling\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":\"int\"}},\"null\"]},{\"name\":\"mapsfilling\",\"type\":[{\"type\":\"map\",\"values\":{\"type\":\"map\",\"values\":\"string\"}},\"null\"]}]}");
+    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"ModelFilling3\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"doublefilling\",\"type\":[\"double\",\"null\"]}]}");
 
     @Override
     public Schema getSchema() { return SCHEMA; }
 
     public ModelFilling3(
         Integer intfilling,
-        Double doublefilling,
-        List<List<Integer>> listsfilling,
-        Map<String, Map<String, String>> mapsfilling
+        Double doublefilling
     ) {
         this.intfilling = intfilling;
         this.doublefilling = doublefilling;
-        this.listsfilling = listsfilling;
-        this.mapsfilling = mapsfilling;
     }
 
     public ModelFilling3() {
@@ -34,10 +30,6 @@ public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord 
     public Integer intfilling;
 
     public Double doublefilling;
-
-    public List<List<Integer>> listsfilling;
-
-    public Map<String, Map<String, String>> mapsfilling;
 
     public Integer getIntfilling() {
         return intfilling;
@@ -55,29 +47,11 @@ public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord 
         this.doublefilling = doublefilling;
     }
 
-    public List<List<Integer>> getListsfilling() {
-        return listsfilling;
-    }
-
-    public void setListsfilling(final List<List<Integer>> listsfilling) {
-        this.listsfilling = listsfilling;
-    }
-
-    public Map<String, Map<String, String>> getMapsfilling() {
-        return mapsfilling;
-    }
-
-    public void setMapsfilling(final Map<String, Map<String, String>> mapsfilling) {
-        this.mapsfilling = mapsfilling;
-    }
-
     // Used by DatumWriter. Applications should not call.
     public java.lang.Object get(int fieldPos) {
         switch (fieldPos) {
             case 0: return this.intfilling;
             case 1: return this.doublefilling;
-            case 2: return this.listsfilling;
-            case 3: return this.mapsfilling;
             default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in get()");
         }
     }
@@ -88,8 +62,6 @@ public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord 
         switch (fieldPos) {
             case 0: this.intfilling = (Integer)fieldValue; break;
             case 1: this.doublefilling = (Double)fieldValue; break;
-            case 2: this.listsfilling = (List<List<Integer>>)fieldValue; break;
-            case 3: this.mapsfilling = (Map<String, Map<String, String>>)fieldValue; break;
             default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in put()");
         }
     }
@@ -102,9 +74,7 @@ public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord 
         final ModelFilling3 other = (ModelFilling3)obj;
         return 
             Objects.equal(this.intfilling, other.intfilling) &&
-            Objects.equal(this.doublefilling, other.doublefilling) &&
-            Objects.equal(this.listsfilling, other.listsfilling) &&
-            Objects.equal(this.mapsfilling, other.mapsfilling);
+            Objects.equal(this.doublefilling, other.doublefilling);
     }
 
     @Override
@@ -113,8 +83,6 @@ public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord 
 
         result = 31 * result + (this.intfilling == null ? 0 : this.intfilling.hashCode());
         result = 31 * result + (this.doublefilling == null ? 0 : this.doublefilling.hashCode());
-        result = 31 * result + (this.listsfilling == null ? 0 : this.listsfilling.hashCode());
-        result = 31 * result + (this.mapsfilling == null ? 0 : this.mapsfilling.hashCode());
 
         return result;
     }
@@ -124,8 +92,6 @@ public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord 
         return Objects.toStringHelper(this)
             .add("intfilling", intfilling)
             .add("doublefilling", doublefilling)
-            .add("listsfilling", listsfilling)
-            .add("mapsfilling", mapsfilling)
             .toString();
     }
 }
