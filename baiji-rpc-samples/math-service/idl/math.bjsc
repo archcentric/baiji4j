@@ -1,0 +1,21 @@
+include 'common.bjsc'
+
+namespace java com.ctriposs.baiji.rpc.samples.math
+namespace csharp CTripOSS.Baiji.Rpc.Samples.Math
+
+class GetFactorialRequestType {
+    long number;
+}
+
+class GetFactorialResponseType {
+    common.ResponseStatusType responseStatus;
+    long result;
+}
+
+@serviceName='Hello'
+@serviceNamespace='http://soa.ctriposs.com/baijirpc/sample/math'
+service MathService {
+    GetFactorialResponseType getFactorial(GetFactorialRequestType request);
+
+    common.CheckHealthResponseType checkHealth(common.CheckHealthRequestType request);
+}
