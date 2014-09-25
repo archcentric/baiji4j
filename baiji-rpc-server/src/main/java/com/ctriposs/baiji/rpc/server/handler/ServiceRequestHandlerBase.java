@@ -4,6 +4,7 @@ import com.ctriposs.baiji.rpc.server.*;
 import com.ctriposs.baiji.rpc.server.filter.PreRequestFilter;
 import com.ctriposs.baiji.rpc.server.filter.RequestFilter;
 import com.ctriposs.baiji.rpc.server.filter.ResponseFilter;
+import com.ctriposs.baiji.rpc.server.util.ErrorUtil;
 import com.ctriposs.baiji.rpc.server.util.RequestUtil;
 import com.ctriposs.baiji.rpc.server.util.ResponseUtil;
 import com.ctriposs.baiji.specific.SpecificRecord;
@@ -71,7 +72,7 @@ public abstract class ServiceRequestHandlerBase implements RequestHandler {
         if (requestObject == null) { // defensive programming
             String errMsg = "Unable to bind request with request object of type " + handler.getRequestType();
             _logger.error(errMsg);
-            SpecificRecord errorResponse = ResponseUtil.buildErrorResponse(handler.getResponseType(),
+            SpecificRecord errorResponse = ErrorUtil.buildFrameworkErrorResponse(handler.getResponseType(),
                     "NoRequestObject", errMsg, null, host);
             ResponseUtil.writeResponse(request, response, errorResponse, host);
             return; // Nothing more to do
@@ -91,7 +92,7 @@ public abstract class ServiceRequestHandlerBase implements RequestHandler {
         if (responseObject == null) { // defensive programming
             String errMsg = "Fail to get response object when invoking the service";
             _logger.error(errMsg);
-            SpecificRecord errorResponse = ResponseUtil.buildErrorResponse(handler.getResponseType(),
+            SpecificRecord errorResponse = ErrorUtil.buildFrameworkErrorResponse(handler.getResponseType(),
                     "NoResponseObject", errMsg, null, host);
             ResponseUtil.writeResponse(request, response, errorResponse, host);
             return; // Nothing more to do

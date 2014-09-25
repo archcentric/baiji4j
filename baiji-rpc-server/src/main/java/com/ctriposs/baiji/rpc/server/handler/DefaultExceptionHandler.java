@@ -4,6 +4,7 @@ import com.ctriposs.baiji.rpc.server.HttpRequestWrapper;
 import com.ctriposs.baiji.rpc.server.HttpResponseWrapper;
 import com.ctriposs.baiji.rpc.server.OperationHandler;
 import com.ctriposs.baiji.rpc.server.ServiceHost;
+import com.ctriposs.baiji.rpc.server.util.ErrorUtil;
 import com.ctriposs.baiji.rpc.server.util.ResponseUtil;
 import com.ctriposs.baiji.specific.SpecificRecord;
 import org.apache.http.HttpStatus;
@@ -32,7 +33,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
             String errMsg = actualEx.getClass().getName() + " - " + actualEx.getMessage();
             _logger.error(errMsg, actualEx);
             try {
-                SpecificRecord errorResponse = ResponseUtil.buildErrorResponse(
+                SpecificRecord errorResponse = ErrorUtil.buildFrameworkErrorResponse(
                         operationHandler.getResponseType(), "RequestException", errMsg, actualEx, host);
                 ResponseUtil.writeResponse(request, response, errorResponse, host);
             } catch (Exception e) {

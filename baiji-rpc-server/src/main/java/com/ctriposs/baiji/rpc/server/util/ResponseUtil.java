@@ -7,12 +7,10 @@ import com.ctriposs.baiji.rpc.server.HttpRequestWrapper;
 import com.ctriposs.baiji.rpc.server.HttpResponseWrapper;
 import com.ctriposs.baiji.rpc.server.ServiceHost;
 import com.ctriposs.baiji.specific.SpecificRecord;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -22,36 +20,6 @@ import java.util.List;
 public final class ResponseUtil {
 
     private ResponseUtil() {
-    }
-
-    public static SpecificRecord buildErrorResponse(Class<?> responseClass, String errorCode, String message,
-                                                    ServiceHost host) throws Exception {
-        return buildErrorResponse(responseClass, errorCode, message, null, host);
-    }
-
-    public static SpecificRecord buildErrorResponse(Class<?> responseClass, String errorCode, String message,
-                                                    Throwable t, ServiceHost host) throws Exception {
-        HasResponseStatus responseObj = (HasResponseStatus) responseClass.newInstance();
-
-        ResponseStatusType responseStatus = new ResponseStatusType();
-        responseStatus.ack = AckCodeType.FAILURE;
-        responseStatus.timestamp = Calendar.getInstance();
-
-        ErrorDataType errorData = new ErrorDataType();
-        errorData.errorCode = errorCode;
-        errorData.errorClassification = ErrorClassificationCodeType.FRAMEWORK_ERROR;
-        errorData.message = message;
-        errorData.severityCode = SeverityCodeType.ERROR;
-        if (t != null && (host.getConfig().debugMode || host.getConfig().outputExceptionStackTrace)) {
-            String stackTrace = ExceptionUtils.getStackTrace(t);
-            errorData.stackTrace = stackTrace;
-        }
-        responseStatus.errors = new ArrayList<ErrorDataType>();
-        responseStatus.errors.add(errorData);
-
-        responseObj.setResponseStatus(responseStatus);
-
-        return (SpecificRecord) responseObj;
     }
 
     public static void writeResponse(HttpRequestWrapper request, HttpResponseWrapper response, SpecificRecord responseObject,
