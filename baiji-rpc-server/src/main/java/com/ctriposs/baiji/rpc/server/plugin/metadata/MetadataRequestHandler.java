@@ -2,6 +2,7 @@ package com.ctriposs.baiji.rpc.server.plugin.metadata;
 
 import com.ctriposs.baiji.rpc.server.*;
 import com.ctriposs.baiji.rpc.server.handler.RequestHandler;
+import com.ctriposs.baiji.util.VersionUtils;
 import com.google.common.net.HttpHeaders;
 
 import java.io.IOException;
@@ -38,7 +39,8 @@ public class MetadataRequestHandler implements RequestHandler {
         ServiceMetadata metadata = host.getServiceMetaData();
         writer.write("Service Name: " + metadata.getServiceName() + "\n");
         writer.write("Service Namespace: " + metadata.getServiceNamespace() + "\n");
-        writer.write("Code Gen Version: " + metadata.getCodeGeneratorVersion() + "\n");
+        writer.write("Baiji Version: " + VersionUtils.getPackageVersion(ServiceHost.class) + "\n");
+        writer.write("CodeGen Version: " + metadata.getCodeGeneratorVersion() + "\n");
         writer.write("\n");
         writer.write("Supported Operations:\n");
         for (Map.Entry<RequestPath, OperationHandler> entry : metadata.getOperationHandlers().entrySet()) {

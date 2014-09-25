@@ -1,12 +1,12 @@
 package com.ctriposs.ci
 
 class ProjectVersion {
-    final Integer major
-    final Integer minor
+    final String major
+    final String minor
     final String build
     final Boolean isSnapshot
 
-    ProjectVersion(Integer major, Integer minor, String build, Boolean isSnapshot) {
+    ProjectVersion(String major, String minor, String build, Boolean isSnapshot) {
         this.major = major
         this.minor = minor
         this.build = build
