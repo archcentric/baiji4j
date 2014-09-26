@@ -10,7 +10,7 @@ import com.google.common.base.Objects;
 public class ModelFilling extends SpecificRecordBase implements SpecificRecord {
     private static final long serialVersionUID = 1L;
 
-    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"ModelFilling\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"stringfilling1\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling2\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling3\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling4\",\"type\":[\"string\",\"null\"]},{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"boolfilling\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"modelfilling\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling2\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"longfilling\",\"type\":[\"long\",\"null\"]},{\"name\":\"stringfilling\",\"type\":[\"string\",\"null\"]},{\"name\":\"listfilling\",\"type\":[{\"type\":\"array\",\"items\":\"string\"},\"null\"]},{\"name\":\"enumfilling\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum2Values\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"symbols\":[\"CAR\",\"BIKE\",\"PLANE\"]},\"null\"]}]},\"null\"]},{\"name\":\"modelfilling3\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling3\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"doublefilling\",\"type\":[\"double\",\"null\"]},{\"name\":\"listsfilling\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":\"int\"}},\"null\"]},{\"name\":\"mapsfilling\",\"type\":[{\"type\":\"map\",\"values\":{\"type\":\"map\",\"values\":\"string\"}},\"null\"]}]},\"null\"]},{\"name\":\"enumfilling\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum1Values\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"symbols\":[\"BLUE\",\"RED\",\"GREEN\"]},\"null\"]}]}");
+    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"ModelFilling\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"stringfilling1\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling2\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling3\",\"type\":[\"string\",\"null\"]},{\"name\":\"stringfilling4\",\"type\":[\"string\",\"null\"]},{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"boolfilling\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"modelfilling\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling2\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"longfilling\",\"type\":[\"long\",\"null\"]},{\"name\":\"stringfilling\",\"type\":[\"string\",\"null\"]},{\"name\":\"listfilling\",\"type\":[{\"type\":\"array\",\"items\":\"string\"},\"null\"]},{\"name\":\"enumfilling\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum2Values\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"symbols\":[\"CAR\",\"BIKE\",\"PLANE\"]},\"null\"]}]},\"null\"]},{\"name\":\"modelfilling3\",\"type\":[{\"type\":\"record\",\"name\":\"ModelFilling3\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"fields\":[{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"doublefilling\",\"type\":[\"double\",\"null\"]}]},\"null\"]},{\"name\":\"enumfilling\",\"type\":[{\"type\":\"enum\",\"name\":\"Enum1Values\",\"namespace\":\"com.ctriposs.baiji.rpc.samples.crosstest\",\"doc\":null,\"symbols\":[\"BLUE\",\"RED\",\"GREEN\"]},\"null\"]}]}");
 
     @Override
     public Schema getSchema() { return SCHEMA; }
@@ -131,7 +131,7 @@ public class ModelFilling extends SpecificRecordBase implements SpecificRecord {
     }
 
     // Used by DatumWriter. Applications should not call.
-    public Object get(int fieldPos) {
+    public java.lang.Object get(int fieldPos) {
         switch (fieldPos) {
             case 0: return this.stringfilling1;
             case 1: return this.stringfilling2;
@@ -148,7 +148,7 @@ public class ModelFilling extends SpecificRecordBase implements SpecificRecord {
 
     // Used by DatumReader. Applications should not call.
     @SuppressWarnings(value="unchecked")
-    public void put(int fieldPos, Object fieldValue) {
+    public void put(int fieldPos, java.lang.Object fieldValue) {
         switch (fieldPos) {
             case 0: this.stringfilling1 = (String)fieldValue; break;
             case 1: this.stringfilling2 = (String)fieldValue; break;

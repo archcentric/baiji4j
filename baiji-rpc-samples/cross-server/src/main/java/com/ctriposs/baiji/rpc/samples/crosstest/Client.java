@@ -8,12 +8,15 @@ public class Client {
 
     public static void main(String[] args) throws Exception {
         TestServiceClient client = TestServiceClient.getInstance(TestServiceClient.class, "http://localhost:8113/");
-        CrossTestRequestType requestType = new CrossTestRequestType("beepboop", createSample());
-        CrossTestResponseType responseType = client.testSerialize(requestType);
-        System.out.println(responseType.getMessage());
-        System.out.println(responseType.getResponseStatus());
-        checkStatus(requestType.getSample(), responseType.getSampleList().getSamples());
-        System.out.println("Passed!!!");
+        for (String format : TestServiceClient.getSupportFormats()) {
+            client.setFormat(format);
+            CrossTestRequestType requestType = new CrossTestRequestType("beepboop", createSample());
+            CrossTestResponseType responseType = client.testSerialize(requestType);
+            System.out.println(responseType.getMessage());
+            System.out.println(responseType.getResponseStatus());
+            checkStatus(requestType.getSample(), responseType.getSampleList().getSamples());
+            System.out.println("Passed!!!");
+        }
     }
 
     private static TestSerializerSample createSample() {
@@ -28,8 +31,8 @@ public class Client {
         sample.int1 = random.nextInt();
         sample.string1 = UUID.randomUUID().toString();
         sample.bytes1 = new byte[256];
-        for (int i= 0; i < 256; ++i) {
-            sample.bytes1[i] = (byte)i;
+        for (int i = 0; i < 256; ++i) {
+            sample.bytes1[i] = (byte) i;
         }
         sample.list1 = Arrays.asList("啦", "b", "c");
         Map<String, Integer> map = new HashMap<>();
@@ -66,7 +69,7 @@ public class Client {
             Assert.assertEquals(expected.double1, actual.double1);
             Assert.assertEquals(expected.enum1, Enum1Values.GREEN);
             Assert.assertEquals(expected.string1, actual.string1);
-            Assert.assertEquals((long)actual.int1, (long)(i + 2048));
+            Assert.assertEquals((long) actual.int1, (long) (i + 2048));
             Assert.assertEquals(expected.list1.size(), actual.list1.size());
             Assert.assertEquals(expected.map1.size(), actual.map1.size());
             Assert.assertEquals(expected.list1, actual.list1);

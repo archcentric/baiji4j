@@ -1,7 +1,7 @@
 include 'common.bjsc'
 
 namespace java com.ctriposs.baiji.rpc.samples.crosstest
-namespace csharp CTripOSS.Baiji.Rpc.Samples.CrossTest
+namespace csharp CTripOSS.Baiji.Tests.Types
 
 class TestSerializerSampleList{
     list<TestSerializerSample> samples;
@@ -14,14 +14,14 @@ class TestSerializerSample {
     required long bigint1;
     required bool boolean1;
     required double double1;
-	string string1;
+    string string1;
     Record record;
     list<string> list1;
     map<string,int> map1;
     Enum1Values enum1;
     int nullableint;
     binary bytes1;
-	Record2Container container1;
+    Record2Container container1;
     TestSerializerSample innerSample;
 }
 
@@ -32,7 +32,7 @@ enum Enum1Values {
 }
 
 class Record2Container{
-	list<Record2> record2list;
+    list<Record2> record2list;
 }
 
 class Record2{
@@ -42,7 +42,7 @@ class Record2{
     list<int> list2;
     map<string, Record> map2;
     list<binary> byteslist;
-	ModelFilling filling;
+    ModelFilling filling;
 }
 
 class Record{
@@ -52,29 +52,27 @@ class Record{
 }
 
 class ModelFilling{
-	string stringfilling1;
-	string stringfilling2;
-	string stringfilling3;
-	string stringfilling4;
-	int intfilling;
-	bool boolfilling;
-	ModelFilling2 modelfilling;
-	ModelFilling3 modelfilling3;
-	Enum1Values enumfilling;
+    string stringfilling1;
+    string stringfilling2;
+    string stringfilling3;
+    string stringfilling4;
+    int intfilling;
+    bool boolfilling;
+    ModelFilling2 modelfilling;
+    ModelFilling3 modelfilling3;
+    Enum1Values enumfilling;
 }
 
 class ModelFilling2{
-	long longfilling;
-	string stringfilling;
-	list<string> listfilling;
-	Enum2Values enumfilling;
+    long longfilling;
+    string stringfilling;
+    list<string> listfilling;
+    Enum2Values enumfilling;
 }
 
 class ModelFilling3{
-	int intfilling;
-	double doublefilling;
-	list<list<int>> listsfilling;
-	map<string, map<string,string>> mapsfilling;
+    int intfilling;
+    double doublefilling;
 }
 
 enum Enum2Values{

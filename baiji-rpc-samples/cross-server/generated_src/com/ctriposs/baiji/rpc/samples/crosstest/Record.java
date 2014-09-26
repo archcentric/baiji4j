@@ -59,7 +59,7 @@ public class Record extends SpecificRecordBase implements SpecificRecord {
     }
 
     // Used by DatumWriter. Applications should not call.
-    public Object get(int fieldPos) {
+    public java.lang.Object get(int fieldPos) {
         switch (fieldPos) {
             case 0: return this.sInt;
             case 1: return this.sBoolean;
@@ -70,7 +70,7 @@ public class Record extends SpecificRecordBase implements SpecificRecord {
 
     // Used by DatumReader. Applications should not call.
     @SuppressWarnings(value="unchecked")
-    public void put(int fieldPos, Object fieldValue) {
+    public void put(int fieldPos, java.lang.Object fieldValue) {
         switch (fieldPos) {
             case 0: this.sInt = (Integer)fieldValue; break;
             case 1: this.sBoolean = (Boolean)fieldValue; break;
