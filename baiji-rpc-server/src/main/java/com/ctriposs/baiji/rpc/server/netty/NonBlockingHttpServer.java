@@ -11,8 +11,11 @@ public class NonBlockingHttpServer extends HttpServer {
     private final int _routerExecutorThreads;
 
     NonBlockingHttpServer(ServerBootstrap bootstrap, ServiceHost serviceHost,
-                                    int routerExecutorThreads) {
+                          int routerExecutorThreads) {
         super(bootstrap, serviceHost);
+        if (routerExecutorThreads <= 0) {
+            throw new IllegalArgumentException("routerExecutorThreads must be a positive number.");
+        }
         _routerExecutorThreads = routerExecutorThreads;
     }
 

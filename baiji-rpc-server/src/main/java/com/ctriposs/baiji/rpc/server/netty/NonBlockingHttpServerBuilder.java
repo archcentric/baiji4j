@@ -6,8 +6,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 public class NonBlockingHttpServerBuilder extends HttpServerBuilder<NonBlockingHttpServerBuilder, NonBlockingHttpServer> {
 
-    private int _selectorCount;
-    private int _executorThreadCount;
+    private int _selectorCount = 1;
+    private int _executorThreadCount = 200;
 
     public NonBlockingHttpServerBuilder(int serverPort) {
         super(serverPort);
@@ -18,8 +18,12 @@ public class NonBlockingHttpServerBuilder extends HttpServerBuilder<NonBlockingH
         return this;
     }
 
-    public NonBlockingHttpServerBuilder serviceHost(ServiceHost serviceHost, int executorThreadCount) {
+    public NonBlockingHttpServerBuilder serviceHost(ServiceHost serviceHost) {
         this._serviceHost = serviceHost;
+        return this;
+    }
+
+    public NonBlockingHttpServerBuilder executorThreadCount(int executorThreadCount) {
         this._executorThreadCount = executorThreadCount;
         return this;
     }
