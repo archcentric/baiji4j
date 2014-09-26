@@ -10,7 +10,7 @@ import com.google.common.base.Objects;
 public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord {
     private static final long serialVersionUID = 1L;
 
-    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"ModelFilling3\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"fields\":[{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"doublefilling\",\"type\":[\"double\",\"null\"]},{\"name\":\"listsfilling\",\"type\":[{\"type\":\"array\",\"items\":{\"type\":\"array\",\"items\":\"int\"}},\"null\"]},{\"name\":\"mapsfilling\",\"type\":[{\"type\":\"map\",\"values\":{\"type\":\"map\",\"values\":\"string\"}},\"null\"]}]}");
+    public static final Schema SCHEMA = Schema.parse("{\"type\":\"record\",\"name\":\"ModelFilling3\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"fields\":[{\"name\":\"intfilling\",\"type\":[\"int\",\"null\"]},{\"name\":\"doublefilling\",\"type\":[\"double\",\"null\"]}]}");
 
     @Override
     public Schema getSchema() { return SCHEMA; }
@@ -99,7 +99,7 @@ public class ModelFilling3 extends SpecificRecordBase implements SpecificRecord 
         if (getClass() != obj.getClass()) return false;
 
         final ModelFilling3 other = (ModelFilling3)obj;
-        return 
+        return
             Objects.equal(this.intfilling, other.intfilling) &&
             Objects.equal(this.doublefilling, other.doublefilling) &&
             Objects.equal(this.listsfilling, other.listsfilling) &&
