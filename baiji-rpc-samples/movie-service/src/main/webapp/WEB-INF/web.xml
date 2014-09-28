@@ -6,6 +6,11 @@
     <display-name>Movie Service</display-name>
 
     <context-param>
+        <param-name>service-class</param-name>
+        <param-value>com.ctriposs.baiji.rpc.samples.movie.MovieServiceImpl</param-value>
+    </context-param>
+
+    <context-param>
         <param-name>etcd-service-url</param-name>
         <param-value>http://localhost:4001/</param-value>
     </context-param>
@@ -18,13 +23,13 @@
         <param-value>dev</param-value>
     </context-param>
 
+    <listener>
+        <listener-class>com.ctriposs.baiji.rpc.server.BaijiListener</listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>BaijiServlet</servlet-name>
         <servlet-class>com.ctriposs.baiji.rpc.server.BaijiServlet</servlet-class>
-        <init-param>
-            <param-name>service-class</param-name>
-            <param-value>com.ctriposs.baiji.rpc.samples.movie.MovieServiceImpl</param-value>
-        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>BaijiServlet</servlet-name>

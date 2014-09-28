@@ -5,13 +5,18 @@
          version="3.0">
     <display-name>Test Serialize</display-name>
 
+    <context-param>
+        <param-name>service-class</param-name>
+        <param-value>com.ctriposs.baiji.rpc.samples.crosstest.TestServiceImpl</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>com.ctriposs.baiji.rpc.server.BaijiListener</listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>BaijiServlet</servlet-name>
         <servlet-class>com.ctriposs.baiji.rpc.server.BaijiServlet</servlet-class>
-        <init-param>
-            <param-name>service-class</param-name>
-            <param-value>com.ctriposs.baiji.rpc.samples.crosstest.TestServiceImpl</param-value>
-        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>BaijiServlet</servlet-name>
