@@ -1,5 +1,7 @@
 package com.ctriposs.baiji.rpc.server.handler;
 
+import com.ctriposs.baiji.rpc.common.logging.Logger;
+import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
 import com.ctriposs.baiji.rpc.server.*;
 import com.ctriposs.baiji.rpc.server.filter.PreRequestFilter;
 import com.ctriposs.baiji.rpc.server.filter.RequestFilter;
@@ -10,8 +12,6 @@ import com.ctriposs.baiji.rpc.server.util.ResponseUtil;
 import com.ctriposs.baiji.specific.SpecificRecord;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;

@@ -1,10 +1,10 @@
 package com.ctriposs.baiji.rpc.server;
 
 import com.ctriposs.baiji.rpc.common.HasResponseStatus;
+import com.ctriposs.baiji.rpc.common.logging.Logger;
+import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
 import com.ctriposs.baiji.rpc.server.filter.*;
 import com.ctriposs.baiji.specific.SpecificRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;

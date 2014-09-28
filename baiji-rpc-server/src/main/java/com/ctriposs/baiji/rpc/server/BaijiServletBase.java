@@ -1,12 +1,12 @@
 package com.ctriposs.baiji.rpc.server;
 
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
+import com.ctriposs.baiji.rpc.common.logging.Logger;
+import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
 import com.ctriposs.baiji.rpc.server.registry.EtcdServiceRegistry;
 import com.ctriposs.baiji.rpc.server.registry.ServiceInfo;
 import com.ctriposs.baiji.rpc.server.registry.ServiceRegistry;
 import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;

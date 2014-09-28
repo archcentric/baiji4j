@@ -2,17 +2,16 @@ package com.ctriposs.baiji.rpc.server;
 
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.rpc.common.BaijiContract;
+import com.ctriposs.baiji.rpc.common.logging.Logger;
+import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
 import com.ctriposs.baiji.rpc.server.handler.NotFoundRequestHandler;
 import com.ctriposs.baiji.rpc.server.handler.RedirectRequestHandler;
 import com.ctriposs.baiji.rpc.server.handler.RequestHandler;
 import com.ctriposs.baiji.rpc.server.plugin.Plugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.URISyntaxException;
 
 /**
  * Created by yqdong on 2014/9/18.

@@ -9,6 +9,8 @@ import com.ctriposs.baiji.rpc.common.HasResponseStatus;
 import com.ctriposs.baiji.rpc.common.formatter.BinaryContentFormatter;
 import com.ctriposs.baiji.rpc.common.formatter.ContentFormatter;
 import com.ctriposs.baiji.rpc.common.formatter.JsonContentFormatter;
+import com.ctriposs.baiji.rpc.common.logging.Logger;
+import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
 import com.ctriposs.baiji.rpc.common.types.AckCodeType;
 import com.ctriposs.baiji.rpc.common.types.ErrorDataType;
 import com.ctriposs.baiji.rpc.common.types.ResponseStatusType;
@@ -22,8 +24,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -1,5 +1,7 @@
 package com.ctriposs.baiji.rpc.server.netty;
 
+import com.ctriposs.baiji.rpc.common.logging.Logger;
+import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
 import com.ctriposs.baiji.rpc.server.HttpRequestWrapper;
 import com.ctriposs.baiji.rpc.server.HttpResponseWrapper;
 import com.ctriposs.baiji.rpc.server.ServiceHost;
@@ -7,8 +9,6 @@ import com.google.common.base.Preconditions;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.SocketException;
 import java.net.URISyntaxException;

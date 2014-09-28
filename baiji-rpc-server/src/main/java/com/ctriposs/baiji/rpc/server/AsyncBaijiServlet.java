@@ -1,9 +1,9 @@
 package com.ctriposs.baiji.rpc.server;
 
+import com.ctriposs.baiji.rpc.common.logging.Logger;
+import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
 import com.ctriposs.baiji.rpc.common.util.DaemonThreadFactory;
 import com.ctriposs.baiji.rpc.server.util.ConfigUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -127,14 +127,14 @@ public class AsyncBaijiServlet extends BaijiServletBase {
         @Override
         public void onTimeout(AsyncEvent event) throws IOException {
             _timedOut = true;
-            _logger.error("Access {} timeout in AsyncBaijiServlet.",
-                    ((HttpServletRequest) event.getAsyncContext().getRequest()).getRequestURL());
+            _logger.error(String.format("Access %s timeout in AsyncBaijiServlet.",
+                    ((HttpServletRequest) event.getAsyncContext().getRequest()).getRequestURL()));
         }
 
         @Override
         public void onError(AsyncEvent event) throws IOException {
-            _logger.error("Error while access {} in AsyncBaijiServlet.",
-                    ((HttpServletRequest) event.getAsyncContext().getRequest()).getRequestURL());
+            _logger.error(String.format("Error occurs while access %s in AsyncBaijiServlet.",
+                    ((HttpServletRequest) event.getAsyncContext().getRequest()).getRequestURL()));
         }
 
         @Override

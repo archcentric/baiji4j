@@ -12,9 +12,19 @@ public final class LoggerFactory {
 
     private static final Logger DUMMY_LOGGER = new DummyLogger();
 
-    private static final ConcurrentMap<String, ILoggerFactory> _loggerFacotries = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, ILoggerFactory> _loggerFactories = new ConcurrentHashMap<>();
 
     private static ILoggerFactory _currentFactory = null;
+
+    static {
+        try {
+            Class slf4jClass = Class.forName("org.slf4j.LoggerFactory");
+            if (slf4jClass != null) {
+                register(new Slf4jLoggerFactory());
+            }
+        } catch (Exception e) {
+        }
+    }
 
     private LoggerFactory() {
     }
@@ -25,8 +35,8 @@ public final class LoggerFactory {
      * @param factory
      */
     public static void register(ILoggerFactory factory) {
-        _loggerFacotries.put(factory.name(), factory);
-        if (_loggerFacotries.size() == 1) {
+        _loggerFactories.put(factory.name(), factory);
+        if (_loggerFactories.size() == 1) {
             _currentFactory = factory;
         }
     }
@@ -37,7 +47,7 @@ public final class LoggerFactory {
      * @param name the name of ILoggerFactory to use
      */
     public static void setCurrentFactory(String name) {
-        ILoggerFactory factory = _loggerFacotries.get(name);
+        ILoggerFactory factory = _loggerFactories.get(name);
         if (factory != null) {
             _currentFactory = factory;
         }
