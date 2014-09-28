@@ -6,6 +6,11 @@
     <display-name>Math Service</display-name>
 
     <context-param>
+        <param-name>service-class</param-name>
+        <param-value>com.ctriposs.baiji.rpc.samples.math.MathServiceImpl</param-value>
+    </context-param>
+
+    <context-param>
         <param-name>etcd-service-url</param-name>
         <param-value>http://localhost:4001/</param-value>
     </context-param>
@@ -14,21 +19,17 @@
         <param-value>8115</param-value>
     </context-param>
 
+    <listener>
+        <listener-class>com.ctriposs.baiji.rpc.server.BaijiListener</listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>BaijiServlet</servlet-name>
         <servlet-class>com.ctriposs.baiji.rpc.server.BaijiServlet</servlet-class>
-        <init-param>
-            <param-name>service-class</param-name>
-            <param-value>com.ctriposs.baiji.rpc.samples.math.MathServiceImpl</param-value>
-        </init-param>
     </servlet>
     <!--<servlet>
         <servlet-name>BaijiServlet</servlet-name>
         <servlet-class>com.ctriposs.baiji.rpc.server.AsyncBaijiServlet</servlet-class>
-        <init-param>
-            <param-name>service-class</param-name>
-            <param-value>com.ctriposs.baiji.rpc.samples.math.MathServiceImpl</param-value>
-        </init-param>
         <async-supported>true</async-supported>
     </servlet>-->
     <servlet-mapping>
