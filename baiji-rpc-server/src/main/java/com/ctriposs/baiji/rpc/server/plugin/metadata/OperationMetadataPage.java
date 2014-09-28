@@ -5,9 +5,9 @@ import com.ctriposs.baiji.rpc.server.*;
 import com.ctriposs.baiji.specific.SpecificRecord;
 import com.ctriposs.baiji.util.VersionUtils;
 import com.google.common.net.HttpHeaders;
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import org.apache.http.HttpStatus;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Field;
@@ -149,9 +149,9 @@ public class OperationMetadataPage implements MetadataPage {
 
     private String getSerializedContent(SpecificRecord record, ContentFormatter formatter) {
         try {
-            ByteOutputStream stream = new ByteOutputStream();
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
             formatter.serialize(stream, record);
-            return new String(stream.getBytes(), "UTF-8");
+            return new String(stream.toByteArray(), "UTF-8");
         } catch (IOException e) {
             return "[Generated content failed.]";
         }
