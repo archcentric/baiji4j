@@ -1,6 +1,6 @@
 package com.ctriposs.baiji.convert;
 
-public interface Converter<S, T> {
+public interface Converter<S, D> {
 
-    T convert(S source) throws Exception;
+    D convert(S source, Class<D> clazz) throws Exception;
 }

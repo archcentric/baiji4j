@@ -90,6 +90,8 @@ public final class SpecificJsonReader<T> {
                     return readDouble(datum);
                 case LONG:
                     return readLong(datum);
+                case FLOAT:
+                    return readFloat(datum);
                 case STRING:
                     return readString(datum);
                 case BYTES:
@@ -137,6 +139,10 @@ public final class SpecificJsonReader<T> {
 
     private Object readLong(Object obj) {
         return (obj instanceof JsonNode) ? ((JsonNode) obj).getLongValue() : obj;
+    }
+
+    private Object readFloat(Object obj) {
+        return (obj instanceof JsonNode) ? ((JsonNode) obj).getNumberValue().floatValue() : obj;
     }
 
     private Object readString(Object obj) {
