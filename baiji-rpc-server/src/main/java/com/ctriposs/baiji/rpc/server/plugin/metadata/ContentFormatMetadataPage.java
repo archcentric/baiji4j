@@ -37,8 +37,9 @@ public class ContentFormatMetadataPage implements MetadataPage {
             message = "Unknown content format: " + _formatExt;
             operations = "";
         } else {
+            String metadataUrl = UrlUtil.getAbsoluteUrl(request.requestUrl(), request.requestPath(), "~/metadata");
             message = "The following operations are supported. " +
-                    "For more information please view the <a href=\"../../metadata\">Service Documentation</a>.";
+                    "For more information please view the <a href=\"" + metadataUrl + "\">Service Documentation</a>.";
             StringBuilder operationListBuilder = new StringBuilder();
             for (Map.Entry<RequestPath, OperationHandler> entry : metadata.getOperationHandlers().entrySet()) {
                 operationListBuilder.append(getOperationListEntry(entry.getValue().getMethodName()));

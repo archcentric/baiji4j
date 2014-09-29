@@ -129,7 +129,7 @@
 
 <form id="mainForm">
     <div>
-        <p><a href="../../metadata">&lt; Back to all web services</a></p>
+        <p><a href="{MetadataUrl}">&lt; Back to all web services</a></p>
 
         <h2>{OperationName}</h2>
 
@@ -138,7 +138,7 @@
             <tbody>
             <tr>
                 <th width="100px">GET, POST</th>
-                <th>/{OperationNameLower}</th>
+                <th>{ContextPath}/{OperationNameLower}</th>
             </tr>
             </tbody>
         </table>
@@ -155,7 +155,7 @@
 
             <div class="request">
 <pre>
-POST /{ExtLower}/{OperationNameLower} HTTP/1.1
+POST {ContextPath}/{OperationNameLower}.{ExtLower} HTTP/1.1
 Host: {RequestHost}
 Content-Type: {ContentType}
 Content-Length: <span class="value">length</span>

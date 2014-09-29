@@ -2,6 +2,7 @@ package com.ctriposs.baiji.rpc.server.plugin.metadata;
 
 import com.ctriposs.baiji.rpc.common.formatter.ContentFormatter;
 import com.ctriposs.baiji.rpc.server.*;
+import com.ctriposs.baiji.rpc.server.util.UrlUtil;
 import com.ctriposs.baiji.specific.SpecificRecord;
 import com.ctriposs.baiji.util.VersionUtils;
 import com.google.common.net.HttpHeaders;
@@ -59,11 +60,15 @@ public class OperationMetadataPage implements MetadataPage {
         page = page.replace("{ServiceNamespace}", metadata.getServiceNamespace());
         page = page.replace("{Baiji4jVersion}", VersionUtils.getPackageVersion(ServiceHost.class));
         page = page.replace("{CodeGenVersion}", metadata.getCodeGeneratorVersion());
+        page = page.replace("{ContextPath}", request.contextPath());
         page = page.replace("{OperationName}", _operationName);
         page = page.replace("{OperationNameLower}", _operationName.toLowerCase());
         page = page.replace("{ExtLower}", _formatExt.toLowerCase());
         page = page.replace("{ExtUpper}", _formatExt.toUpperCase());
         page = page.replace("{ContentType}", formatter.getContentType());
+
+        String metadataUrl = UrlUtil.getAbsoluteUrl(request.requestUrl(), request.requestPath(), "~/metadata");
+        page = page.replace("{MetadataUrl}", metadataUrl);
 
         String requestHost = "";
         try {
