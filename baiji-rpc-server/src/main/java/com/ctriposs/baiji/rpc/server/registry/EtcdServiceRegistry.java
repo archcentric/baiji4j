@@ -1,5 +1,7 @@
 package com.ctriposs.baiji.rpc.server.registry;
 
+import com.ctriposs.baiji.rpc.common.logging.Logger;
+import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
 import com.ctriposs.etcd.CEtcdClient;
 import com.ctriposs.etcd.CEtcdClientException;
 import com.ctriposs.etcd.CEtcdResult;
@@ -13,12 +15,16 @@ public class EtcdServiceRegistry implements ServiceRegistry {
     private static final int DEFAULT_HEARTBEAT_INTERVAL = 30 * 1000; // In milliseconds
     private static final int HEARTBEAT_MISS_TOLERANCE = 3;
 
+    private static final Logger _logger = LoggerFactory.getLogger(EtcdServiceRegistry.class);
+
+    private final Object _lock = new Object();
     private final List<ServiceInfo> _services = new LinkedList<ServiceInfo>();
     private final CEtcdClient _client;
     private final Timer _heartbeatTimer = new Timer("EtcdServiceRegistry_Heartbeat", true);
     private int _heartbeatInterval = DEFAULT_HEARTBEAT_INTERVAL;
     private int _registrationTtl = _heartbeatInterval * HEARTBEAT_MISS_TOLERANCE / 1000;
     private boolean _running;
+    private boolean _timerStarted;
 
     public EtcdServiceRegistry(String serviceUrl) {
         if (serviceUrl == null || serviceUrl.isEmpty()) {
@@ -32,7 +38,12 @@ public class EtcdServiceRegistry implements ServiceRegistry {
         if (serviceInfo == null) {
             throw new IllegalArgumentException("serviceInfo can't be null.");
         }
-        _services.add(serviceInfo);
+        synchronized (_lock) {
+            _services.add(serviceInfo);
+            if (_running && !_timerStarted) {
+                startHeartbeatTimer();
+            }
+        }
     }
 
     @Override
@@ -50,20 +61,32 @@ public class EtcdServiceRegistry implements ServiceRegistry {
 
     @Override
     public void run() {
-        if (_running) {
-            return;
+        synchronized (_lock) {
+            if (_running) {
+                return;
+            }
+            _running = true;
+            if (!_services.isEmpty()) {
+                startHeartbeatTimer();
+            }
         }
-        _running = true;
-        _heartbeatTimer.scheduleAtFixedRate(new HeartbeatTask(), 0, _heartbeatInterval);
     }
 
     @Override
     public void stop() {
-        if (!_running) {
-            return;
+        synchronized (_lock) {
+            if (!_running) {
+                return;
+            }
+            _running = false;
+            _heartbeatTimer.cancel();
+            _timerStarted = false;
         }
-        _running = false;
-        _heartbeatTimer.cancel();
+    }
+
+    private void startHeartbeatTimer() {
+        _heartbeatTimer.scheduleAtFixedRate(new HeartbeatTask(), 0, _heartbeatInterval);
+        _timerStarted = true;
     }
 
     private class HeartbeatTask extends TimerTask {
@@ -92,7 +115,7 @@ public class EtcdServiceRegistry implements ServiceRegistry {
                         }
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    _logger.error("", ex);
                 }
             }
         }
@@ -114,7 +137,7 @@ public class EtcdServiceRegistry implements ServiceRegistry {
 
                 String instanceKey = getInstanceKey(service);
                 result = _client.get(instanceKey);
-                boolean nodeExisted =result != null && result.node != null;
+                boolean nodeExisted = result != null && result.node != null;
                 _client.createDir(instanceKey, _registrationTtl, nodeExisted);
 
                 _client.set(instanceKey + URL_KEY, service.getServiceUrl());
@@ -137,7 +160,7 @@ public class EtcdServiceRegistry implements ServiceRegistry {
                 String instanceKey = getInstanceKey(service);
                 CEtcdResult result = _client.createDir(instanceKey, _registrationTtl, true);
                 if (result.isError()) {
-                      return false;
+                    return false;
                 }
                 Boolean status = getStatus(service);
                 Boolean lastStatus = _lastStatus.get(service);
