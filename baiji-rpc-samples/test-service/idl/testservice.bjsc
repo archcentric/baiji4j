@@ -156,4 +156,6 @@ class GetItemsResponseType {
 @serviceNamespace='http://soa.ctriposs.com/baijirpc/testservice'
 service TestService {
     GetItemsResponseType getItems(GetItemsRequestType request);
+
+    common.CheckHealthResponseType checkHealth(common.CheckHealthRequestType request);
 }

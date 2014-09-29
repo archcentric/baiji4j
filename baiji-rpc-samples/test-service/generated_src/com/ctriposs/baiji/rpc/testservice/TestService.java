@@ -6,4 +6,6 @@ import com.ctriposs.baiji.rpc.common.BaijiContract;
 public interface TestService {
 
     GetItemsResponseType getItems(GetItemsRequestType request) throws Exception;
+
+    com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType checkHealth(com.ctriposs.baiji.rpc.common.types.CheckHealthRequestType request) throws Exception;
 }

@@ -1,8 +1,6 @@
 package com.ctriposs.baiji.rpc.testservice;
 
-import com.ctriposs.baiji.rpc.common.types.AckCodeType;
-import com.ctriposs.baiji.rpc.common.types.ErrorDataType;
-import com.ctriposs.baiji.rpc.common.types.ResponseStatusType;
+import com.ctriposs.baiji.rpc.common.types.*;
 import com.sun.media.sound.InvalidFormatException;
 
 import java.io.IOException;
@@ -20,10 +18,10 @@ public class TestServiceImpl implements TestService {
     private static final List<Item> ITEMS;
 
     static {
-        ITEMS = getItems();
+        ITEMS = getItemsFromResource();
     }
 
-    private static List<Item> getItems() {
+    private static List<Item> getItemsFromResource() {
         InputStream stream = null;
         try {
             stream = TestServiceImpl.class.getResourceAsStream(DATA_XML);
@@ -100,5 +98,10 @@ public class TestServiceImpl implements TestService {
         }
 
         return response;
+    }
+
+    @Override
+    public CheckHealthResponseType checkHealth(CheckHealthRequestType request) throws Exception {
+        return new CheckHealthResponseType();
     }
 }
