@@ -30,7 +30,8 @@ public final class UrlUtil {
         if (relativeUrl.startsWith("/")) {
             return fullUri.relativize(new URI(relativeUrl)).toString();
         } else if (relativeUrl.startsWith("~/")) {
-            String baseUrl = fullUrl.substring(0, fullUrl.length() - requestPath.length());
+            String baseUrl = fullUrl.endsWith(requestPath)
+                    ? fullUrl.substring(0, fullUrl.length() - requestPath.length()) : fullUrl;
             return baseUrl + relativeUrl.substring(1);
         } else {
             return fullUrl.substring(0, fullUrl.lastIndexOf("/") + 1) + relativeUrl;

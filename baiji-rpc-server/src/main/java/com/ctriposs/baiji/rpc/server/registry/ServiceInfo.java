@@ -50,6 +50,9 @@ public class ServiceInfo {
                 builder.append(_port);
             }
             builder.append(_contextPath);
+            if (!_contextPath.endsWith("/")) {
+                builder.append("/");
+            }
             _serviceUrl = builder.toString();
         }
         return _serviceUrl;
