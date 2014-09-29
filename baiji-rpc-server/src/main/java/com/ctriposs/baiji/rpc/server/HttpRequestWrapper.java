@@ -24,9 +24,24 @@ public interface HttpRequestWrapper {
     public Map<String, String> requestHeaders();
 
     /**
+     * Get the value of an HTTP header.
+     *
+     * @param key
+     * @return
+     */
+    public String getHeader(String key);
+
+    /**
      * The HTTP request method of the request (e.g., "GET", "POST").
      */
     public String httpMethod();
+
+    /**
+     * The context path the application is deployed.
+     *
+     * @return
+     */
+    public String contextPath();
 
     /**
      * The request path. The path MUST be relative to the "root" of the service mapping.

@@ -42,7 +42,7 @@ public class HttpServletRequestWrapper extends HttpRequestWrapperBase {
             if (headerNames != null) {
                 while (headerNames.hasMoreElements()) {
                     String headerName = headerNames.nextElement();
-                    requestHeaders.put(headerName, _request.getHeader(headerName));
+                    requestHeaders.put(headerName.toLowerCase(), _request.getHeader(headerName));
                 }
             }
             _requestHeaders = requestHeaders;
@@ -58,6 +58,11 @@ public class HttpServletRequestWrapper extends HttpRequestWrapperBase {
     @Override
     public String requestUrl() {
         return _request.getRequestURL().toString();
+    }
+
+    @Override
+    public String contextPath() {
+        return _request.getContextPath();
     }
 
     @Override

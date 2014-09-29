@@ -46,6 +46,10 @@ public abstract class HttpRequestWrapperBase implements HttpRequestWrapper {
      */
     protected abstract String directClientIp();
 
+    public String getHeader(String key) {
+        return key != null ? requestHeaders().get(key.toLowerCase()) : null;
+    }
+
     @Override
     public String operationName() {
         return _operationName;

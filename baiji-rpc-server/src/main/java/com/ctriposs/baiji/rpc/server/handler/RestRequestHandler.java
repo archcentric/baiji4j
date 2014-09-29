@@ -36,7 +36,6 @@ public class RestRequestHandler extends ServiceRequestHandlerBase {
             request.setResponseContentType(contentType);
         } else {
             request.setOperationName(keyBase[0]);
-            request.setResponseContentType(host.getConfig().contentFormatConfig.getDefaultContentType());
         }
 
         return true;

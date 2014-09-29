@@ -2,7 +2,11 @@ package com.ctriposs.baiji.rpc.server.util;
 
 import com.ctriposs.baiji.rpc.common.HasResponseStatus;
 import com.ctriposs.baiji.rpc.common.formatter.ContentFormatter;
-import com.ctriposs.baiji.rpc.common.types.*;
+import com.ctriposs.baiji.rpc.common.types.AckCodeType;
+import com.ctriposs.baiji.rpc.common.types.ErrorDataType;
+import com.ctriposs.baiji.rpc.common.types.ResponseStatusType;
+import com.ctriposs.baiji.rpc.common.types.SeverityCodeType;
+import com.ctriposs.baiji.rpc.server.ContentFormatConfig;
 import com.ctriposs.baiji.rpc.server.HttpRequestWrapper;
 import com.ctriposs.baiji.rpc.server.HttpResponseWrapper;
 import com.ctriposs.baiji.rpc.server.ServiceHost;
@@ -60,8 +64,35 @@ public final class ResponseUtil {
     }
 
     private static ContentFormatter getContentFormatter(HttpRequestWrapper request, ServiceHost host) {
-        ContentFormatter formatter = host.getConfig().contentFormatConfig.getFormatter(request.responseContentType());
-        return formatter != null ? formatter : host.getConfig().contentFormatConfig.getDefaultFormatter();
+        ContentFormatConfig config = host.getConfig().contentFormatConfig;
+
+        ContentFormatter formatter;
+        if (request.responseContentType() != null) {
+            formatter = config.getFormatter(request.responseContentType());
+        } else {
+            formatter = getContentFormatterFromAccept(request, config);
+        }
+        return formatter != null ? formatter : config.getDefaultFormatter();
+    }
+
+    private static ContentFormatter getContentFormatterFromAccept(HttpRequestWrapper request, ContentFormatConfig config) {
+        String acceptHeader = request.getHeader(HttpHeaders.ACCEPT);
+        if (acceptHeader == null || acceptHeader.isEmpty()) {
+            return null;
+        }
+
+        String[] accepts = acceptHeader.split(",");
+        for (String accept : accepts) {
+            if (accept == null || accept.isEmpty()) {
+                continue;
+            }
+            ContentFormatter formatter = config.getFormatter(accept.trim());
+            if (formatter != null) {
+                return formatter;
+            }
+        }
+
+        return null;
     }
 
     private static boolean containSevereError(ResponseStatusType responseStatus) {

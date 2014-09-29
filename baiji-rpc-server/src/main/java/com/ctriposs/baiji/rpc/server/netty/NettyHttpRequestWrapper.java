@@ -50,7 +50,7 @@ public class NettyHttpRequestWrapper extends HttpRequestWrapperBase {
         if (_requestHeaders == null) {
             Map<String, String> requestHeaders = new HashMap<>();
             for (Map.Entry<String, String> headerEntry : _request.headers()) {
-                requestHeaders.put(headerEntry.getKey(), headerEntry.getValue());
+                requestHeaders.put(headerEntry.getKey().toLowerCase(), headerEntry.getValue());
             }
             _requestHeaders = requestHeaders;
         }
@@ -65,6 +65,11 @@ public class NettyHttpRequestWrapper extends HttpRequestWrapperBase {
     @Override
     public String requestUrl() {
         return _requestUri.toString();
+    }
+
+    @Override
+    public String contextPath() {
+        return "/";
     }
 
     @Override
