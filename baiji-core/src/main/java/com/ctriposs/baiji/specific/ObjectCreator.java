@@ -8,6 +8,7 @@ import com.ctriposs.baiji.schema.UnionSchema;
 import com.ctriposs.baiji.util.ClassUtils;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 public final class ObjectCreator {
@@ -72,6 +73,8 @@ public final class ObjectCreator {
                 return ArrayList.class;
             case MAP:
                 return HashMap.class;
+            case DATETIME:
+                return GregorianCalendar.class;
             case ENUM:
             case RECORD: {
                 // Should all be named types
