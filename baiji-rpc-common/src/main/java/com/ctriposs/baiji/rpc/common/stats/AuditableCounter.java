@@ -77,11 +77,4 @@ public class AuditableCounter {
     public int count() {
         return _count.get();
     }
-
-    public static class AuditionData {
-        public long count;
-        public long sum;
-        public long min;
-        public long max;
-    }
 }

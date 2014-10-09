@@ -5,6 +5,9 @@ import com.ctriposs.baiji.rpc.client.filter.HttpResponseFilter;
 import com.ctriposs.baiji.rpc.client.registry.EtcdRegistryClient;
 import com.ctriposs.baiji.rpc.client.registry.InstanceInfo;
 import com.ctriposs.baiji.rpc.client.registry.RegistryClient;
+import com.ctriposs.baiji.rpc.client.stats.InvocationStats;
+import com.ctriposs.baiji.rpc.client.stats.InvocationStatsStore;
+import com.ctriposs.baiji.rpc.client.stats.StatsReportJob;
 import com.ctriposs.baiji.rpc.common.HasResponseStatus;
 import com.ctriposs.baiji.rpc.common.formatter.BinaryContentFormatter;
 import com.ctriposs.baiji.rpc.common.formatter.ContentFormatter;
@@ -16,6 +19,7 @@ import com.ctriposs.baiji.rpc.common.types.ErrorDataType;
 import com.ctriposs.baiji.rpc.common.types.ResponseStatusType;
 import com.ctriposs.baiji.rpc.common.util.DaemonThreadFactory;
 import com.ctriposs.baiji.specific.SpecificRecord;
+import com.ctriposs.baiji.util.VersionUtils;
 import com.google.common.base.Joiner;
 import org.apache.http.*;
 import org.apache.http.client.config.RequestConfig;
@@ -49,27 +53,33 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private static final int MAX_INIT_REG_SYNC_ATTEMPTS = 3;
     private static final int INIT_REG_SYNC_INTERVAL = 5 * 1000; // 5 seconds
     private static final int DEFAULT_REG_SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
-    private static final String APP_ID_HTTP_HEADER = "SOA20-Client-AppId";
+    private static final int DEFAULT_STATS_REPORTING_INTERVAL = 5 * 1000;
+    private static final String APP_ID_HTTP_HEADER = "Baiji-Client-AppId";
 
     protected static final String ORIGINAL_SERVICE_NAME_FIELD_NAME = "ORIGINAL_SERVICE_NAME";
     protected static final String ORIGINAL_SERVICE_NAMESPACE_FIELD_NAME = "ORIGINAL_SERVICE_NAMESPACE";
+    protected static final String CODE_GENERATOR_VERSION_FIELD_NAME = "CODE_GENERATOR_VERSION";
 
-    private static ServiceClientConfig CLIENT_CONFIG = new ServiceClientConfig();
+    private static ServiceClientConfig _clientConfig = new ServiceClientConfig();
 
-    protected static final Map<String, ContentFormatter> _contentFormatters =
+    private static final String _frameworkVersion;
+
+    private static final Map<String, ContentFormatter> _contentFormatters =
             new HashMap<String, ContentFormatter>();
-    protected static final Map<String, ServiceClientBase> _clientCache =
+    private static final Map<String, ServiceClientBase> _clientCache =
             new HashMap<String, ServiceClientBase>();
-    protected static final Map<String, Map<String, String>> _serviceMetadataCache =
+    private static final Map<String, Map<String, String>> _serviceMetadataCache =
             new HashMap<String, Map<String, String>>();
-    protected static HttpRequestFilter _globalHttpRequestFilter;
-    protected static HttpResponseFilter _globalHttpResponseFilter;
+    private static HttpRequestFilter _globalHttpRequestFilter;
+    private static HttpResponseFilter _globalHttpResponseFilter;
 
     private static RegistryClient _registryClient;
 
+    private static final Logger _staticLogger = LoggerFactory.getLogger(ServiceClientBase.class);
     private final Logger _logger;
 
     private String _serviceName, _serviceNamespace, _subEnv;
+    private String _codeGeneratorVersion;
     private String _format = DEFAULT_FORMAT;
     private int _requestTimeOut = DEFAULT_REQUEST_TIME_OUT;
     private int _socketTimeOut = DEFAULT_SOCKET_TIME_OUT;
@@ -81,13 +91,18 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private final AtomicInteger _lastUsedServiceIndex = new AtomicInteger(-1);
     private final ConnectionMode _connectionMode;
     private final Map<String, String> _headers = new HashMap<String, String>();
+    private final InvocationStatsStore _statsStore;
     private final AtomicReference<CloseableHttpClient> _client = new AtomicReference<CloseableHttpClient>(createClient());
+
     private final ScheduledExecutorService _registrySyncService = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
     private final ScheduledExecutorService _clientDisposeService = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
+    private final ScheduledExecutorService _statsReportService
+            = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
 
     static {
         registerContentFormatter(new BinaryContentFormatter());
         registerContentFormatter(new JsonContentFormatter());
+        _frameworkVersion = VersionUtils.getPackageVersion(ServiceClientBase.class);
     }
 
     /**
@@ -109,7 +124,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     }
 
     /**
-     * Gets
+     * Gets the namespace of the target service.
      *
      * @return
      */
@@ -272,8 +287,8 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
      * @param config provides the global config
      */
     public static void initialize(ServiceClientConfig config) {
-        CLIENT_CONFIG = config != null ? config : new ServiceClientConfig();
-        String registryServiceUrl = CLIENT_CONFIG.getServiceRegistryUrl();
+        _clientConfig = config != null ? config : new ServiceClientConfig();
+        String registryServiceUrl = _clientConfig.getServiceRegistryUrl();
         if (registryServiceUrl == null) {
             _registryClient = null;
         } else {
@@ -285,25 +300,31 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         }
     }
 
-    protected ServiceClientBase(Class<DerivedClient> clientClass, ConnectionMode connectionMode) {
-        _logger = LoggerFactory.getLogger(clientClass);
-        _connectionMode = connectionMode;
-    }
-
     protected ServiceClientBase(Class<DerivedClient> clientClass, String baseUri) {
-        this(clientClass, ConnectionMode.DIRECT);
+        _logger = LoggerFactory.getLogger(clientClass);
+        _connectionMode = ConnectionMode.DIRECT;
+
         _serviceUris = new String[]{baseUri};
+        _statsStore = new InvocationStatsStore();
     }
 
     protected ServiceClientBase(Class<DerivedClient> clientClass, String serviceName, String serviceNamespace,
                                 String subEnv) throws ServiceLookupException {
-        this(clientClass, ConnectionMode.INDIRECT);
+        _logger = LoggerFactory.getLogger(clientClass);
+        _connectionMode = ConnectionMode.DIRECT;
 
         _serviceName = serviceName;
         _serviceNamespace = serviceNamespace;
         _subEnv = subEnv;
+        _codeGeneratorVersion = _serviceMetadataCache.get(clientClass.getName()).get(CODE_GENERATOR_VERSION_FIELD_NAME);
 
         initServiceBaseUriFromReg();
+
+        _statsStore = new InvocationStatsStore(_serviceName, _serviceNamespace, _connectionMode, _frameworkVersion, _codeGeneratorVersion);
+
+        // Only report stats data in indirect connection mode.
+        _statsReportService.scheduleAtFixedRate(new StatsReportJob(_statsStore), DEFAULT_STATS_REPORTING_INTERVAL,
+                DEFAULT_STATS_REPORTING_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -345,7 +366,8 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                     Map<String, String> metadata = new HashMap<String, String>();
                     String[] requiredFieldNames = new String[]{
                             ORIGINAL_SERVICE_NAME_FIELD_NAME,
-                            ORIGINAL_SERVICE_NAMESPACE_FIELD_NAME
+                            ORIGINAL_SERVICE_NAMESPACE_FIELD_NAME,
+                            CODE_GENERATOR_VERSION_FIELD_NAME
                     };
                     for (String fieldName : requiredFieldNames) {
                         try {
@@ -357,6 +379,10 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                             }
                         } catch (Exception e) {
                         }
+                    }
+
+                    if (!metadata.containsKey(CODE_GENERATOR_VERSION_FIELD_NAME)) {
+                        metadata.put(CODE_GENERATOR_VERSION_FIELD_NAME, "1.0.0.0");
                     }
 
                     if (metadata.size() != requiredFieldNames.length) {
@@ -375,7 +401,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         return getInstanceInternal(clientClass,
                 _serviceMetadataCache.get(clientName).get(ORIGINAL_SERVICE_NAME_FIELD_NAME),
                 _serviceMetadataCache.get(clientName).get(ORIGINAL_SERVICE_NAMESPACE_FIELD_NAME),
-                CLIENT_CONFIG.getSubEnv());
+                _clientConfig.getSubEnv());
     }
 
 
@@ -397,9 +423,8 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                     }
 
                     if (!registryClient) {
-                        //log.Info(string.Format("Initialized client instance with direct service url %s", baseUri));
-                        //log.Warn(
-                        //    "Client is initialized in direct connection mode(without registry), this is only recommended for local testing, not for formal testing or production!");
+                        _staticLogger.info(String.format("Initialized client instance with direct service url %s", baseUrl));
+                        _staticLogger.warn("Client is initialized in direct connection mode(without registry), this is only recommended for local testing, not for formal testing or production!");
                     }
 
                     _clientCache.put(baseUrl, client);
@@ -450,8 +475,12 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private <TReq extends SpecificRecord, TResp extends SpecificRecord> TResp invokeInternal(String operationName, TReq request,
                                                                                              Class<TResp> responseClass)
             throws ServiceException, HttpWebException, IOException {
-        CloseableHttpResponse httpResponse = null;
 
+        InvocationStats stats = _statsStore.getStats(operationName);
+
+        long startTime = System.currentTimeMillis();
+        stats.markInvocation();
+        CloseableHttpResponse httpResponse = null;
         try {
             ContentFormatter formatter = _contentFormatters.get(_format);
             HttpPost httpPost = prepareWebRequest(operationName, request, formatter);
@@ -459,11 +488,16 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
             applyHttpResponseFilters(httpResponse);
 
-            checkHttpResponseStatus(httpResponse);
+            checkHttpResponseStatus(httpResponse, stats);
+
+            int contentLength = getContentLength(httpResponse);
+            stats.addResponseSize(contentLength);
+
             TResp response = formatter.deserialize(responseClass, httpResponse.getEntity().getContent());
             if (response instanceof HasResponseStatus) {
-                checkResponseStatus((HasResponseStatus) response);
+                checkResponseStatus((HasResponseStatus) response, stats);
             }
+            stats.markSuccess();
             return response;
         } finally {
             if (httpResponse != null) {
@@ -472,6 +506,20 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                 } catch (IOException ioe) {
                 }
             }
+            stats.addRequestCost(System.currentTimeMillis() - startTime);
+        }
+    }
+
+    private int getContentLength(CloseableHttpResponse response) {
+        Header lengthHeader = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
+        if (lengthHeader == null) {
+            return 0;
+        }
+
+        try {
+            return Integer.valueOf(lengthHeader.getValue());
+        } catch (Exception ex) {
+            return 0;
         }
     }
 
@@ -492,8 +540,8 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         for (Map.Entry<String, String> header : _headers.entrySet()) {
             httpPost.addHeader(header.getKey(), header.getValue());
         }
-        if (CLIENT_CONFIG != null && CLIENT_CONFIG.getAppId() != null) {
-            httpPost.addHeader(APP_ID_HTTP_HEADER, CLIENT_CONFIG.getAppId());
+        if (_clientConfig != null && _clientConfig.getAppId() != null) {
+            httpPost.addHeader(APP_ID_HTTP_HEADER, _clientConfig.getAppId());
         }
 
         applyHttpRequestFilters(httpPost);
@@ -508,14 +556,18 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         return httpPost;
     }
 
-    private void checkHttpResponseStatus(CloseableHttpResponse response) throws HttpWebException {
+    private void checkHttpResponseStatus(CloseableHttpResponse response, InvocationStats stats)
+            throws HttpWebException {
         if (response.getStatusLine().getStatusCode() <= 200) {
             return;
         }
 
         String responseContent = getResponseContent(response);
         StatusLine status = response.getStatusLine();
-        throw new HttpWebException(status.getStatusCode(), status.getReasonPhrase(), responseContent);
+        HttpWebException ex = new HttpWebException(status.getStatusCode(), status.getReasonPhrase(), responseContent);
+        stats.markException(ex);
+        stats.markFailure();
+        throw ex;
     }
 
     private String getResponseContent(CloseableHttpResponse response) {
@@ -546,21 +598,25 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         return responseContent;
     }
 
-    private void checkResponseStatus(HasResponseStatus response) throws ServiceException {
+    private void checkResponseStatus(HasResponseStatus response, InvocationStats stats) throws ServiceException {
         ResponseStatusType responseStatus = response.getResponseStatus();
         if (responseStatus.getAck() != AckCodeType.FAILURE) {
             return;
         }
 
+        ServiceException ex;
         List<ErrorDataType> errors = responseStatus.getErrors();
         if (errors != null && !errors.isEmpty() && errors.get(0) != null) {
             ErrorDataType error = responseStatus.getErrors().get(0);
-            throw new ServiceException(error.getMessage(), response, error.getErrorCode());
+            ex = new ServiceException(error.getMessage(), response, error.getErrorCode());
         } else {
             // should not happen in real case, just for defensive programming
             String message = "Failed response without error data, please file a bug to the service owner!";
-            throw new ServiceException(message, response);
+            ex = new ServiceException(message, response);
         }
+        stats.markFailure();
+        stats.markException(ex);
+        throw ex;
     }
 
     private void applyHttpRequestFilters(HttpRequest request) {
@@ -634,7 +690,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
             syncRegTask.run();
             if (_serviceUris != null && _serviceUris.length != 0) {
                 String msg = String.format("Initialized client instance with registry %s. Targeting service: %s-%s. TargetURLs: %s.",
-                        CLIENT_CONFIG.getServiceRegistryUrl(), _serviceName, _serviceNamespace, Joiner.on(";").join(_serviceUris));
+                        _clientConfig.getServiceRegistryUrl(), _serviceName, _serviceNamespace, Joiner.on(";").join(_serviceUris));
                 break;
             }
 
@@ -646,7 +702,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                 }
             } else {
                 String msg = String.format("Unable to find service(%s-%s) url mapping in registry %s", _serviceName,
-                        _serviceNamespace, CLIENT_CONFIG.getServiceRegistryUrl());
+                        _serviceNamespace, _clientConfig.getServiceRegistryUrl());
             }
         }
 
