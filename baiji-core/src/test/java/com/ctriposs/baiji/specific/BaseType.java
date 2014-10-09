@@ -5,19 +5,21 @@
  */
 package com.ctriposs.baiji.specific;
 
+import com.ctriposs.baiji.convert.TypeConverter;
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.schema.Schema;
 import com.google.common.base.Objects;
 
 import java.math.BigInteger;
 import java.math.BigDecimal;
+import java.net.URI;
 import javax.xml.datatype.Duration;
 @SuppressWarnings("all")
 public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase implements com.ctriposs.baiji.specific.SpecificRecord {
 
     private static final long serialVersionUID = 1L;
 
-    public static final Schema SCHEMA$ = Schema.parse("{\"type\":\"record\",\"name\":\"BaseType\",\"namespace\":\"com.ctriposs.baiji.specific\",\"fields\":[{\"name\":\"anuUri1\",\"type\":[\"string\",\"null\"]},{\"name\":\"byte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"decimal1\",\"type\":[\"string\",\"null\"]},{\"name\":\"duration1\",\"type\":[\"long\",\"null\"]},{\"name\":\"float1\",\"type\":[\"float\",\"null\"]},{\"name\":\"short1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedByte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedInt1\",\"type\":[\"long\",\"null\"]},{\"name\":\"unsignedLong1\",\"type\":[\"string\",\"null\"]},{\"name\":\"unsignedShort1\",\"type\":[\"int\",\"null\"]}]}");
+    public static final Schema SCHEMA$ = Schema.parse("{\"type\":\"record\",\"name\":\"BaseType\",\"namespace\":\"com.ctriposs.baiji.specific\",\"fields\":[{\"name\":\"anuUri1\",\"type\":[\"string\",\"null\"]},{\"name\":\"byte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"decimal1\",\"type\":[\"string\",\"null\"]},{\"name\":\"float1\",\"type\":[\"float\",\"null\"]},{\"name\":\"short1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedByte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedInt1\",\"type\":[\"long\",\"null\"]},{\"name\":\"unsignedLong1\",\"type\":[\"string\",\"null\"]},{\"name\":\"unsignedShort1\",\"type\":[\"int\",\"null\"]}, {\"name\":\"guid1\",\"type\":[\"string\",\"null\"]}, {\"name\":\"list1\",\"type\":[{\"type\":\"array\",\"items\":[\"string\", \"null\"]},\"null\"]},{\"name\":\"list2\",\"type\":[{\"type\":\"array\",\"items\":[\"string\", \"null\"]},\"null\"]}]}");
 
     @Override
     public Schema getSchema() { return SCHEMA$; }
@@ -26,7 +28,6 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
             String anuUri1,
             Byte byte1,
             BigDecimal decimal1,
-            Duration duration1,
             Float float1,
             Short short1,
             Short unsignedByte1,
@@ -37,7 +38,6 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
         this.anuUri1 = anuUri1;
         this.byte1 = byte1;
         this.decimal1 = decimal1;
-        this.duration1 = duration1;
         this.float1 = float1;
         this.short1 = short1;
         this.unsignedByte1 = unsignedByte1;
@@ -55,7 +55,6 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
 
     private BigDecimal decimal1;
 
-    private Duration duration1;
 
     private Float float1;
 
@@ -92,14 +91,6 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
 
     public void setDecimal1(BigDecimal decimal1) {
         this.decimal1 = decimal1;
-    }
-
-    public Duration getDuration1() {
-        return this.duration1;
-    }
-
-    public void setDuration1(Duration duration1) {
-        this.duration1 = duration1;
     }
 
     public Float getFloat1() {
@@ -152,18 +143,21 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
 
     // Used by DatumWriter. Applications should not call.
     public Object get(int fieldPos) {
-        switch(fieldPos) {
-            case 0: return this.anuUri1;
-            case 1: return this.byte1;
-            case 2: return this.decimal1;
-            case 3: return this.duration1;
-            case 4: return this.float1;
-            case 5: return this.short1;
-            case 6: return this.unsignedByte1;
-            case 7: return this.unsignedInt1;
-            case 8: return this.unsignedLong1;
-            case 9: return this.unsignedShort1;
-            default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in get()");
+        try {
+            switch(fieldPos) {
+                case 0: return TypeConverter.convert(this.anuUri1, URI.class);
+                case 1: return TypeConverter.convert(this.byte1, Integer.class);
+                case 2: return TypeConverter.convert(this.decimal1, String.class);
+                case 4: return (Float) this.float1;
+                case 5: return TypeConverter.convert(this.short1, Integer.class);
+                case 6: return TypeConverter.convert(this.unsignedByte1, Integer.class);
+                case 7: return (Long) this.unsignedInt1;
+                case 8: return TypeConverter.convert(this.unsignedLong1, String.class);
+                case 9: return (Integer) this.unsignedShort1;
+                default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in get()");
+            }
+        } catch (Exception e) {
+            throw new BaijiRuntimeException("cast exception");
         }
     }
 
@@ -174,7 +168,6 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
             case 0: this.anuUri1 = (String)fieldValue; break;
             case 1: this.byte1 = (byte)fieldValue; break;
             case 2: this.decimal1 = (BigDecimal)fieldValue; break;
-            case 3: this.duration1 = (Duration)fieldValue; break;
             case 4: this.float1 = (Float)fieldValue; break;
             case 5: this.short1 = (Short)fieldValue; break;
             case 6: this.unsignedByte1 = (Short)fieldValue; break;
@@ -195,7 +188,6 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
                 Objects.equal(this.anuUri1, other.anuUri1) &&
                         Objects.equal(this.byte1, other.byte1) &&
                         Objects.equal(this.decimal1, other.decimal1) &&
-                        Objects.equal(this.duration1, other.duration1) &&
                         Objects.equal(this.float1, other.float1) &&
                         Objects.equal(this.short1, other.short1) &&
                         Objects.equal(this.unsignedByte1, other.unsignedByte1) &&
@@ -211,7 +203,6 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
         result = 31 * result + (this.anuUri1 == null ? 0 : this.anuUri1.hashCode());
         result = 31 * result + (this.byte1 == null ? 0 : this.byte1.hashCode());
         result = 31 * result + (this.decimal1 == null ? 0 : this.decimal1.hashCode());
-        result = 31 * result + (this.duration1 == null ? 0 : this.duration1.hashCode());
         result = 31 * result + (this.float1 == null ? 0 : this.float1.hashCode());
         result = 31 * result + (this.short1 == null ? 0 : this.short1.hashCode());
         result = 31 * result + (this.unsignedByte1 == null ? 0 : this.unsignedByte1.hashCode());
@@ -228,7 +219,6 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
                 .add("anuUri1", anuUri1)
                 .add("byte1", byte1)
                 .add("decimal1", decimal1)
-                .add("duration1", duration1)
                 .add("float1", float1)
                 .add("short1", short1)
                 .add("unsignedByte1", unsignedByte1)
