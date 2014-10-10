@@ -1,11 +1,37 @@
 package com.ctriposs.baiji.util;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public final class ObjectUtils {
+
     public static int hashCode(Object obj) {
         return obj != null ? obj.hashCode() : 0;
+    }
+
+    public static int getHashCode(List<?> list) {
+        if (list == null)
+            return 0;
+
+        int hashCode = 0;
+        for (Object obj : list) {
+            hashCode = 31 * hashCode + hashCode(obj);
+        }
+
+        return hashCode;
+    }
+
+    public static int getHashCode(Object[] objects) {
+        if (objects == null)
+            return 0;
+
+        int hashCode = 0;
+        for (Object object : objects) {
+            hashCode = 31 * hashCode + hashCode(object);
+        }
+
+        return hashCode;
     }
 
     public static boolean equals(Map<?, ?> map1, Map<?, ?> map2) {
@@ -37,5 +63,20 @@ public final class ObjectUtils {
         } else {
             return obj1.equals(obj2);
         }
+    }
+
+    public static boolean equals(List<?> list1, List<?> list2) {
+        if (list1 == null)
+            return list2 == null;
+
+        if (list1.size() != list2.size())
+            return false;
+
+        for (int i = 0; i < list1.size(); i++) {
+            if (list1.get(i) != list2.get(i))
+                return false;
+        }
+
+        return true;
     }
 }

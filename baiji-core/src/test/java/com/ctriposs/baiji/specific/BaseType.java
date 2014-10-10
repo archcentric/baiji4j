@@ -8,24 +8,25 @@ package com.ctriposs.baiji.specific;
 import com.ctriposs.baiji.convert.TypeConverter;
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.schema.Schema;
+import com.ctriposs.baiji.util.ObjectUtils;
 import com.google.common.base.Objects;
 
 import java.math.BigInteger;
 import java.math.BigDecimal;
-import java.net.URI;
-import javax.xml.datatype.Duration;
+import java.util.Arrays;
+import java.util.List;
+
 @SuppressWarnings("all")
 public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase implements com.ctriposs.baiji.specific.SpecificRecord {
 
     private static final long serialVersionUID = 1L;
 
-    public static final Schema SCHEMA$ = Schema.parse("{\"type\":\"record\",\"name\":\"BaseType\",\"namespace\":\"com.ctriposs.baiji.specific\",\"fields\":[{\"name\":\"anuUri1\",\"type\":[\"string\",\"null\"]},{\"name\":\"byte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"decimal1\",\"type\":[\"string\",\"null\"]},{\"name\":\"float1\",\"type\":[\"float\",\"null\"]},{\"name\":\"short1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedByte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedInt1\",\"type\":[\"long\",\"null\"]},{\"name\":\"unsignedLong1\",\"type\":[\"string\",\"null\"]},{\"name\":\"unsignedShort1\",\"type\":[\"int\",\"null\"]}, {\"name\":\"guid1\",\"type\":[\"string\",\"null\"]}, {\"name\":\"list1\",\"type\":[{\"type\":\"array\",\"items\":[\"string\", \"null\"]},\"null\"]},{\"name\":\"list2\",\"type\":[{\"type\":\"array\",\"items\":[\"string\", \"null\"]},\"null\"]}]}");
+    public static final Schema SCHEMA$ = Schema.parse("{\"type\":\"record\",\"name\":\"BaseType\",\"namespace\":\"com.ctriposs.baiji.specific\",\"fields\":[{\"name\":\"byte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"decimal1\",\"type\":[\"string\",\"null\"]},{\"name\":\"float1\",\"type\":[\"float\",\"null\"]},{\"name\":\"short1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedByte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedInt1\",\"type\":[\"long\",\"null\"]},{\"name\":\"unsignedLong1\",\"type\":[\"string\",\"null\"]},{\"name\":\"unsignedShort1\",\"type\":[\"int\",\"null\"]}, {\"name\":\"guid1\",\"type\":[\"string\",\"null\"]}, {\"name\":\"list1\",\"type\":[{\"type\":\"array\",\"items\":[\"string\", \"null\"]},\"null\"]},{\"name\":\"list2\",\"type\":[{\"type\":\"array\",\"items\":[\"string\", \"null\"]},\"null\"]}]}");
 
     @Override
     public Schema getSchema() { return SCHEMA$; }
 
     public BaseType(
-            String anuUri1,
             Byte byte1,
             BigDecimal decimal1,
             Float float1,
@@ -33,9 +34,11 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
             Short unsignedByte1,
             Long unsignedInt1,
             BigInteger unsignedLong1,
-            Integer unsignedShort1
+            Integer unsignedShort1,
+            String guid1,
+            List<BigDecimal> list1,
+            BigDecimal[] list2
     ) {
-        this.anuUri1 = anuUri1;
         this.byte1 = byte1;
         this.decimal1 = decimal1;
         this.float1 = float1;
@@ -44,17 +47,17 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
         this.unsignedInt1 = unsignedInt1;
         this.unsignedLong1 = unsignedLong1;
         this.unsignedShort1 = unsignedShort1;
+        this.guid1 = guid1;
+        this.list1 = list1;
+        this.list2 = list2;
     }
 
     public BaseType() {
     }
 
-    private String anuUri1;
-
     private Byte byte1;
 
     private BigDecimal decimal1;
-
 
     private Float float1;
 
@@ -68,13 +71,34 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
 
     private Integer unsignedShort1;
 
+    private String guid1;
 
-    public String getAnuUri1() {
-        return this.anuUri1;
+    private List<BigDecimal> list1;
+
+    private BigDecimal[] list2;
+
+    public String getGuid1() {
+        return this.guid1;
     }
 
-    public void setAnuUri1(String anuUri1) {
-        this.anuUri1 = anuUri1;
+    public void setGuid1(String guid1) {
+        this.guid1 = guid1;
+    }
+
+    public List<BigDecimal> getList1() {
+        return this.list1;
+    }
+
+    public void setList1(List<BigDecimal> list1) {
+        this.list1 = list1;
+    }
+
+    public BigDecimal[] getList2() {
+        return this.list2;
+    }
+
+    public void setList2(BigDecimal[] list2) {
+        this.list2 = list2;
     }
 
     public byte getByte1() {
@@ -145,15 +169,17 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
     public Object get(int fieldPos) {
         try {
             switch(fieldPos) {
-                case 0: return TypeConverter.convert(this.anuUri1, URI.class);
-                case 1: return TypeConverter.convert(this.byte1, Integer.class);
-                case 2: return TypeConverter.convert(this.decimal1, String.class);
-                case 4: return (Float) this.float1;
-                case 5: return TypeConverter.convert(this.short1, Integer.class);
-                case 6: return TypeConverter.convert(this.unsignedByte1, Integer.class);
-                case 7: return (Long) this.unsignedInt1;
-                case 8: return TypeConverter.convert(this.unsignedLong1, String.class);
-                case 9: return (Integer) this.unsignedShort1;
+                case 0: return TypeConverter.convert(this.byte1, Integer.class);
+                case 1: return TypeConverter.convert(this.decimal1, String.class);
+                case 2: return (Float) this.float1;
+                case 3: return TypeConverter.convert(this.short1, Integer.class);
+                case 4: return TypeConverter.convert(this.unsignedByte1, Integer.class);
+                case 5: return (Long) this.unsignedInt1;
+                case 6: return TypeConverter.convert(this.unsignedLong1, String.class);
+                case 7: return (Integer) this.unsignedShort1;
+                case 8: return (String) this.guid1;
+                case 9: return TypeConverter.convertToList(list1, String.class);
+                case 10: return TypeConverter.convertToArray(list2, String.class);
                 default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in get()");
             }
         } catch (Exception e) {
@@ -164,17 +190,23 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
     // Used by DatumReader. Applications should not call.
     @SuppressWarnings(value="unchecked")
     public void put(int fieldPos, Object fieldValue) {
-        switch(fieldPos) {
-            case 0: this.anuUri1 = (String)fieldValue; break;
-            case 1: this.byte1 = (byte)fieldValue; break;
-            case 2: this.decimal1 = (BigDecimal)fieldValue; break;
-            case 4: this.float1 = (Float)fieldValue; break;
-            case 5: this.short1 = (Short)fieldValue; break;
-            case 6: this.unsignedByte1 = (Short)fieldValue; break;
-            case 7: this.unsignedInt1 = (Long)fieldValue; break;
-            case 8: this.unsignedLong1 = (BigInteger)fieldValue; break;
-            case 9: this.unsignedShort1 = (Integer)fieldValue; break;
-            default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in put()");
+        try {
+            switch(fieldPos) {
+                case 0: this.byte1 = TypeConverter.convert((Integer) fieldValue, Byte.class); break;
+                case 1: this.decimal1 = TypeConverter.convert((String) fieldValue, BigDecimal.class); break;
+                case 2: this.float1 = (Float) fieldValue; break;
+                case 3: this.short1 = TypeConverter.convert((Integer) fieldValue, Short.class); break;
+                case 4: this.unsignedByte1 = TypeConverter.convert((Integer) fieldValue, Short.class); break;
+                case 5: this.unsignedInt1 = (Long) fieldValue; break;
+                case 6: this.unsignedLong1 = TypeConverter.convert((String) fieldValue, BigInteger.class); break;
+                case 7: this.unsignedShort1 = (Integer) fieldValue; break;
+                case 8: this.guid1 = (String) fieldValue; break;
+                case 9: this.list1 = TypeConverter.convertToList((List<String>) fieldValue, BigDecimal.class); break;
+                case 10: this.list2 = TypeConverter.convertToArray((String[]) fieldValue, BigDecimal.class); break;
+                default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in put()");
+            }
+        } catch (Exception e) {
+            throw new BaijiRuntimeException("cast exception");
         }
     }
 
@@ -185,22 +217,23 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
 
         final BaseType other = (BaseType)obj;
         return
-                Objects.equal(this.anuUri1, other.anuUri1) &&
-                        Objects.equal(this.byte1, other.byte1) &&
+                Objects.equal(this.byte1, other.byte1) &&
                         Objects.equal(this.decimal1, other.decimal1) &&
                         Objects.equal(this.float1, other.float1) &&
                         Objects.equal(this.short1, other.short1) &&
                         Objects.equal(this.unsignedByte1, other.unsignedByte1) &&
                         Objects.equal(this.unsignedInt1, other.unsignedInt1) &&
                         Objects.equal(this.unsignedLong1, other.unsignedLong1) &&
-                        Objects.equal(this.unsignedShort1, other.unsignedShort1);
+                        Objects.equal(this.unsignedShort1, other.unsignedShort1) &&
+                        Objects.equal(this.guid1, other.guid1) &&
+                        ObjectUtils.equals(this.list1, other.list2) &&
+                        Arrays.deepEquals(this.list2, other.list2);
     }
 
     @Override
     public int hashCode() {
         int result = 1;
 
-        result = 31 * result + (this.anuUri1 == null ? 0 : this.anuUri1.hashCode());
         result = 31 * result + (this.byte1 == null ? 0 : this.byte1.hashCode());
         result = 31 * result + (this.decimal1 == null ? 0 : this.decimal1.hashCode());
         result = 31 * result + (this.float1 == null ? 0 : this.float1.hashCode());
@@ -209,6 +242,9 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
         result = 31 * result + (this.unsignedInt1 == null ? 0 : this.unsignedInt1.hashCode());
         result = 31 * result + (this.unsignedLong1 == null ? 0 : this.unsignedLong1.hashCode());
         result = 31 * result + (this.unsignedShort1 == null ? 0 : this.unsignedShort1.hashCode());
+        result = 31 * result + (this.guid1 == null ? 0 : this.guid1.hashCode());
+        result = 31 * result + (this.list1 == null ? 0 : ObjectUtils.getHashCode(this.list1));
+        result = 31 * result + (this.list2 == null ? 0 : ObjectUtils.getHashCode(this.list2));
 
         return result;
     }
@@ -216,7 +252,6 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add("anuUri1", anuUri1)
                 .add("byte1", byte1)
                 .add("decimal1", decimal1)
                 .add("float1", float1)
@@ -225,6 +260,7 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
                 .add("unsignedInt1", unsignedInt1)
                 .add("unsignedLong1", unsignedLong1)
                 .add("unsignedShort1", unsignedShort1)
+                .add("guid1", guid1)
                 .toString();
     }
 

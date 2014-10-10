@@ -2,7 +2,9 @@ package com.ctriposs.baiji.convert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -11,8 +13,6 @@ public class TypeConverter {
     private static final ConcurrentMap<String, Converter> _converterCache = new ConcurrentHashMap<>();
 
     static {
-        _converterCache.put(URI.class.getName() + "-" + String.class.getName(), new ObjectToStringConverter());
-        _converterCache.put(String.class.getName() + "-" + URI.class.getName(), new StringToUriConverter());
         _converterCache.put(Byte.class.getName() + "-" + Integer.class.getName(), new ByteToIntConverter());
         _converterCache.put(Integer.class.getName() + "-" + Byte.class.getName(), new IntToByteConverter());
         _converterCache.put(BigDecimal.class.getName() + "-" + String.class.getName(), new ObjectToStringConverter());
@@ -30,19 +30,36 @@ public class TypeConverter {
         return (D) converter.convert(source, clazz);
     }
 
+    @SuppressWarnings(value="unchecked")
+    public static <S, D> List<D> convertToList(List<S> sList, Class<D> clazz) throws Exception {
+        if (sList == null || sList.size() == 0)
+            return null;
+
+        List<D> list = new ArrayList<>();
+        String key = sList.get(0).getClass().getName() + "-" + clazz.getName();
+        Converter converter = _converterCache.get(key);
+        for (S s : sList) {
+            list.add((D) converter.convert(s, clazz));
+        }
+
+        return list;
+    }
+
+    @SuppressWarnings(value="unchecked")
+    public static <S, D> D[] convertToArray(S[] sArray, Class<D> clazz) throws Exception {
+        if (sArray == null || sArray.length == 0)
+            return null;
+
+        List<D> sList = convertToList(Arrays.asList(sArray), clazz);
+
+        return (D[]) sList.toArray();
+    }
+
     private static class ObjectToStringConverter implements Converter<Object, String> {
 
         @Override
         public String convert(Object source, Class<String> clazz) throws Exception {
             return source != null ? source.toString() : null;
-        }
-    }
-
-    private static class StringToUriConverter implements Converter<String, URI> {
-
-        @Override
-        public URI convert(String source, Class<URI> clazz) throws Exception {
-            return source != null ? new URI(source) : null;
         }
     }
 
