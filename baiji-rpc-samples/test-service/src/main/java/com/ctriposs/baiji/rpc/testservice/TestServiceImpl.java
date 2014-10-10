@@ -1,7 +1,6 @@
 package com.ctriposs.baiji.rpc.testservice;
 
 import com.ctriposs.baiji.rpc.common.types.*;
-import com.sun.media.sound.InvalidFormatException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,7 +56,7 @@ public class TestServiceImpl implements TestService {
                 case 5:
                     throw new IndexOutOfBoundsException();
                 case 6:
-                    throw new InvalidFormatException();
+                    throw new UnsupportedOperationException();
                 case 7:
                     throw new IOException();
                 case 8:
