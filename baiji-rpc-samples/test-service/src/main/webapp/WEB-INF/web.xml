@@ -10,15 +10,6 @@
         <param-value>com.ctriposs.baiji.rpc.testservice.TestServiceImpl</param-value>
     </context-param>
 
-    <context-param>
-        <param-name>etcd-service-url</param-name>
-        <param-value>http://localhost:4001/</param-value>
-    </context-param>
-    <context-param>
-        <param-name>service-port</param-name>
-        <param-value>8114</param-value>
-    </context-param>
-
     <listener>
         <listener-class>com.ctriposs.baiji.rpc.server.BaijiListener</listener-class>
     </listener>

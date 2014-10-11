@@ -20,9 +20,12 @@ public class BaijiListener implements ServletContextListener {
     private static final String SERVICE_PORT_PARAM = "service-port";
     private static final String SUB_ENV_PARAM = "sub-env";
     private static final String SERVICE_CLASS_PARAM = "service-class";
+    @Deprecated
     private static final String DETAILED_ERROR_PARAM = "detailed-error";
     private static final String REUSE_SERVICE_PARAM = "reuse-service";
     private static final String DEBUG_MODE_PARAM = "debug";
+
+    private static final String SYSTEM_PROPERTY_PREFIX = "baiji.service.";
 
     private static final Logger _logger = LoggerFactory.getLogger(BaijiListener.class);
     private static final Object _classLock = new Object();
@@ -35,7 +38,7 @@ public class BaijiListener implements ServletContextListener {
 
         Class<?> serviceClass = getServiceClass(context);
         HostConfig hostConfig = buildHostConfig(context);
-        ServiceHost serviceHost= new BaijiServiceHost(hostConfig, serviceClass);
+        ServiceHost serviceHost = new BaijiServiceHost(hostConfig, serviceClass);
         _context.setServiceHost(serviceHost);
 
         registerService(context);
@@ -80,17 +83,26 @@ public class BaijiListener implements ServletContextListener {
             config.outputExceptionStackTrace = true;
         }
 
-        String debugMode = context.getInitParameter(DEBUG_MODE_PARAM);
+        String debugMode = getConfigValue(context, DEBUG_MODE_PARAM);
         if ("true".equalsIgnoreCase(debugMode)) {
             config.debugMode = true;
         }
 
-        String reuseService = context.getInitParameter(REUSE_SERVICE_PARAM);
+        String reuseService = getConfigValue(context, REUSE_SERVICE_PARAM);
         if (reuseService != null && !"true".equalsIgnoreCase(reuseService)) {
             config.newServiceInstancePerRequest = true;
         }
 
         return config;
+    }
+
+    private String getConfigValue(ServletContext context, String key) {
+        String value =  context.getInitParameter(key);
+        if (value != null && !value.isEmpty()) {
+            return value;
+        }
+
+        return System.getProperty(SYSTEM_PROPERTY_PREFIX + key);
     }
 
     private void registerService(ServletContext context) {
@@ -110,7 +122,7 @@ public class BaijiListener implements ServletContextListener {
 
     private void initializeServiceRegistry(ServletContext context) {
         synchronized (_classLock) {
-            String portString = context.getInitParameter(SERVICE_PORT_PARAM);
+            String portString = getConfigValue(context, SERVICE_PORT_PARAM);
             if (portString != null && !portString.isEmpty()) {
                 try {
                     _context.setPort(Integer.valueOf(portString));
@@ -120,9 +132,9 @@ public class BaijiListener implements ServletContextListener {
                 }
             }
 
-            _context.setSubEnv(context.getInitParameter(SUB_ENV_PARAM));
+            _context.setSubEnv(getConfigValue(context, SUB_ENV_PARAM));
 
-            String serviceUrl = context.getInitParameter(ETCD_SERVICE_URL_PARAM);
+            String serviceUrl = getConfigValue(context, ETCD_SERVICE_URL_PARAM);
             if (serviceUrl == null || serviceUrl.isEmpty()) {
                 return;
             }
