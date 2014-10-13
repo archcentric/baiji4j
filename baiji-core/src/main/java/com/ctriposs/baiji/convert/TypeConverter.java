@@ -3,7 +3,6 @@ package com.ctriposs.baiji.convert;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -24,14 +23,14 @@ public class TypeConverter {
     }
 
     @SuppressWarnings(value="unchecked")
-    public static <S, D> D convert(S source, Class<D> clazz) throws Exception {
+    public static <S, D> D convert(S source, Class<D> clazz)  {
         String key = source.getClass().getName() + "-" + clazz.getName();
         Converter converter = _converterCache.get(key);
         return (D) converter.convert(source, clazz);
     }
 
     @SuppressWarnings(value="unchecked")
-    public static <S, D> List<D> convertToList(List<S> sList, Class<D> clazz) throws Exception {
+    public static <S, D> List<D> convertToList(List<S> sList, Class<D> clazz) {
         if (sList == null || sList.size() == 0)
             return null;
 
@@ -45,20 +44,23 @@ public class TypeConverter {
         return list;
     }
 
-    @SuppressWarnings(value="unchecked")
-    public static <S, D> D[] convertToArray(S[] sArray, Class<D> clazz) throws Exception {
-        if (sArray == null || sArray.length == 0)
-            return null;
-
-        List<D> sList = convertToList(Arrays.asList(sArray), clazz);
-
-        return (D[]) sList.toArray();
+    /**
+     * Register converter for customer extension
+     * @param source the source object
+     * @param clazz the destination type
+     * @param converter the specific converter
+     * @param <S> S
+     * @param <D> D
+     */
+    public static <S, D> void registerConverter(S source, Class<D> clazz, Converter converter) {
+        String key = source.getClass().getName() + "-" + clazz.getName();
+        _converterCache.putIfAbsent(key, converter);
     }
 
     private static class ObjectToStringConverter implements Converter<Object, String> {
 
         @Override
-        public String convert(Object source, Class<String> clazz) throws Exception {
+        public String convert(Object source, Class<String> clazz) {
             return source != null ? source.toString() : null;
         }
     }
@@ -66,7 +68,7 @@ public class TypeConverter {
     private static class ByteToIntConverter implements Converter<Byte, Integer> {
 
         @Override
-        public Integer convert(Byte source, Class<Integer> clazz) throws Exception {
+        public Integer convert(Byte source, Class<Integer> clazz) {
             return source != null ? source.intValue() : null;
         }
     }
@@ -74,7 +76,7 @@ public class TypeConverter {
     private static class IntToByteConverter implements Converter<Integer, Byte> {
 
         @Override
-        public Byte convert(Integer source, Class<Byte> clazz) throws Exception {
+        public Byte convert(Integer source, Class<Byte> clazz) {
             return source != null ? source.byteValue() : null;
         }
     }
@@ -82,7 +84,7 @@ public class TypeConverter {
     private static class StringToBigDecimalConverter implements Converter<String, BigDecimal> {
 
         @Override
-        public BigDecimal convert(String source, Class<BigDecimal> clazz) throws Exception {
+        public BigDecimal convert(String source, Class<BigDecimal> clazz) {
             return source != null ? new BigDecimal(source) : null;
         }
     }
@@ -90,7 +92,7 @@ public class TypeConverter {
     private static class IntToShortConverter implements Converter<Integer, Short> {
 
         @Override
-        public Short convert(Integer source, Class<Short> clazz) throws Exception {
+        public Short convert(Integer source, Class<Short> clazz) {
             return source != null ? source.shortValue() : null;
         }
     }
@@ -98,7 +100,7 @@ public class TypeConverter {
     private static class ShortToIntConverter implements Converter<Short, Integer> {
 
         @Override
-        public Integer convert(Short source, Class<Integer> clazz) throws Exception {
+        public Integer convert(Short source, Class<Integer> clazz) {
             return source != null ? source.intValue() : null;
         }
     }
@@ -106,7 +108,7 @@ public class TypeConverter {
     private static class StringToBigIntegerConverter implements Converter<String, BigInteger> {
 
         @Override
-        public BigInteger convert(String source, Class<BigInteger> clazz) throws Exception {
+        public BigInteger convert(String source, Class<BigInteger> clazz) {
             return source != null ? new BigInteger(source) : null;
         }
     }

@@ -10,30 +10,6 @@ public final class ObjectUtils {
         return obj != null ? obj.hashCode() : 0;
     }
 
-    public static int getHashCode(List<?> list) {
-        if (list == null)
-            return 0;
-
-        int hashCode = 0;
-        for (Object obj : list) {
-            hashCode = 31 * hashCode + hashCode(obj);
-        }
-
-        return hashCode;
-    }
-
-    public static int getHashCode(Object[] objects) {
-        if (objects == null)
-            return 0;
-
-        int hashCode = 0;
-        for (Object object : objects) {
-            hashCode = 31 * hashCode + hashCode(object);
-        }
-
-        return hashCode;
-    }
-
     public static boolean equals(Map<?, ?> map1, Map<?, ?> map2) {
         if (map1 == null) {
             return map2 == null;
