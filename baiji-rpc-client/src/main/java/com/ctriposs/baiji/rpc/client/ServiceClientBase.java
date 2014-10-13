@@ -79,7 +79,6 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private final Logger _logger;
 
     private String _serviceName, _serviceNamespace, _subEnv;
-    private String _codeGeneratorVersion;
     private String _format = DEFAULT_FORMAT;
     private int _requestTimeOut = DEFAULT_REQUEST_TIME_OUT;
     private int _socketTimeOut = DEFAULT_SOCKET_TIME_OUT;
@@ -316,11 +315,11 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         _serviceName = serviceName;
         _serviceNamespace = serviceNamespace;
         _subEnv = subEnv;
-        _codeGeneratorVersion = _serviceMetadataCache.get(clientClass.getName()).get(CODE_GENERATOR_VERSION_FIELD_NAME);
 
         initServiceBaseUriFromReg();
 
-        _statsStore = new InvocationStatsStore(_serviceName, _serviceNamespace, _connectionMode, _frameworkVersion, _codeGeneratorVersion);
+        String codeGeneratorVersion = _serviceMetadataCache.get(clientClass.getName()).get(CODE_GENERATOR_VERSION_FIELD_NAME);
+        _statsStore = new InvocationStatsStore(_serviceName, _serviceNamespace, _connectionMode, _frameworkVersion, codeGeneratorVersion);
 
         // Only report stats data in indirect connection mode.
         _statsReportService.scheduleAtFixedRate(new StatsReportJob(_statsStore), DEFAULT_STATS_REPORTING_INTERVAL,
@@ -335,7 +334,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
      * NOTE: please DO NOT use this method to obtain client instance in production or official test environments.
      * Because the returned client instance is bound to a specified target service URL.
      * When the service URL is changed, the client may not be able to access the service any more.
-     * Besides, the client will not send any metrics to Central Logging, either.
+     * Besides, the client will not collect any stats data, either.
      *
      * @param baseUrl
      * @return
