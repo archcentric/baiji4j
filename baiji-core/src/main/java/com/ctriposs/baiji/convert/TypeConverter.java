@@ -46,14 +46,14 @@ public class TypeConverter {
 
     /**
      * Register converter for customer extension
-     * @param source the source object
-     * @param clazz the destination type
+     * @param sClass the source class type
+     * @param dClass the destination class type
      * @param converter the specific converter
      * @param <S> S
      * @param <D> D
      */
-    public static <S, D> void registerConverter(S source, Class<D> clazz, Converter converter) {
-        String key = source.getClass().getName() + "-" + clazz.getName();
+    public static <S, D> void registerConverter(Class<S> sClass, Class<D> dClass, Converter converter) {
+        String key = sClass.getName() + "-" + dClass.getName();
         _converterCache.putIfAbsent(key, converter);
     }
 
