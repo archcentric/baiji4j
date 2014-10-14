@@ -75,7 +75,6 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
     private static RegistryClient _registryClient;
 
-    private static final Logger _staticLogger = LoggerFactory.getLogger(ServiceClientBase.class);
     private final Logger _logger;
 
     private String _serviceName, _serviceNamespace, _subEnv;
@@ -305,6 +304,8 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
         _serviceUris = new String[]{baseUri};
         _statsStore = new InvocationStatsStore();
+
+        _logger.info("Initialized client instance with direct service url " + baseUri);
     }
 
     protected ServiceClientBase(Class<DerivedClient> clientClass, String serviceName, String serviceNamespace,
@@ -421,11 +422,6 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                         throw new RuntimeException("Error occurs when creating client instance.", e);
                     }
 
-                    if (!registryClient) {
-                        _staticLogger.info(String.format("Initialized client instance with direct service url %s", baseUrl));
-                        _staticLogger.warn("Client is initialized in direct connection mode(without registry), this is only recommended for local testing, not for formal testing or production!");
-                    }
-
                     _clientCache.put(baseUrl, client);
                 }
             }
@@ -487,17 +483,39 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
             applyHttpResponseFilters(httpResponse);
 
-            checkHttpResponseStatus(httpResponse, stats);
+            checkHttpResponseStatus(httpResponse);
 
             int contentLength = getContentLength(httpResponse);
             stats.addResponseSize(contentLength);
 
             TResp response = formatter.deserialize(responseClass, httpResponse.getEntity().getContent());
             if (response instanceof HasResponseStatus) {
-                checkResponseStatus((HasResponseStatus) response, stats);
+                checkResponseStatus((HasResponseStatus) response);
             }
             stats.markSuccess();
             return response;
+        } catch (ServiceException ex) {
+            Map<String, String> addtionalInfo = new HashMap<String, String>();
+            addtionalInfo.put("Operation", operationName);
+            _logger.error(getLogTitle("ServiceException"), ex, addtionalInfo);
+
+            stats.markFailure();
+            stats.markException(ex);
+            
+            throw ex;
+        } catch (Exception ex) {
+            logGeneralException(operationName, ex);
+
+            stats.markException(ex);
+            stats.markFailure();
+
+            if (ex instanceof HttpWebException) {
+                HttpWebException hwe = (HttpWebException) ex;
+                _logger.debug(String.format("Status Code: %s\nReason Phrase: %", hwe.getStatusCode(),
+                        hwe.getReasonPhrase()));
+            }
+
+            throw ex;
         } finally {
             if (httpResponse != null) {
                 try {
@@ -555,7 +573,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         return httpPost;
     }
 
-    private void checkHttpResponseStatus(CloseableHttpResponse response, InvocationStats stats)
+    private void checkHttpResponseStatus(CloseableHttpResponse response)
             throws HttpWebException {
         if (response.getStatusLine().getStatusCode() <= 200) {
             return;
@@ -564,8 +582,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         String responseContent = getResponseContent(response);
         StatusLine status = response.getStatusLine();
         HttpWebException ex = new HttpWebException(status.getStatusCode(), status.getReasonPhrase(), responseContent);
-        stats.markException(ex);
-        stats.markFailure();
+
         throw ex;
     }
 
@@ -597,7 +614,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         return responseContent;
     }
 
-    private void checkResponseStatus(HasResponseStatus response, InvocationStats stats) throws ServiceException {
+    private void checkResponseStatus(HasResponseStatus response) throws ServiceException {
         ResponseStatusType responseStatus = response.getResponseStatus();
         if (responseStatus.getAck() != AckCodeType.FAILURE) {
             return;
@@ -613,8 +630,6 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
             String message = "Failed response without error data, please file a bug to the service owner!";
             ex = new ServiceException(message, response);
         }
-        stats.markFailure();
-        stats.markException(ex);
         throw ex;
     }
 
@@ -690,6 +705,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
             if (_serviceUris != null && _serviceUris.length != 0) {
                 String msg = String.format("Initialized client instance with registry %s. Targeting service: %s-%s. TargetURLs: %s.",
                         _clientConfig.getServiceRegistryUrl(), _serviceName, _serviceNamespace, Joiner.on(";").join(_serviceUris));
+                _logger.info(msg);
                 break;
             }
 
@@ -702,6 +718,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
             } else {
                 String msg = String.format("Unable to find service(%s-%s) url mapping in registry %s", _serviceName,
                         _serviceNamespace, _clientConfig.getServiceRegistryUrl());
+                _logger.error(msg);
             }
         }
 
@@ -743,6 +760,21 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         return serviceUri;
     }
 
+    private void logGeneralException(String operationName, Exception ex) {
+        String title = getLogTitle("General Exception");
+        Map<String, String> addtionalInfo = new HashMap<String, String>();
+        addtionalInfo.put("Operation", operationName);
+        if (ex instanceof HttpWebException) {
+            _logger.warn(title, ex, addtionalInfo);
+        } else {
+            _logger.error(title, ex, addtionalInfo);
+        }
+    }
+
+    private String getLogTitle(String title) {
+        return title;
+    }
+
     private class SyncRegistryTask implements Runnable {
 
         @Override
@@ -761,6 +793,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                     _serviceUris = new String[0];
                 }
             } catch (Exception ex) {
+                _logger.error(getLogTitle("Sync Service Registry failed"), ex);
             }
         }
     }

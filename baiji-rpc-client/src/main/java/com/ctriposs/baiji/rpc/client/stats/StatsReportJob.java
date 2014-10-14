@@ -1,6 +1,8 @@
 package com.ctriposs.baiji.rpc.client.stats;
 
 import com.ctriposs.baiji.rpc.client.ConnectionMode;
+import com.ctriposs.baiji.rpc.common.logging.Logger;
+import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
 import com.ctriposs.baiji.rpc.common.stats.*;
 
 import java.util.Collection;
@@ -38,6 +40,7 @@ public class StatsReportJob implements Runnable {
 
     private static final String UNKNOWN = "Unknown";
 
+    private final Logger _logger = LoggerFactory.getLogger(StatsReportJob.class);
     private final StatsLogger _statsLogger = StatsLoggerFactory.getStatsLogger();
     private final InvocationStatsStore _store;
     private final String _serviceName;
@@ -55,6 +58,14 @@ public class StatsReportJob implements Runnable {
 
     @Override
     public void run() {
+        try {
+            sendStats();
+        } catch (Exception ex) {
+            _logger.error("Failed to report stats data", ex);
+        }
+    }
+
+    private void sendStats() {
         Map<String, String> tagMap = new HashMap<String, String>();
         tagMap.put(STATS_TAG_SERVICE, _serviceName);
         tagMap.put(STATS_TAG_FRAMEWORK_VERSION, _frameworkVersion);
