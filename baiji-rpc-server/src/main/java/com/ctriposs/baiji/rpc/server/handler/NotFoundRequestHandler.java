@@ -18,7 +18,7 @@ public class NotFoundRequestHandler implements RequestHandler {
     @Override
     public void handle(ServiceHost host, HttpRequestWrapper request, HttpResponseWrapper response)
             throws Exception {
-        _logger.error(String.format("%s request not found: %s", request.clientIp(), request.requestPath()));
+        _logger.warn(String.format("%s request not found: %s", request.clientIp(), request.requestPath()));
 
         StringBuilder text = new StringBuilder();
         if (host.getConfig().debugMode) {

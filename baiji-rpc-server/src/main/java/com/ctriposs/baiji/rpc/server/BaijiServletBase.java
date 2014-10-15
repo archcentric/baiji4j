@@ -28,12 +28,16 @@ public abstract class BaijiServletBase extends HttpServlet {
     protected void processRequest(ServletRequest req, ServletResponse resp)
             throws ServletException, IOException {
         if (_serviceHost == null) {
+            _logger.error("No service is hosted when receiving a request.");
             ((HttpServletResponse) resp).sendError(HttpStatus.SC_SERVICE_UNAVAILABLE,
                     "No service hosted here.");
             return;
         }
 
         if (!(req instanceof HttpServletRequest && resp instanceof HttpServletResponse)) {
+            _logger.warn(String.format("Not HTTP request or response.\nRequest: %s\nResponse: %s",
+                    (req != null ? req.getClass().getName() : "NULL"),
+                    (resp != null ? resp.getClass().getName() : "NULL")));
             throw new ServletException("Not HTTP request or response");
         }
 

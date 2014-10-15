@@ -115,7 +115,7 @@ public class EtcdServiceRegistry implements ServiceRegistry {
                         }
                     }
                 } catch (Exception ex) {
-                    _logger.error("", ex);
+                    _logger.error("Error occurs in HeartbeatTask.", ex);
                 }
             }
         }
@@ -150,7 +150,9 @@ public class EtcdServiceRegistry implements ServiceRegistry {
 
                 return true;
             } catch (Exception ex) {
-                ex.printStackTrace();
+                String msg = String.format("Error occurs when registering service %s-%s, url = %s.", service.getServiceName(),
+                        service.getServiceNamespace(), service.getServiceUrl());
+                _logger.error(msg, ex);
                 return false;
             }
         }
@@ -170,7 +172,9 @@ public class EtcdServiceRegistry implements ServiceRegistry {
                 }
                 return true;
             } catch (Exception ex) {
-                ex.printStackTrace();
+                String msg = String.format("Error occurs when sending heartbeat request for service %s-%s, url = %s.",
+                        service.getServiceName(), service.getServiceNamespace(), service.getServiceUrl());
+                _logger.error(msg, ex);
                 return false;
             }
         }

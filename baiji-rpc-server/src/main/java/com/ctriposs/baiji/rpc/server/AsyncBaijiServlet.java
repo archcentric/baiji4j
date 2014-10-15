@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class AsyncBaijiServlet extends BaijiServletBase {
 
+    private static final Logger _logger = LoggerFactory.getLogger(AsyncBaijiServlet.class);
+
     private static final int DEFAULT_ASYNC_TIMEOUT = 60 * 1000; // In ms.
     private static final int DEFAULT_CORE_THREAD_COUNT = 20;
     private static final int DEFAULT_MAX_THREAD_COUNT = 100;

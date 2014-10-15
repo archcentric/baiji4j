@@ -56,8 +56,8 @@ public class BaijiServiceHost implements ServiceHost {
 
     @Override
     public void processRequest(HttpRequestWrapper request, HttpResponseWrapper response) {
+        String requestPath = request.requestPath();
         try {
-            String requestPath = request.requestPath();
             if (requestPath == null || requestPath.isEmpty() || requestPath.equals("/")) {
                 _redirectMetadataHandler.handle(this, request,response);;
                 return;
@@ -76,6 +76,7 @@ public class BaijiServiceHost implements ServiceHost {
             if (_config.exceptionHandler != null) {
                 _config.exceptionHandler.handle(this, request, response, ex);
             } else {
+                _logger.error("Error occurs when processing request " + requestPath, ex);
                 throw new RuntimeException("Error occurs when processing request.", ex);
             }
         } finally {
