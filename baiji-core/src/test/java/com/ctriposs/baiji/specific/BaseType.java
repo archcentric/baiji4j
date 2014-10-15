@@ -12,231 +12,233 @@ import com.ctriposs.baiji.util.ObjectUtils;
 import com.google.common.base.Objects;
 
 import java.math.BigInteger;
-import java.math.BigDecimal;
 import java.util.List;
+import java.math.BigDecimal;
 
 @SuppressWarnings("all")
 public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase implements com.ctriposs.baiji.specific.SpecificRecord {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public static final Schema SCHEMA$ = Schema.parse("{\"type\":\"record\",\"name\":\"BaseType\",\"namespace\":\"com.ctriposs.baiji.specific\",\"fields\":[{\"name\":\"byte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"decimal1\",\"type\":[\"string\",\"null\"]},{\"name\":\"float1\",\"type\":[\"float\",\"null\"]},{\"name\":\"short1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedByte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedInt1\",\"type\":[\"long\",\"null\"]},{\"name\":\"unsignedLong1\",\"type\":[\"string\",\"null\"]},{\"name\":\"unsignedShort1\",\"type\":[\"int\",\"null\"]}, {\"name\":\"guid1\",\"type\":[\"string\",\"null\"]}, {\"name\":\"list1\",\"type\":[{\"type\":\"array\",\"items\":[\"string\", \"null\"]},\"null\"]}]}");
+	public static final Schema SCHEMA$ = Schema.parse("{\"type\":\"record\",\"name\":\"BaseType\",\"namespace\":\"com.ctrip.soa.framework.soa.basetype.v1\",\"fields\":[{\"name\":\"byte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"decimal1\",\"type\":[\"string\",\"null\"]},{\"name\":\"duration1\",\"type\":[\"string\",\"null\"]},{\"name\":\"float1\",\"type\":[\"float\",\"null\"]},{\"name\":\"short1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedByte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedInt1\",\"type\":[\"long\",\"null\"]},{\"name\":\"unsignedLong1\",\"type\":[\"string\",\"null\"]},{\"name\":\"unsignedShort1\",\"type\":[\"int\",\"null\"]},{\"name\":\"list1\",\"type\":{\"type\":\"array\",\"items\":[\"string\",\"null\"]}}]}");
 
-    @Override
-    public Schema getSchema() { return SCHEMA$; }
+	@Override
+	public Schema getSchema() { return SCHEMA$; }
 
-    public BaseType(
-            Byte byte1,
-            BigDecimal decimal1,
-            Float float1,
-            Short short1,
-            Short unsignedByte1,
-            Long unsignedInt1,
-            BigInteger unsignedLong1,
-            Integer unsignedShort1,
-            String guid1,
-            List<BigDecimal> list1
-    ) {
-        this.byte1 = byte1;
-        this.decimal1 = decimal1;
-        this.float1 = float1;
-        this.short1 = short1;
-        this.unsignedByte1 = unsignedByte1;
-        this.unsignedInt1 = unsignedInt1;
-        this.unsignedLong1 = unsignedLong1;
-        this.unsignedShort1 = unsignedShort1;
-        this.guid1 = guid1;
-        this.list1 = list1;
-    }
+	public BaseType(
+		Byte byte1,
+		BigDecimal decimal1,
+		String duration1,
+		Float float1,
+		Short short1,
+		Short unsignedByte1,
+		Long unsignedInt1,
+		BigInteger unsignedLong1,
+		Integer unsignedShort1,
+		List<BigDecimal> list1
+	) {
+		this.byte1 = byte1;
+		this.decimal1 = decimal1;
+		this.duration1 = duration1;
+		this.float1 = float1;
+		this.short1 = short1;
+		this.unsignedByte1 = unsignedByte1;
+		this.unsignedInt1 = unsignedInt1;
+		this.unsignedLong1 = unsignedLong1;
+		this.unsignedShort1 = unsignedShort1;
+		this.list1 = list1;
+	}
 
-    public BaseType() {
-    }
+	public BaseType() {
+	}
 
-    private Byte byte1;
+	private Byte byte1;
 
-    private BigDecimal decimal1;
+	private BigDecimal decimal1;
 
-    private Float float1;
+	private String duration1;
 
-    private Short short1;
+	private Float float1;
 
-    private Short unsignedByte1;
+	private Short short1;
 
-    private Long unsignedInt1;
+	private Short unsignedByte1;
 
-    private BigInteger unsignedLong1;
+	private Long unsignedInt1;
 
-    private Integer unsignedShort1;
+	private BigInteger unsignedLong1;
 
-    private String guid1;
+	private Integer unsignedShort1;
 
-    private List<BigDecimal> list1;
+	private List<BigDecimal> list1;
 
-    public String getGuid1() {
-        return this.guid1;
-    }
 
-    public void setGuid1(String guid1) {
-        this.guid1 = guid1;
-    }
+	public Byte getByte1() {
+	    return this.byte1;
+	}
 
-    public List<BigDecimal> getList1() {
-        return this.list1;
-    }
+	public void setByte1(Byte byte1) {
+	    this.byte1 = byte1;
+	}
 
-    public void setList1(List<BigDecimal> list1) {
-        this.list1 = list1;
-    }
+	public BigDecimal getDecimal1() {
+	    return this.decimal1;
+	}
 
-    public byte getByte1() {
-        return this.byte1;
-    }
+	public void setDecimal1(BigDecimal decimal1) {
+	    this.decimal1 = decimal1;
+	}
 
-    public void setByte1(byte byte1) {
-        this.byte1 = byte1;
-    }
+	public String getDuration1() {
+	    return this.duration1;
+	}
 
-    public BigDecimal getDecimal1() {
-        return this.decimal1;
-    }
+	public void setDuration1(String duration1) {
+	    this.duration1 = duration1;
+	}
 
-    public void setDecimal1(BigDecimal decimal1) {
-        this.decimal1 = decimal1;
-    }
+	public Float getFloat1() {
+	    return this.float1;
+	}
 
-    public Float getFloat1() {
-        return this.float1;
-    }
+	public void setFloat1(Float float1) {
+	    this.float1 = float1;
+	}
 
-    public void setFloat1(Float float1) {
-        this.float1 = float1;
-    }
+	public Short getShort1() {
+	    return this.short1;
+	}
 
-    public Short getShort1() {
-        return this.short1;
-    }
+	public void setShort1(Short short1) {
+	    this.short1 = short1;
+	}
 
-    public void setShort1(Short short1) {
-        this.short1 = short1;
-    }
+	public Short getUnsignedByte1() {
+	    return this.unsignedByte1;
+	}
 
-    public Short getUnsignedByte1() {
-        return this.unsignedByte1;
-    }
+	public void setUnsignedByte1(Short unsignedByte1) {
+	    this.unsignedByte1 = unsignedByte1;
+	}
 
-    public void setUnsignedByte1(Short unsignedByte1) {
-        this.unsignedByte1 = unsignedByte1;
-    }
+	public Long getUnsignedInt1() {
+	    return this.unsignedInt1;
+	}
 
-    public Long getUnsignedInt1() {
-        return this.unsignedInt1;
-    }
+	public void setUnsignedInt1(Long unsignedInt1) {
+	    this.unsignedInt1 = unsignedInt1;
+	}
 
-    public void setUnsignedInt1(Long unsignedInt1) {
-        this.unsignedInt1 = unsignedInt1;
-    }
+	public BigInteger getUnsignedLong1() {
+	    return this.unsignedLong1;
+	}
 
-    public BigInteger getUnsignedLong1() {
-        return this.unsignedLong1;
-    }
+	public void setUnsignedLong1(BigInteger unsignedLong1) {
+	    this.unsignedLong1 = unsignedLong1;
+	}
 
-    public void setUnsignedLong1(BigInteger unsignedLong1) {
-        this.unsignedLong1 = unsignedLong1;
-    }
+	public Integer getUnsignedShort1() {
+	    return this.unsignedShort1;
+	}
 
-    public Integer getUnsignedShort1() {
-        return this.unsignedShort1;
-    }
+	public void setUnsignedShort1(Integer unsignedShort1) {
+	    this.unsignedShort1 = unsignedShort1;
+	}
 
-    public void setUnsignedShort1(Integer unsignedShort1) {
-        this.unsignedShort1 = unsignedShort1;
-    }
+	public List<BigDecimal> getList1() {
+	    return this.list1;
+	}
+
+	public void setList1(List<BigDecimal> list1) {
+	    this.list1 = list1;
+	}
 
     // Used by DatumWriter. Applications should not call.
     public Object get(int fieldPos) {
-        switch(fieldPos) {
-            case 0: return TypeConverter.convert(this.byte1, Integer.class);
-            case 1: return TypeConverter.convert(this.decimal1, String.class);
-            case 2: return (Float) this.float1;
-            case 3: return TypeConverter.convert(this.short1, Integer.class);
-            case 4: return TypeConverter.convert(this.unsignedByte1, Integer.class);
-            case 5: return (Long) this.unsignedInt1;
-            case 6: return TypeConverter.convert(this.unsignedLong1, String.class);
-            case 7: return (Integer) this.unsignedShort1;
-            case 8: return (String) this.guid1;
-            case 9: return TypeConverter.convertToList(list1, String.class);
-            default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in get()");
-        }
+    	switch(fieldPos) {
+    		case 0: return TypeConverter.convert(this.byte1, Integer.class);
+    		case 1: return TypeConverter.convert(this.decimal1, String.class);
+    		case 2: return (String) this.duration1;
+    		case 3: return (Float) this.float1;
+    		case 4: return TypeConverter.convert(this.short1, Integer.class);
+    		case 5: return TypeConverter.convert(this.unsignedByte1, Integer.class);
+    		case 6: return (Long) this.unsignedInt1;
+    		case 7: return TypeConverter.convert(this.unsignedLong1, String.class);
+    		case 8: return (Integer) this.unsignedShort1;
+    		case 9: return TypeConverter.convertToList(this.list1, String.class);
+    		default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in get()");
+    	}
     }
 
-    // Used by DatumReader. Applications should not call.
-    @SuppressWarnings(value="unchecked")
-    public void put(int fieldPos, Object fieldValue) {
-        switch(fieldPos) {
-            case 0: this.byte1 = TypeConverter.convert((Integer) fieldValue, Byte.class); break;
-            case 1: this.decimal1 = TypeConverter.convert((String) fieldValue, BigDecimal.class); break;
-            case 2: this.float1 = (Float) fieldValue; break;
-            case 3: this.short1 = TypeConverter.convert((Integer) fieldValue, Short.class); break;
-            case 4: this.unsignedByte1 = TypeConverter.convert((Integer) fieldValue, Short.class); break;
-            case 5: this.unsignedInt1 = (Long) fieldValue; break;
-            case 6: this.unsignedLong1 = TypeConverter.convert((String) fieldValue, BigInteger.class); break;
-            case 7: this.unsignedShort1 = (Integer) fieldValue; break;
-            case 8: this.guid1 = (String) fieldValue; break;
-            case 9: this.list1 = TypeConverter.convertToList((List<String>) fieldValue, BigDecimal.class); break;
-            default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in put()");
-        }
-    }
+	// Used by DatumReader. Applications should not call.
+	@SuppressWarnings(value="unchecked")
+	public void put(int fieldPos, Object fieldValue) {
+		switch(fieldPos) {
+    		case 0: this.byte1 = TypeConverter.convert((Integer)fieldValue, Byte.class); break;
+    		case 1: this.decimal1 = TypeConverter.convert((String)fieldValue, BigDecimal.class); break;
+    		case 2: this.duration1 = (String)fieldValue; break;
+    		case 3: this.float1 = (Float)fieldValue; break;
+    		case 4: this.short1 = TypeConverter.convert((Integer)fieldValue, Short.class); break;
+    		case 5: this.unsignedByte1 = TypeConverter.convert((Integer)fieldValue, Short.class); break;
+    		case 6: this.unsignedInt1 = (Long)fieldValue; break;
+    		case 7: this.unsignedLong1 = TypeConverter.convert((String)fieldValue, BigInteger.class); break;
+    		case 8: this.unsignedShort1 = (Integer)fieldValue; break;
+    		case 9: this.list1 = TypeConverter.convertToList((List<String>)fieldValue, BigDecimal.class); break;
+    		default: throw new BaijiRuntimeException("Bad index " + fieldPos + " in put()");
+    	}
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) return false;
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
 
         final BaseType other = (BaseType)obj;
         return
-                Objects.equal(this.byte1, other.byte1) &&
-                        Objects.equal(this.decimal1, other.decimal1) &&
-                        Objects.equal(this.float1, other.float1) &&
-                        Objects.equal(this.short1, other.short1) &&
-                        Objects.equal(this.unsignedByte1, other.unsignedByte1) &&
-                        Objects.equal(this.unsignedInt1, other.unsignedInt1) &&
-                        Objects.equal(this.unsignedLong1, other.unsignedLong1) &&
-                        Objects.equal(this.unsignedShort1, other.unsignedShort1) &&
-                        Objects.equal(this.guid1, other.guid1) &&
-                        ObjectUtils.equals(this.list1, other.list1);
-    }
+        	Objects.equal(this.byte1, other.byte1) && 
+        	Objects.equal(this.decimal1, other.decimal1) && 
+        	Objects.equal(this.duration1, other.duration1) && 
+        	Objects.equal(this.float1, other.float1) && 
+        	Objects.equal(this.short1, other.short1) && 
+        	Objects.equal(this.unsignedByte1, other.unsignedByte1) && 
+        	Objects.equal(this.unsignedInt1, other.unsignedInt1) && 
+        	Objects.equal(this.unsignedLong1, other.unsignedLong1) && 
+        	Objects.equal(this.unsignedShort1, other.unsignedShort1) && 
+        	Objects.equal(this.list1, other.list1);
+	}
 
-    @Override
-    public int hashCode() {
-        int result = 1;
+	@Override
+	public int hashCode() {
+		int result = 1;
 
-        result = 31 * result + (this.byte1 == null ? 0 : this.byte1.hashCode());
-        result = 31 * result + (this.decimal1 == null ? 0 : this.decimal1.hashCode());
-        result = 31 * result + (this.float1 == null ? 0 : this.float1.hashCode());
-        result = 31 * result + (this.short1 == null ? 0 : this.short1.hashCode());
-        result = 31 * result + (this.unsignedByte1 == null ? 0 : this.unsignedByte1.hashCode());
-        result = 31 * result + (this.unsignedInt1 == null ? 0 : this.unsignedInt1.hashCode());
-        result = 31 * result + (this.unsignedLong1 == null ? 0 : this.unsignedLong1.hashCode());
-        result = 31 * result + (this.unsignedShort1 == null ? 0 : this.unsignedShort1.hashCode());
-        result = 31 * result + (this.guid1 == null ? 0 : this.guid1.hashCode());
-        result = 31 * result + (this.list1 == null ? 0 : this.list1.hashCode());
+		result = 31 * result + (this.byte1 == null ? 0 : this.byte1.hashCode());
+		result = 31 * result + (this.decimal1 == null ? 0 : this.decimal1.hashCode());
+		result = 31 * result + (this.duration1 == null ? 0 : this.duration1.hashCode());
+		result = 31 * result + (this.float1 == null ? 0 : this.float1.hashCode());
+		result = 31 * result + (this.short1 == null ? 0 : this.short1.hashCode());
+		result = 31 * result + (this.unsignedByte1 == null ? 0 : this.unsignedByte1.hashCode());
+		result = 31 * result + (this.unsignedInt1 == null ? 0 : this.unsignedInt1.hashCode());
+		result = 31 * result + (this.unsignedLong1 == null ? 0 : this.unsignedLong1.hashCode());
+		result = 31 * result + (this.unsignedShort1 == null ? 0 : this.unsignedShort1.hashCode());
+		result = 31 * result + (this.list1 == null ? 0 : this.list1.hashCode());
 
-        return result;
-    }
+		return result;
+	}
 
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("byte1", byte1)
-                .add("decimal1", decimal1)
-                .add("float1", float1)
-                .add("short1", short1)
-                .add("unsignedByte1", unsignedByte1)
-                .add("unsignedInt1", unsignedInt1)
-                .add("unsignedLong1", unsignedLong1)
-                .add("unsignedShort1", unsignedShort1)
-                .add("guid1", guid1)
-                .toString();
-    }
+	@Override
+	public String toString() {
+		return Objects.toStringHelper(this)
+			.add("byte1", byte1)
+			.add("decimal1", decimal1)
+			.add("duration1", duration1)
+			.add("float1", float1)
+			.add("short1", short1)
+			.add("unsignedByte1", unsignedByte1)
+			.add("unsignedInt1", unsignedInt1)
+			.add("unsignedLong1", unsignedLong1)
+			.add("unsignedShort1", unsignedShort1)
+			.add("list1", list1)
+			.toString();
+	}
 
 }
