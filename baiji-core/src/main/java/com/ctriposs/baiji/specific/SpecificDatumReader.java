@@ -57,9 +57,6 @@ public class SpecificDatumReader<T> extends PreresolvingDatumReader<T> {
 
     @Override
     protected RecordAccess getRecordAccess(RecordSchema schema) {
-        if (schema.getName() == null) {
-            return new GenericDatumReader.GenericRecordAccess(schema);
-        }
         return new SpecificRecordAccess(schema);
     }
 
