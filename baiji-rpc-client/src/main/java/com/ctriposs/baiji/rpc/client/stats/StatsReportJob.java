@@ -90,44 +90,44 @@ public class StatsReportJob implements Runnable {
 
             // Request cost distribution
             tagMap.put(STATS_TAG_DISTRIBUTION, "0 ~ 10ms");
-            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(0, 10), tagMap);
+            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(0L, 10L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "10 ~ 50ms");
-            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(10, 50), tagMap);
+            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(10L, 50L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "50 ~ 200ms");
-            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(50, 200), tagMap);
+            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(50L, 200L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "200 ~ 500ms");
-            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(200, 500), tagMap);
+            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(200L, 500L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "500ms ~ 1s");
-            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(500, 1000), tagMap);
+            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(500L, 1000L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "1 ~ 5s");
-            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(1000, 5 * 1000), tagMap);
+            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(1000L, 5 * 1000L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "5 ~ 10s");
-            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(5 * 1000, 10 * 1000), tagMap);
+            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(5 * 1000L, 10 * 1000L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "10 ~ 30s");
-            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(10 * 1000, 30 * 1000), tagMap);
+            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(10 * 1000L, 30 * 1000L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "30 ~ 100s");
-            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(30 * 1000, 100 * 1000), tagMap);
+            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(30 * 1000L, 100 * 1000L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, ">= 100s");
-            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(100 * 1000, null), tagMap);
+            _statsLogger.log(STATS_NAME_REQUEST_COST_DISTRIBUTION, stats.getRequestCountInCostRange(100 * 1000L, null), tagMap);
             tagMap.remove(STATS_TAG_DISTRIBUTION);
 
             // Response size distribution
             tagMap.put(STATS_TAG_DISTRIBUTION, "0 ~ 10K");
-            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(0, 10 * 1024), tagMap);
+            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(0L, 10 * 1024L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "10 ~ 50K");
-            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(10 * 1024, 50 * 1024), tagMap);
+            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(10 * 1024L, 50 * 1024L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "50 ~ 200K");
-            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(50 * 1024, 200 * 1024), tagMap);
+            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(50 * 1024L, 200 * 1024L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "200 ~ 500K");
-            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(200 * 1024, 500 * 1024), tagMap);
+            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(200 * 1024L, 500 * 1024L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "500k ~ 1M");
-            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(500 * 1024, 1 * 1024 * 1024), tagMap);
+            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(500 * 1024L, 1024 * 1024L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "1 ~ 5M");
-            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(1 * 1024 * 1024, 5 * 1024 * 1024), tagMap);
+            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(1024 * 1024L, 5 * 1024 * 1024L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, "5 ~ 10M");
-            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(5 * 1024 * 1024, 10 * 1024 * 1024), tagMap);
+            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(5 * 1024 * 1024L, 10 * 1024 * 1024L), tagMap);
             tagMap.put(STATS_TAG_DISTRIBUTION, ">= 10M");
-            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(10 * 1024 * 1024, null), tagMap);
+            _statsLogger.log(STATS_NAME_RESPONSE_SIZE_DISTRIBUTION, stats.getResponseCountInSizeRange(10 * 1024 * 1024L, null), tagMap);
             tagMap.remove(STATS_TAG_DISTRIBUTION);
 
             // Request count

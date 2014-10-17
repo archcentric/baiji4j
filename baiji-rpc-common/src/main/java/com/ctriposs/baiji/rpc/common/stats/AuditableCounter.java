@@ -18,11 +18,11 @@ public class AuditableCounter {
      * @param to
      * @return
      */
-    public int getValueCountInRange(long from, long to) {
+    public int getValueCountInRange(Long from, Long to) {
         int count = 0;
         for (int i = 0; i < _count.get(); ++i) {
             long item = _values[i];
-            if (item >= from && item < to) {
+            if (item >= from && (to != null && item < to)) {
                 count++;
             }
         }

@@ -49,7 +49,7 @@ public class InvocationStats {
         return _responseSizeCounter.getAuditionData();
     }
 
-    public int getResponseCountInSizeRange(Integer from, Integer to) {
+    public int getResponseCountInSizeRange(Long from, Long to) {
         return _responseSizeCounter.getValueCountInRange(from, to);
     }
 
@@ -57,7 +57,7 @@ public class InvocationStats {
         return _requestCostCounter.getAuditionData();
     }
 
-    public int getRequestCountInCostRange(Integer from, Integer to) {
+    public int getRequestCountInCostRange(Long from, Long to) {
         return _requestCostCounter.getValueCountInRange(from, to);
     }
 

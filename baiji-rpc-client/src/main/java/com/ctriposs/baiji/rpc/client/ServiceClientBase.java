@@ -311,7 +311,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     protected ServiceClientBase(Class<DerivedClient> clientClass, String serviceName, String serviceNamespace,
                                 String subEnv) throws ServiceLookupException {
         _logger = LoggerFactory.getLogger(clientClass);
-        _connectionMode = ConnectionMode.DIRECT;
+        _connectionMode = ConnectionMode.INDIRECT;
 
         _serviceName = serviceName;
         _serviceNamespace = serviceNamespace;
@@ -501,7 +501,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
             stats.markFailure();
             stats.markException(ex);
-            
+
             throw ex;
         } catch (Exception ex) {
             logGeneralException(operationName, ex);

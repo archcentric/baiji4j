@@ -64,7 +64,7 @@ public class InvocationStatsStore {
         InvocationStats stats = statsMap.get(operationName);
         if (stats == null) {
             stats = new InvocationStats(operationName);
-            InvocationStats existedStats = _statsMap.get().putIfAbsent(operationName, stats);
+            InvocationStats existedStats = statsMap.putIfAbsent(operationName, stats);
             if (existedStats != null) {
                 stats = existedStats;
             }
