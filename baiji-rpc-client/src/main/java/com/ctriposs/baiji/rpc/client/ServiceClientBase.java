@@ -341,7 +341,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
      * @return
      */
     public static <DerivedClient extends ServiceClientBase> DerivedClient getInstance(Class<DerivedClient> clientClass, String baseUrl) {
-        return getInstanceInternal(clientClass, baseUrl, false);
+        return getInstanceInternal(clientClass, baseUrl);
     }
 
     /**
@@ -406,7 +406,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
 
     static <DerivedClient extends ServiceClientBase> DerivedClient getInstanceInternal(Class<DerivedClient> clientClass,
-                                                                                       String baseUrl, boolean registryClient) {
+                                                                                       String baseUrl) {
         if (baseUrl == null || baseUrl.isEmpty()) {
             throw new IllegalArgumentException("baseUrl can't be null or empty");
         }
