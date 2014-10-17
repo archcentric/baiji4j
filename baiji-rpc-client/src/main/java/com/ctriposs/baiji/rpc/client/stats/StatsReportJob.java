@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class StatsReportJob implements Runnable {
 
-    public static final String STATS_PREFIX = "baiji.";
+    public static final String STATS_PREFIX = "soa4j.";
 
     public static final String STATS_PREFIX_REQUEST = STATS_PREFIX + "request.";
     public static final String STATS_PREFIX_RESPONSE = STATS_PREFIX + "response.";
