@@ -12,8 +12,8 @@ public class Client {
 //        config.setServiceSubEnv(TestServiceClient.ORIGINAL_SERVICE_NAME, TestServiceClient.ORIGINAL_SERVICE_NAMESPACE, "dev");
 //        TestServiceClient.initialize(config);
 
-//        TestServiceClient client = TestServiceClient.getInstance(TestServiceClient.class);
-        TestServiceClient client = TestServiceClient.getInstance(TestServiceClient.class, "http://localhost:8114/");
+//        TestServiceClient client = TestServiceClient.getInstance();
+        TestServiceClient client = TestServiceClient.getInstance("http://localhost:8114/");
         GetItemsRequestType request = new GetItemsRequestType();
         request.setTake(5);
         GetItemsResponseType response = client.getItems(request);

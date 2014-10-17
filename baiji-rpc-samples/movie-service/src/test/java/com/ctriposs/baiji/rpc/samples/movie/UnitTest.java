@@ -48,7 +48,7 @@ public class UnitTest {
 
     @Before
     public void testInitialize() {
-        _client = MovieServiceClient.getInstance(MovieServiceClient.class, BASE_URL);
+        _client = MovieServiceClient.getInstance(BASE_URL);
     }
 
     @Test

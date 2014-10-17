@@ -2,7 +2,7 @@ package com.ctriposs.baiji.rpc.samples.movie;
 
 import com.ctriposs.baiji.rpc.common.BaijiContract;
 
-@BaijiContract(serviceName = "Movie", serviceNamespace = "http://soa.ctriposs.com/baijirpc/sample/movie", codeGeneratorVersion = "1.0.0.0")
+@BaijiContract(serviceName = "Movie", serviceNamespace = "http://soa.ctriposs.com/baijirpc/sample/movie", codeGeneratorVersion = "1.1.0.0")
 public interface MovieService {
 
     AddMovieResponseType addMovie(AddMovieRequestType request) throws Exception;

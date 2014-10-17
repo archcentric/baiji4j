@@ -7,7 +7,7 @@ import java.util.*;
 public class Client {
 
     public static void main(String[] args) throws Exception {
-        TestServiceClient client = TestServiceClient.getInstance(TestServiceClient.class, "http://localhost:8113/");
+        TestServiceClient client = TestServiceClient.getInstance("http://localhost:8113/");
         for (String format : TestServiceClient.getSupportFormats()) {
             client.setFormat(format);
             CrossTestRequestType requestType = new CrossTestRequestType("beepboop", createSample());

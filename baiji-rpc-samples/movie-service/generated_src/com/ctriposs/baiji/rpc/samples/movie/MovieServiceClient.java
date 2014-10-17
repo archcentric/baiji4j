@@ -9,12 +9,22 @@ public class MovieServiceClient extends ServiceClientBase<MovieServiceClient> {
 
     public static final String ORIGINAL_SERVICE_NAMESPACE = "http://soa.ctriposs.com/baijirpc/sample/movie";
 
+    public static final String CODE_GENERATOR_VERSION = "1.1.0.0";
+
     private MovieServiceClient(String baseUri) {
         super(MovieServiceClient.class, baseUri);
     }
 
     private MovieServiceClient(String serviceName, String serviceNamespace, String subEnv) throws ServiceLookupException {
         super(MovieServiceClient.class, serviceName, serviceNamespace, subEnv);
+    }
+
+    public static MovieServiceClient getInstance() {
+        return ServiceClientBase.getInstance(MovieServiceClient.class);
+    }
+
+    public static MovieServiceClient getInstance(String baseUrl) {
+        return ServiceClientBase.getInstance(MovieServiceClient.class, baseUrl);
     }
 
     public AddMovieResponseType addMovie(AddMovieRequestType request)

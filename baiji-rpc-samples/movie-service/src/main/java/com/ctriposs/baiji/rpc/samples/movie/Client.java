@@ -19,8 +19,8 @@ public class Client {
         MovieServiceClient.setGlobalHttpRequestFilter(new TestClientRequestFilter("Global"));
         MovieServiceClient.setGlobalHttpResponseFilter(new TestClientResponseFilter("Global"));
 
-//        MovieServiceClient client = MovieServiceClient.getInstance(MovieServiceClient.class);
-        MovieServiceClient client = MovieServiceClient.getInstance(MovieServiceClient.class, "http://localhost:8112/");
+//        MovieServiceClient client = MovieServiceClient.getInstance();
+        MovieServiceClient client = MovieServiceClient.getInstance("http://localhost:8112/");
         client.headers().put("Test-Header", "Test-Value");
         client.setLocalHttpRequestFilter(new TestClientRequestFilter("Local"));
         client.setLocalHttpResponseFilter(new TestClientResponseFilter("Local"));

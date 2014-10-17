@@ -9,8 +9,8 @@ public class Client {
         config.setServiceRegistryUrl("http://localhost:4001");
         MathServiceClient.initialize(config);
 
-//        MathServiceClient client = MathServiceClient.getInstance(MathServiceClient.class);
-        MathServiceClient client = MathServiceClient.getInstance(MathServiceClient.class, "http://localhost:8115/");
+//        MathServiceClient client = MathServiceClient.getInstance();
+        MathServiceClient client = MathServiceClient.getInstance("http://localhost:8115/");
         GetFactorialRequestType request = new GetFactorialRequestType(5L);
         GetFactorialResponseType response = client.getFactorial(request);
         System.out.println(response.getResponseStatus());

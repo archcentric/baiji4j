@@ -1,6 +1,8 @@
 package com.ctriposs.baiji.rpc.samples.crosstest;
 
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
+import com.ctriposs.baiji.rpc.common.types.CheckHealthRequestType;
+import com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +27,7 @@ public class TestServiceImpl implements TestService {
 
         if (Math.abs(sample.getDate1().getTimeInMillis() - java.util.Calendar.getInstance().getTimeInMillis()) > 1000)
             throw new BaijiRuntimeException("Date time is parsed incorrectly.");
-        
+
         TestSerializerSampleList sampleList = new TestSerializerSampleList();
         List<TestSerializerSample> list = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
@@ -34,6 +36,11 @@ public class TestServiceImpl implements TestService {
         sampleList.setSamples(list);
 
         return new CrossTestResponseType(null, sampleList, "Hello" + request.name);
+    }
+
+    @Override
+    public CheckHealthResponseType checkHealth(CheckHealthRequestType request) throws Exception {
+        return new CheckHealthResponseType();
     }
 
     private static TestSerializerSample generateSample(TestSerializerSample sample, int id) {
