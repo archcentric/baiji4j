@@ -9,11 +9,16 @@ import com.ctriposs.baiji.rpc.client.stats.InvocationStats;
 import com.ctriposs.baiji.rpc.client.stats.InvocationStatsStore;
 import com.ctriposs.baiji.rpc.client.stats.StatsReportJob;
 import com.ctriposs.baiji.rpc.common.HasResponseStatus;
+import com.ctriposs.baiji.rpc.common.ServiceCommons;
 import com.ctriposs.baiji.rpc.common.formatter.BinaryContentFormatter;
 import com.ctriposs.baiji.rpc.common.formatter.ContentFormatter;
 import com.ctriposs.baiji.rpc.common.formatter.JsonContentFormatter;
 import com.ctriposs.baiji.rpc.common.logging.Logger;
 import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
+import com.ctriposs.baiji.rpc.common.tracing.Span;
+import com.ctriposs.baiji.rpc.common.tracing.SpanType;
+import com.ctriposs.baiji.rpc.common.tracing.Tracer;
+import com.ctriposs.baiji.rpc.common.tracing.TracerFactory;
 import com.ctriposs.baiji.rpc.common.types.AckCodeType;
 import com.ctriposs.baiji.rpc.common.types.ErrorDataType;
 import com.ctriposs.baiji.rpc.common.types.ResponseStatusType;
@@ -54,7 +59,6 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private static final int INIT_REG_SYNC_INTERVAL = 5 * 1000; // 5 seconds
     private static final int DEFAULT_REG_SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
     private static final int DEFAULT_STATS_REPORTING_INTERVAL = 30 * 1000; // 30 seconds
-    private static final String APP_ID_HTTP_HEADER = "Baiji-Client-AppId";
 
     protected static final String ORIGINAL_SERVICE_NAME_FIELD_NAME = "ORIGINAL_SERVICE_NAME";
     protected static final String ORIGINAL_SERVICE_NAMESPACE_FIELD_NAME = "ORIGINAL_SERVICE_NAMESPACE";
@@ -76,6 +80,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private static RegistryClient _registryClient;
 
     private final Logger _logger;
+    private final Tracer _tracer;
 
     private String _serviceName, _serviceNamespace, _subEnv;
     private String _format = DEFAULT_FORMAT;
@@ -300,6 +305,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
     protected ServiceClientBase(Class<DerivedClient> clientClass, String baseUri) {
         _logger = LoggerFactory.getLogger(clientClass);
+        _tracer = TracerFactory.getTracer(clientClass);
         _connectionMode = ConnectionMode.DIRECT;
 
         _serviceUris = new String[]{baseUri};
@@ -311,6 +317,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     protected ServiceClientBase(Class<DerivedClient> clientClass, String serviceName, String serviceNamespace,
                                 String subEnv) throws ServiceLookupException {
         _logger = LoggerFactory.getLogger(clientClass);
+        _tracer = TracerFactory.getTracer(clientClass);
         _connectionMode = ConnectionMode.INDIRECT;
 
         _serviceName = serviceName;
@@ -464,11 +471,15 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     public <TReq extends SpecificRecord, TResp extends SpecificRecord> TResp invoke(String operation, TReq request,
                                                                                     Class<TResp> responseClass)
             throws ServiceException, HttpWebException, IOException {
-        return invokeInternal(operation, request, responseClass);
+        Span span = null;
+        if (_tracer.isTracing()) {
+            span = _tracer.startSpan(operation, getClass().getSimpleName(), SpanType.WEB_SERVICE);
+        }
+        return invokeInternal(operation, request, responseClass, span);
     }
 
     private <TReq extends SpecificRecord, TResp extends SpecificRecord> TResp invokeInternal(String operationName, TReq request,
-                                                                                             Class<TResp> responseClass)
+                                                                                             Class<TResp> responseClass, Span span)
             throws ServiceException, HttpWebException, IOException {
 
         long startTime = System.currentTimeMillis();
@@ -476,7 +487,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         CloseableHttpResponse httpResponse = null;
         try {
             ContentFormatter formatter = _contentFormatters.get(_format);
-            HttpPost httpPost = prepareWebRequest(operationName, request, formatter);
+            HttpPost httpPost = prepareWebRequest(operationName, request, formatter, span);
             httpResponse = _client.get().execute(httpPost);
 
             applyHttpResponseFilters(httpResponse);
@@ -523,6 +534,10 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                 } catch (IOException ioe) {
                 }
             }
+            if (span != null)
+            {
+                span.stop();
+            }
             _statsStore.getStats(operationName).addRequestCost(System.currentTimeMillis() - startTime);
         }
     }
@@ -541,7 +556,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     }
 
     private <TReq extends SpecificRecord> HttpPost prepareWebRequest(String operationName, TReq request,
-                                                                     ContentFormatter contentFormatter)
+                                                                     ContentFormatter contentFormatter, Span span)
             throws IOException {
         RequestConfig config = RequestConfig.custom()
                 .setConnectTimeout(_connectTimeOut)
@@ -554,11 +569,15 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         HttpPost httpPost = new HttpPost(requestUri);
         httpPost.setConfig(config);
 
+        if (span != null) {
+            httpPost.addHeader(ServiceCommons.TRACE_ID_HTTP_HEADER, String.valueOf(span.getTraceId()));
+            httpPost.addHeader(ServiceCommons.SPAN_ID_HTTP_HEADER, String.valueOf(span.getSpanId()));
+        }
         for (Map.Entry<String, String> header : _headers.entrySet()) {
             httpPost.addHeader(header.getKey(), header.getValue());
         }
         if (_clientConfig != null && _clientConfig.getAppId() != null) {
-            httpPost.addHeader(APP_ID_HTTP_HEADER, _clientConfig.getAppId());
+            httpPost.addHeader(ServiceCommons.APP_ID_HTTP_HEADER, _clientConfig.getAppId());
         }
 
         applyHttpRequestFilters(httpPost);
