@@ -150,8 +150,12 @@ public class SpecificFastJsonWriter<T> {
         return map.entrySet();
     }
 
-    // TODO: MAYBE CHECK THE UNION SIZE???
     private void writeUnion(UnionSchema schema, Object datum, JSONWriter writer) {
+        if (schema.size() != 2) {
+            // default do nothing if schema size is not 2
+            return;
+        }
+
         for (Schema childSchema : schema.getSchemas()) {
             if (childSchema.getType() == SchemaType.NULL)
                 continue;
