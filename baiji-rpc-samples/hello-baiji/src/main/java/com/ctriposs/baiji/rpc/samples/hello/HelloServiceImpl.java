@@ -9,7 +9,6 @@ public class HelloServiceImpl implements HelloService {
         if (request == null || request.name == null || request.name.isEmpty()) {
             throw new IllegalArgumentException("Missing name parameter");
         }
-        Thread.sleep(11000);
         return new HelloResponseType(null, "Hello " + request.name);
     }
 
