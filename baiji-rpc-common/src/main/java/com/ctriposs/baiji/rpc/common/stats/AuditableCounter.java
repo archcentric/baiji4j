@@ -38,7 +38,7 @@ public class AuditableCounter {
         long min = Long.MAX_VALUE;
         long max = Long.MIN_VALUE;
 
-        if (count == 0) {
+        if (count != 0) {
             for (int i = 0; i < count; ++i) {
                 long value = _values[i];
                 sum += value;

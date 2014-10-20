@@ -11,6 +11,7 @@ import com.ctriposs.baiji.rpc.server.HttpRequestWrapper;
 import com.ctriposs.baiji.rpc.server.HttpResponseWrapper;
 import com.ctriposs.baiji.rpc.server.ServiceHost;
 import com.ctriposs.baiji.specific.SpecificRecord;
+import com.google.common.io.CountingOutputStream;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 
@@ -52,8 +53,11 @@ public final class ResponseUtil {
         }
 
         // Serialization
+        CountingOutputStream countingOutputStream = new CountingOutputStream(outputStream);
         ContentFormatter formatter = getContentFormatter(request, host);
-        formatter.serialize(outputStream, responseObject);
+        formatter.serialize(countingOutputStream, responseObject);
+
+        response.getExecutionResult().setResponseSize(countingOutputStream.getCount());
 
         String encoding = formatter.getEncoding();
         String contentType = formatter.getContentType() + ((encoding == null) ? "" : "; charset=" + encoding);

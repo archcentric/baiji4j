@@ -4,14 +4,21 @@ import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.rpc.common.BaijiContract;
 import com.ctriposs.baiji.rpc.common.logging.Logger;
 import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
+import com.ctriposs.baiji.rpc.common.util.DaemonThreadFactory;
 import com.ctriposs.baiji.rpc.server.handler.NotFoundRequestHandler;
 import com.ctriposs.baiji.rpc.server.handler.RedirectRequestHandler;
 import com.ctriposs.baiji.rpc.server.handler.RequestHandler;
 import com.ctriposs.baiji.rpc.server.plugin.Plugin;
+import com.ctriposs.baiji.rpc.server.stats.ServiceStats;
+import com.ctriposs.baiji.rpc.server.stats.StatsReportJob;
+import com.ctriposs.baiji.util.VersionUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by yqdong on 2014/9/18.
@@ -20,10 +27,20 @@ public class BaijiServiceHost implements ServiceHost {
 
     private static final Logger _logger = LoggerFactory.getLogger(BaijiServiceHost.class);
 
+    private static final int DEFAULT_STATS_REPORTING_INTERVAL = 30 * 1000;
+    private static final String _frameworkVersion;
+
+    private final ServiceStats _serviceStats;
     private final HostConfig _config;
     private final ServiceMetadata _serviceMetadata;
     private final RequestHandler _redirectMetadataHandler;
     private final RequestHandler _fallBackHandler;
+    private final ScheduledExecutorService _statsReportService
+            = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
+
+    static {
+        _frameworkVersion = VersionUtils.getPackageVersion(BaijiServiceHost.class);
+    }
 
     public BaijiServiceHost(Class<?> serviceClass) {
         this(new HostConfig(), serviceClass);
@@ -35,6 +52,7 @@ public class BaijiServiceHost implements ServiceHost {
         }
 
         _serviceMetadata = buildServiceMetadata(serviceClass);
+        _serviceStats = new ServiceStats(_serviceMetadata);
         _config = config;
 
         _redirectMetadataHandler = new RedirectRequestHandler("~/metadata", true);
@@ -42,6 +60,9 @@ public class BaijiServiceHost implements ServiceHost {
 
         validateConfig();
         initializePlugins();
+
+        _statsReportService.scheduleAtFixedRate(new StatsReportJob(_frameworkVersion, _serviceStats),
+                DEFAULT_STATS_REPORTING_INTERVAL, DEFAULT_STATS_REPORTING_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -55,11 +76,17 @@ public class BaijiServiceHost implements ServiceHost {
     }
 
     @Override
+    public ServiceStats getServiceStats() {
+        return _serviceStats;
+    }
+
+    @Override
     public void processRequest(HttpRequestWrapper request, HttpResponseWrapper response) {
         String requestPath = request.requestPath();
         try {
             if (requestPath == null || requestPath.isEmpty() || requestPath.equals("/")) {
-                _redirectMetadataHandler.handle(this, request,response);;
+                _redirectMetadataHandler.handle(this, request, response);
+                ;
                 return;
             }
 
@@ -111,7 +138,7 @@ public class BaijiServiceHost implements ServiceHost {
         metaData.setCodeGeneratorVersion(contractAnnoataion.codeGeneratorVersion());
 
         // Cache all operation methods
-        for (Method intfMethod: serviceInterface.getMethods()) {
+        for (Method intfMethod : serviceInterface.getMethods()) {
             String name = intfMethod.getName();
 
             // Check to duplicates

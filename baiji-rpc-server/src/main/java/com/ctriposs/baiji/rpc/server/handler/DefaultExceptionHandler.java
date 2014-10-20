@@ -6,6 +6,7 @@ import com.ctriposs.baiji.rpc.server.HttpRequestWrapper;
 import com.ctriposs.baiji.rpc.server.HttpResponseWrapper;
 import com.ctriposs.baiji.rpc.server.OperationHandler;
 import com.ctriposs.baiji.rpc.server.ServiceHost;
+import com.ctriposs.baiji.rpc.server.stats.OperationStats;
 import com.ctriposs.baiji.rpc.server.util.ErrorUtil;
 import com.ctriposs.baiji.rpc.server.util.ResponseUtil;
 import com.ctriposs.baiji.specific.SpecificRecord;
@@ -24,18 +25,30 @@ public class DefaultExceptionHandler implements ExceptionHandler {
     public void handle(ServiceHost host, HttpRequestWrapper request, HttpResponseWrapper response, Exception ex) {
         OperationHandler operationHandler = request.operationHandler();
         if (operationHandler != null) {
+            OperationStats stats = host.getServiceStats().getOperationStats(request.operationName());
+
             Throwable actualEx;
             if (ex instanceof InvocationTargetException) {
-                actualEx = ((InvocationTargetException)ex).getTargetException();
+                actualEx = ((InvocationTargetException) ex).getTargetException();
             } else {
                 actualEx = ex;
             }
-            String errMsg = actualEx.getClass().getName() + " - " + actualEx.getMessage();
+            String errorCode = actualEx.getClass().getSimpleName();
+            String errMsg = actualEx.getMessage();
             _logger.error(errMsg, actualEx);
             try {
-                SpecificRecord errorResponse = ErrorUtil.buildFrameworkErrorResponse(
-                        operationHandler.getResponseType(), "RequestException", errMsg, actualEx, host);
+                SpecificRecord errorResponse;
+                if (response.getExecutionResult().serviceExceptionThrown()) {
+                    errorResponse = ErrorUtil.buildServiceErrorResponse(
+                            operationHandler.getResponseType(), errorCode, errMsg, actualEx, host);
+                    stats.markServiceException();
+                } else {
+                    errorResponse = ErrorUtil.buildFrameworkErrorResponse(
+                            operationHandler.getResponseType(), errorCode, errMsg, actualEx, host);
+                    stats.markFrameworkException();
+                }
                 ResponseUtil.writeResponse(request, response, errorResponse, host);
+                stats.addResponseSize(response.getExecutionResult().responseSize());
             } catch (Exception e) {
                 _logger.error("Internal server error", e);
                 ResponseUtil.writeHttpStatusResponse(response, HttpStatus.SC_INTERNAL_SERVER_ERROR);

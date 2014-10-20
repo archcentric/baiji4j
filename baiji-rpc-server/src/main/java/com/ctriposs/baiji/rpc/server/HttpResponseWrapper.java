@@ -9,6 +9,8 @@ public interface HttpResponseWrapper {
 
     void setStatus(int status);
 
+    ExecutionResult getExecutionResult();
+
     OutputStream getResponseStream() throws IOException;
 
     void sendResponse();

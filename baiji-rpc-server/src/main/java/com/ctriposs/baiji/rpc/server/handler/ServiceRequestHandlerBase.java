@@ -6,10 +6,13 @@ import com.ctriposs.baiji.rpc.server.*;
 import com.ctriposs.baiji.rpc.server.filter.PreRequestFilter;
 import com.ctriposs.baiji.rpc.server.filter.RequestFilter;
 import com.ctriposs.baiji.rpc.server.filter.ResponseFilter;
+import com.ctriposs.baiji.rpc.server.stats.OperationStats;
+import com.ctriposs.baiji.rpc.server.stats.ServiceStats;
 import com.ctriposs.baiji.rpc.server.util.ErrorUtil;
 import com.ctriposs.baiji.rpc.server.util.RequestUtil;
 import com.ctriposs.baiji.rpc.server.util.ResponseUtil;
 import com.ctriposs.baiji.specific.SpecificRecord;
+import com.sun.corba.se.spi.orb.Operation;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.http.HttpStatus;
 
@@ -47,62 +50,89 @@ public abstract class ServiceRequestHandlerBase implements RequestHandler {
             return; // Nothing more to do
         }
 
+        ServiceStats serviceStats = host.getServiceStats();
+        String operationName = request.operationName();
+        serviceStats.getOperationStats(operationName).markRequest();
+
         request.setOperationHandler(handler);
 
-        if (applyPreRequestFilters(host, handler, request, response)) {
-            return;
-        }
-
-        SpecificRecord requestObject;
-        // ParameterBinding or Deserialization
-        if ("GET".equalsIgnoreCase(request.httpMethod())) { // REST call, for testing only
-            requestObject = handler.getEmptyRequestInstance();
-            // Request parameters binding
-            Map<String, String> requestQueryMap = request.queryMap();
-            if (requestQueryMap != null && requestQueryMap.size() > 0) {
-                BeanUtils.populate(requestObject, requestQueryMap);
+        long requestStarts = System.currentTimeMillis(), requestEnds = 0;
+        long operationStarts = 0, operationEnds = 0;
+        try {
+            if (applyPreRequestFilters(host, handler, request, response)) {
+                return;
             }
-        } else if ("POST".equalsIgnoreCase(request.httpMethod())) { // RPC call
-            requestObject = RequestUtil.getRequestObj(request, handler.getRequestType(), host);
-        } else { // for Baiji RPC, only GET & POST are allowed
-            ResponseUtil.writeHttpStatusResponse(response, HttpStatus.SC_METHOD_NOT_ALLOWED);
-            return; // Nothing more to do
+
+            SpecificRecord requestObject;
+            // ParameterBinding or Deserialization
+            if ("GET".equalsIgnoreCase(request.httpMethod())) { // REST call, for testing only
+                requestObject = handler.getEmptyRequestInstance();
+                // Request parameters binding
+                Map<String, String> requestQueryMap = request.queryMap();
+                if (requestQueryMap != null && requestQueryMap.size() > 0) {
+                    BeanUtils.populate(requestObject, requestQueryMap);
+                }
+            } else if ("POST".equalsIgnoreCase(request.httpMethod())) { // RPC call
+                requestObject = RequestUtil.getRequestObj(request, handler.getRequestType(), host);
+            } else { // for Baiji RPC, only GET & POST are allowed
+                ResponseUtil.writeHttpStatusResponse(response, HttpStatus.SC_METHOD_NOT_ALLOWED);
+                return; // Nothing more to do
+            }
+
+            if (requestObject == null) { // defensive programming
+                String errMsg = "Unable to bind request with request object of type " + handler.getRequestType();
+                _logger.error(errMsg);
+                SpecificRecord errorResponse = ErrorUtil.buildFrameworkErrorResponse(handler.getResponseType(),
+                        "NoRequestObject", errMsg, null, host);
+                ResponseUtil.writeResponse(request, response, errorResponse, host);
+                return; // Nothing more to do
+            }
+
+            request.setRequestObject(requestObject);
+
+            if (applyRequestFilters(host, handler, request, response)) {
+                return;
+            }
+
+            // Invocation
+            OperationContext operationContext = new OperationContext(request, requestObject);
+
+            operationStarts = System.currentTimeMillis();
+            SpecificRecord responseObject;
+            try {
+                responseObject = handler.invoke(operationContext, host.getConfig().newServiceInstancePerRequest);
+            } catch (Exception ex) {
+                response.getExecutionResult().setServiceExceptionThrown(true);
+                throw ex;
+            } finally {
+                operationEnds = System.currentTimeMillis();
+            }
+
+            if (responseObject == null) { // defensive programming
+                String errMsg = "Fail to get response object when invoking the service";
+                _logger.error(errMsg);
+                SpecificRecord errorResponse = ErrorUtil.buildServiceErrorResponse(handler.getResponseType(),
+                        "NoResponseObject", errMsg, null, host);
+                ResponseUtil.writeResponse(request, response, errorResponse, host);
+                return; // Nothing more to do
+            }
+
+            if (applyResponseFilters(host, handler, request, response, responseObject)) {
+                return;
+            }
+
+            ResponseUtil.writeResponse(request, response, responseObject, host);
+            OperationStats stats = serviceStats.getOperationStats(operationName);
+            stats.markSuccess();
+            stats.addResponseSize(response.getExecutionResult().responseSize());
+        } finally {
+            requestEnds = System.currentTimeMillis();
+            OperationStats stats = serviceStats.getOperationStats(operationName);
+            stats.addRequestCost(requestEnds - requestStarts);
+            if (operationStarts != 0 && operationEnds != 0) {
+                stats.addOperationCost(operationEnds - operationStarts);
+            }
         }
-
-        if (requestObject == null) { // defensive programming
-            String errMsg = "Unable to bind request with request object of type " + handler.getRequestType();
-            _logger.error(errMsg);
-            SpecificRecord errorResponse = ErrorUtil.buildFrameworkErrorResponse(handler.getResponseType(),
-                    "NoRequestObject", errMsg, null, host);
-            ResponseUtil.writeResponse(request, response, errorResponse, host);
-            return; // Nothing more to do
-        }
-
-        request.setRequestObject(requestObject);
-
-        if (applyRequestFilters(host, handler, request, response)) {
-            return;
-        }
-
-        // Invocation
-        OperationContext operationContext = new OperationContext(request, requestObject);
-
-        SpecificRecord responseObject = handler.invoke(operationContext, host.getConfig().newServiceInstancePerRequest);
-
-        if (responseObject == null) { // defensive programming
-            String errMsg = "Fail to get response object when invoking the service";
-            _logger.error(errMsg);
-            SpecificRecord errorResponse = ErrorUtil.buildFrameworkErrorResponse(handler.getResponseType(),
-                    "NoResponseObject", errMsg, null, host);
-            ResponseUtil.writeResponse(request, response, errorResponse, host);
-            return; // Nothing more to do
-        }
-
-        if (applyResponseFilters(host, handler, request, response, responseObject)) {
-            return;
-        }
-
-        ResponseUtil.writeResponse(request, response, responseObject, host);
     }
 
     /**

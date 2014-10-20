@@ -17,13 +17,24 @@ public final class ErrorUtil {
     private ErrorUtil() {
     }
 
+    public static SpecificRecord buildServiceErrorResponse(Class<?> responseClass, String errorCode, String message,
+                                                           Throwable t, ServiceHost host) throws Exception {
+        return buildErrorResponse(responseClass, ErrorClassificationCodeType.SERVICE_ERROR, errorCode, message, t, host);
+    }
+
     public static SpecificRecord buildFrameworkErrorResponse(Class<?> responseClass, String errorCode, String message,
-                                                    ServiceHost host) throws Exception {
+                                                             ServiceHost host) throws Exception {
         return buildFrameworkErrorResponse(responseClass, errorCode, message, null, host);
     }
 
     public static SpecificRecord buildFrameworkErrorResponse(Class<?> responseClass, String errorCode, String message,
                                                              Throwable t, ServiceHost host) throws Exception {
+        return buildErrorResponse(responseClass, ErrorClassificationCodeType.FRAMEWORK_ERROR, errorCode, message, t, host);
+    }
+
+    private static SpecificRecord buildErrorResponse(Class<?> responseClass, ErrorClassificationCodeType errorClassification,
+                                                     String errorCode, String message, Throwable t, ServiceHost host)
+            throws Exception {
         HasResponseStatus responseObj = (HasResponseStatus) responseClass.newInstance();
 
         ResponseStatusType responseStatus = new ResponseStatusType();
@@ -32,7 +43,7 @@ public final class ErrorUtil {
 
         ErrorDataType errorData = new ErrorDataType();
         errorData.errorCode = errorCode;
-        errorData.errorClassification = ErrorClassificationCodeType.FRAMEWORK_ERROR;
+        errorData.errorClassification = errorClassification;
         errorData.message = message;
         errorData.severityCode = SeverityCodeType.ERROR;
         if (t != null && (host.getConfig().debugMode || host.getConfig().outputExceptionStackTrace)) {
