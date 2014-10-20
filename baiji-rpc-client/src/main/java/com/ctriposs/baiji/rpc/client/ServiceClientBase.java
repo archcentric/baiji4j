@@ -53,7 +53,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private static final int MAX_INIT_REG_SYNC_ATTEMPTS = 3;
     private static final int INIT_REG_SYNC_INTERVAL = 5 * 1000; // 5 seconds
     private static final int DEFAULT_REG_SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
-    private static final int DEFAULT_STATS_REPORTING_INTERVAL = 5 * 1000;
+    private static final int DEFAULT_STATS_REPORTING_INTERVAL = 30 * 1000; // 30 seconds
     private static final String APP_ID_HTTP_HEADER = "Baiji-Client-AppId";
 
     protected static final String ORIGINAL_SERVICE_NAME_FIELD_NAME = "ORIGINAL_SERVICE_NAME";
@@ -471,10 +471,8 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                                                                                              Class<TResp> responseClass)
             throws ServiceException, HttpWebException, IOException {
 
-        InvocationStats stats = _statsStore.getStats(operationName);
-
         long startTime = System.currentTimeMillis();
-        stats.markInvocation();
+        _statsStore.getStats(operationName).markInvocation();
         CloseableHttpResponse httpResponse = null;
         try {
             ContentFormatter formatter = _contentFormatters.get(_format);
@@ -486,26 +484,28 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
             checkHttpResponseStatus(httpResponse);
 
             int contentLength = getContentLength(httpResponse);
-            stats.addResponseSize(contentLength);
+            _statsStore.getStats(operationName).addResponseSize(contentLength);
 
             TResp response = formatter.deserialize(responseClass, httpResponse.getEntity().getContent());
             if (response instanceof HasResponseStatus) {
                 checkResponseStatus((HasResponseStatus) response);
             }
-            stats.markSuccess();
+            _statsStore.getStats(operationName).markSuccess();
             return response;
         } catch (ServiceException ex) {
             Map<String, String> addtionalInfo = new HashMap<String, String>();
             addtionalInfo.put("Operation", operationName);
             _logger.error(getLogTitle("ServiceException"), ex, addtionalInfo);
 
-            stats.markFailure();
+            InvocationStats stats = _statsStore.getStats(operationName);
             stats.markException(ex);
+            stats.markFailure();
 
             throw ex;
         } catch (Exception ex) {
             logGeneralException(operationName, ex);
 
+            InvocationStats stats = _statsStore.getStats(operationName);
             stats.markException(ex);
             stats.markFailure();
 
@@ -523,7 +523,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                 } catch (IOException ioe) {
                 }
             }
-            stats.addRequestCost(System.currentTimeMillis() - startTime);
+            _statsStore.getStats(operationName).addRequestCost(System.currentTimeMillis() - startTime);
         }
     }
 
