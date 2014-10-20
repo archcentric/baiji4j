@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public interface HttpRequestWrapper {
 
@@ -19,9 +20,9 @@ public interface HttpRequestWrapper {
     public InputStream requestBody() throws IOException;
 
     /**
-     * A map of all request headers.
+     * A map of all request header names.
      */
-    public Map<String, String> requestHeaders();
+    public Set<String> requestHeaderNames();
 
     /**
      * Get the value of an HTTP header.

@@ -7,7 +7,7 @@ import java.io.OutputStream;
 public class HttpServletResponseWrapper implements HttpResponseWrapper {
 
     private final HttpServletResponse _response;
-
+    private final ExecutionResult _result = new ExecutionResult();
     private boolean _responseSent;
 
     public HttpServletResponseWrapper(HttpServletResponse response) {
@@ -22,6 +22,11 @@ public class HttpServletResponseWrapper implements HttpResponseWrapper {
     @Override
     public void setStatus(int status) {
         _response.setStatus(status);
+    }
+
+    @Override
+    public ExecutionResult getExecutionResult() {
+        return _result;
     }
 
     @Override

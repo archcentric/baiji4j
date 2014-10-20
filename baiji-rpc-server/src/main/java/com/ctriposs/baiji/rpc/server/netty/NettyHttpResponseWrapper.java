@@ -1,5 +1,6 @@
 package com.ctriposs.baiji.rpc.server.netty;
 
+import com.ctriposs.baiji.rpc.server.ExecutionResult;
 import com.ctriposs.baiji.rpc.server.HttpResponseWrapper;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -20,6 +21,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
 
 class NettyHttpResponseWrapper implements HttpResponseWrapper {
 
+    private final ExecutionResult _result = new ExecutionResult();
     private final ChannelHandlerContext _context;
     private final FullHttpRequest _request;
     private final Map<String, String> _headers = new HashMap<String, String>();
@@ -43,6 +45,11 @@ class NettyHttpResponseWrapper implements HttpResponseWrapper {
     public void setStatus(int status) {
         Preconditions.checkState(!_responseSent, "HTTP status can't be updated after response is sent.");
         _status = status;
+    }
+
+    @Override
+    public ExecutionResult getExecutionResult() {
+        return _result;
     }
 
     @Override

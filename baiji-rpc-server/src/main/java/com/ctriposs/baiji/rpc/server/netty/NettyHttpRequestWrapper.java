@@ -12,8 +12,9 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by yqdong on 2014/9/19.
@@ -24,7 +25,7 @@ public class NettyHttpRequestWrapper extends HttpRequestWrapperBase {
     private final FullHttpRequest _request;
     private final URI _requestUri;
     private InputStream _requestBody;
-    private Map<String, String> _requestHeaders;
+    private Set<String> _requestHeaderNames;
     private String _directClientIp;
 
     public NettyHttpRequestWrapper(ChannelHandlerContext channelHandlerContext, FullHttpRequest request) {
@@ -46,15 +47,20 @@ public class NettyHttpRequestWrapper extends HttpRequestWrapperBase {
     }
 
     @Override
-    public Map<String, String> requestHeaders() {
-        if (_requestHeaders == null) {
-            Map<String, String> requestHeaders = new HashMap<>();
+    public Set<String> requestHeaderNames() {
+        if (_requestHeaderNames == null) {
+            Set<String> requestHeaderNames = new HashSet<>();
             for (Map.Entry<String, String> headerEntry : _request.headers()) {
-                requestHeaders.put(headerEntry.getKey().toLowerCase(), headerEntry.getValue());
+                requestHeaderNames.add(headerEntry.getKey());
             }
-            _requestHeaders = requestHeaders;
+            _requestHeaderNames = requestHeaderNames;
         }
-        return _requestHeaders;
+        return _requestHeaderNames;
+    }
+
+    @Override
+    public String getHeader(String key) {
+        return key != null ? _request.headers().get(key) : null;
     }
 
     @Override

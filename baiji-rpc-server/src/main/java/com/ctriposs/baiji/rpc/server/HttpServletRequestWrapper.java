@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by yqdong on 2014/9/19.
@@ -18,7 +16,7 @@ public class HttpServletRequestWrapper extends HttpRequestWrapperBase {
 
     private final HttpServletRequest _request;
     private final URI _requestUri;
-    private Map<String, String> _requestHeaders;
+    private Set<String> _requestHeaderNames;
 
     public HttpServletRequestWrapper(HttpServletRequest request) {
         _request = request;
@@ -35,19 +33,24 @@ public class HttpServletRequestWrapper extends HttpRequestWrapperBase {
     }
 
     @Override
-    public Map<String, String> requestHeaders() {
-        if (_requestHeaders == null) {
-            Map<String, String> requestHeaders = new HashMap<>();
+    public Set<String> requestHeaderNames() {
+        if (_requestHeaderNames == null) {
+            Set<String> requestHeaderNames = new HashSet<>();
             Enumeration<String> headerNames = _request.getHeaderNames();
             if (headerNames != null) {
                 while (headerNames.hasMoreElements()) {
                     String headerName = headerNames.nextElement();
-                    requestHeaders.put(headerName.toLowerCase(), _request.getHeader(headerName));
+                    requestHeaderNames.add(headerName);
                 }
             }
-            _requestHeaders = requestHeaders;
+            _requestHeaderNames = requestHeaderNames;
         }
-        return _requestHeaders;
+        return _requestHeaderNames;
+    }
+
+    @Override
+    public String getHeader(String key) {
+        return key != null ? _request.getHeader(key) : null;
     }
 
     @Override

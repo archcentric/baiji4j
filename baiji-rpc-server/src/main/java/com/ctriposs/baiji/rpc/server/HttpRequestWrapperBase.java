@@ -27,8 +27,8 @@ public abstract class HttpRequestWrapperBase implements HttpRequestWrapper {
     @Override
     public String clientIp() {
         if (_clientIp == null) {
-            String xForwardFor = requestHeaders().get(HttpHeaders.X_FORWARDED_FOR);
-            String xRealIp =requestHeaders().get("X-Real-IP");
+            String xForwardFor = getHeader(HttpHeaders.X_FORWARDED_FOR);
+            String xRealIp = getHeader("X-Real-IP");
             if (xForwardFor != null) {
                 _clientIp = xForwardFor;
             } else if (xRealIp != null) {
@@ -45,10 +45,6 @@ public abstract class HttpRequestWrapperBase implements HttpRequestWrapper {
      * @return
      */
     protected abstract String directClientIp();
-
-    public String getHeader(String key) {
-        return key != null ? requestHeaders().get(key.toLowerCase()) : null;
-    }
 
     @Override
     public String operationName() {

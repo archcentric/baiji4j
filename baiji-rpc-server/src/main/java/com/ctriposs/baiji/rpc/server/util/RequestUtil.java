@@ -19,7 +19,7 @@ public final class RequestUtil {
     public static <T extends SpecificRecord> T getRequestObj(HttpRequestWrapper request,
                                                              Class<T> requestType,
                                                              ServiceHost host) {
-        String requestContentType = request.requestHeaders().get(HttpHeaders.CONTENT_TYPE);
+        String requestContentType = request.getHeader(HttpHeaders.CONTENT_TYPE);
         if (requestContentType == null || requestContentType.isEmpty()) {
             requestContentType = request.responseContentType();
         }
