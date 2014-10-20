@@ -1,7 +1,12 @@
 package com.ctriposs.baiji.rpc.server.handler;
 
+import com.ctriposs.baiji.rpc.common.ServiceCommons;
 import com.ctriposs.baiji.rpc.common.logging.Logger;
 import com.ctriposs.baiji.rpc.common.logging.LoggerFactory;
+import com.ctriposs.baiji.rpc.common.tracing.Span;
+import com.ctriposs.baiji.rpc.common.tracing.SpanType;
+import com.ctriposs.baiji.rpc.common.tracing.Tracer;
+import com.ctriposs.baiji.rpc.common.tracing.TracerFactory;
 import com.ctriposs.baiji.rpc.server.*;
 import com.ctriposs.baiji.rpc.server.filter.PreRequestFilter;
 import com.ctriposs.baiji.rpc.server.filter.RequestFilter;
@@ -12,7 +17,6 @@ import com.ctriposs.baiji.rpc.server.util.ErrorUtil;
 import com.ctriposs.baiji.rpc.server.util.RequestUtil;
 import com.ctriposs.baiji.rpc.server.util.ResponseUtil;
 import com.ctriposs.baiji.specific.SpecificRecord;
-import com.sun.corba.se.spi.orb.Operation;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.http.HttpStatus;
 
@@ -25,9 +29,11 @@ import java.util.Map;
 public abstract class ServiceRequestHandlerBase implements RequestHandler {
 
     protected final Logger _logger;
+    protected final Tracer _tracer;
 
     protected ServiceRequestHandlerBase() {
         _logger = LoggerFactory.getLogger(getClass());
+        _tracer = TracerFactory.getTracer(getClass());
     }
 
     /**
@@ -48,6 +54,21 @@ public abstract class ServiceRequestHandlerBase implements RequestHandler {
         OperationHandler handler = host.getServiceMetaData().getOperationHandler(request.operationName());
         if (handler == null) {
             return; // Nothing more to do
+        }
+
+        Span span = null;
+        // Continue tracing if traceId & spanId are provided in request header
+        String traceIdString = request.getHeader(ServiceCommons.TRACE_ID_HTTP_HEADER);
+        String spanIdString = request.getHeader(ServiceCommons.SPAN_ID_HTTP_HEADER);
+        if (traceIdString != null && spanIdString != null) {
+            try {
+                long traceId = Long.parseLong(traceIdString);
+                long spanId = Long.parseLong(spanIdString);
+                _tracer.continueSpan(request.operationName(), host.getServiceMetaData().getServiceName(),
+                        traceId, spanId, SpanType.WEB_SERVICE);
+            } catch (Exception ex) {
+                // No tracing
+            }
         }
 
         ServiceStats serviceStats = host.getServiceStats();
@@ -126,6 +147,9 @@ public abstract class ServiceRequestHandlerBase implements RequestHandler {
             stats.markSuccess();
             stats.addResponseSize(response.getExecutionResult().responseSize());
         } finally {
+            if (span != null) {
+                span.stop();
+            }
             requestEnds = System.currentTimeMillis();
             OperationStats stats = serviceStats.getOperationStats(operationName);
             stats.addRequestCost(requestEnds - requestStarts);
