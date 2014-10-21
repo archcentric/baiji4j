@@ -3,6 +3,7 @@ package com.ctriposs.baiji.specific;
 import com.alibaba.fastjson.JSONWriter;
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.schema.*;
+import com.ctriposs.baiji.util.Base64;
 
 import java.io.*;
 import java.util.Calendar;
@@ -106,11 +107,12 @@ public class SpecificFastJsonWriter<T> {
 
     private void writeBytes(Object datum, JSONWriter writer) {
         byte[] bytes = (byte[]) datum;
-        writer.startArray();
+        /*writer.startArray();
         for (byte aByte : bytes) {
             writer.writeValue(aByte);
-        }
-        writer.endArray();
+        }*/
+        writer.writeValue(Base64.encode(bytes));
+        //writer.endArray();
     }
 
     private void writeEnum(EnumSchema schema, Enum en, JSONWriter writer) {

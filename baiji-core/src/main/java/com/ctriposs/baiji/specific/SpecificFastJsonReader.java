@@ -3,6 +3,7 @@ package com.ctriposs.baiji.specific;
 import com.alibaba.fastjson.JSONReader;
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.schema.*;
+import com.ctriposs.baiji.util.Base64;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 public class SpecificFastJsonReader<T> {
 
-    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+    //private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     private final Schema root;
 
@@ -126,13 +127,14 @@ public class SpecificFastJsonReader<T> {
     }
 
     private Object readBytes(JSONReader reader) {
-        List<Byte> byteList = new ArrayList<>();
+        return Base64.decode(reader.readString());
+        /*List<Byte> byteList = new ArrayList<>();
         reader.startArray();
         while (reader.hasNext()) {
             byteList.add(reader.readObject(Byte.class));
         }
         reader.endArray();
-        return toPrimitive(byteList.toArray(new Byte[0]));
+        return toPrimitive(byteList.toArray(new Byte[0]));*/
     }
 
     private Object readDateTime(JSONReader reader) {
@@ -287,7 +289,7 @@ public class SpecificFastJsonReader<T> {
         return result;
     }
 
-    private static byte[] toPrimitive(final Byte[] array) {
+    /*private static byte[] toPrimitive(final Byte[] array) {
         if (array == null) {
             return null;
         } else if (array.length == 0) {
@@ -300,5 +302,5 @@ public class SpecificFastJsonReader<T> {
         }
 
         return result;
-    }
+    }*/
 }
