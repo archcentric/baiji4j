@@ -48,8 +48,8 @@ public final class SpecificJsonWriter<T> {
 
     /** Called to write record.*/
     protected void writeRecord(RecordSchema recordSchema, Object datum, JsonGenerator generator) throws IOException {
-        generator.writeStartObject();
         List<Field> fields = recordSchema.getFields();
+        generator.writeStartObject();
         for (Field field : fields) {
             Object value = ((SpecificRecord) datum).get(field.getPos());
             if (value == null)
@@ -61,7 +61,7 @@ public final class SpecificJsonWriter<T> {
     }
 
     /** Called to write value.*/
-    protected void writeValue(Schema fieldSchema, Object datum, JsonGenerator generator) throws IOException {
+    private void writeValue(Schema fieldSchema, Object datum, JsonGenerator generator) throws IOException {
         try {
             switch (fieldSchema.getType()) {
                 case INT:
@@ -181,5 +181,66 @@ public final class SpecificJsonWriter<T> {
         NullPointerException result = new NullPointerException(e.getMessage()+s);
         result.initCause(e.getCause() == null ? e : e.getCause());
         return result;
+    }
+
+    private interface JsonWritable {
+        void write(Schema schema, Object datum, JsonGenerator g) throws Exception;
+    }
+
+    private class IntegerWriter implements JsonWritable {
+
+        @Override
+        public void write(Schema schema, Object datum, JsonGenerator g) throws Exception {
+            g.writeNumber((Integer) datum);
+        }
+    }
+
+    private class LongWriter implements JsonWritable {
+
+        @Override
+        public void write(Schema schema, Object datum, JsonGenerator g) throws Exception {
+            g.writeNumber((Long) datum);
+        }
+    }
+
+    private class DoubleWriter implements JsonWritable {
+
+        @Override
+        public void write(Schema schema, Object datum, JsonGenerator g) throws Exception {
+            g.writeNumber((Double) datum);
+        }
+    }
+
+    private class FloatWriter implements JsonWritable {
+
+        @Override
+        public void write(Schema schema, Object datum, JsonGenerator g) throws Exception {
+            g.writeNumber((Float) datum);
+        }
+    }
+
+    private class BooleanWriter implements JsonWritable {
+
+        @Override
+        public void write(Schema schema, Object datum, JsonGenerator g) throws Exception {
+            g.writeBoolean((Boolean) datum);
+        }
+    }
+
+    private class StringWriter implements JsonWritable {
+
+        @Override
+        public void write(Schema schema, Object datum, JsonGenerator g) throws Exception {
+            g.writeString(datum.toString());
+        }
+    }
+
+    private class BytesWriter implements JsonWritable {
+
+        @Override
+        public void write(Schema schema, Object datum, JsonGenerator g) throws Exception {
+            byte[] bytes = (byte[]) datum;
+            g.writeBinary(bytes);
+        }
     }
 }
