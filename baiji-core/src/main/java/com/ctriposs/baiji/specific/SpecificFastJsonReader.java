@@ -16,8 +16,6 @@ import java.util.Map;
 
 public class SpecificFastJsonReader<T> {
 
-    //private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-
     private final Schema root;
 
     public SpecificFastJsonReader(Schema schema) {
@@ -30,7 +28,7 @@ public class SpecificFastJsonReader<T> {
             RecordSchema recordSchema = (RecordSchema) root;
 
             try (JSONReader jsonReader = new JSONReader(new BufferedReader(new InputStreamReader(is)))) {
-                return (T) readRecord(recordSchema, null, new RecordReader(recordSchema), jsonReader);
+                return (T) readRecord(recordSchema, reuse, new RecordReader(recordSchema), jsonReader);
             } catch (Exception e) {
                 throw new BaijiRuntimeException(e);
             }
@@ -128,13 +126,6 @@ public class SpecificFastJsonReader<T> {
 
     private Object readBytes(JSONReader reader) {
         return Base64.decode(reader.readString());
-        /*List<Byte> byteList = new ArrayList<>();
-        reader.startArray();
-        while (reader.hasNext()) {
-            byteList.add(reader.readObject(Byte.class));
-        }
-        reader.endArray();
-        return toPrimitive(byteList.toArray(new Byte[0]));*/
     }
 
     private Object readDateTime(JSONReader reader) {
@@ -288,19 +279,4 @@ public class SpecificFastJsonReader<T> {
         result.initCause(e.getCause() == null ? e : e.getCause());
         return result;
     }
-
-    /*private static byte[] toPrimitive(final Byte[] array) {
-        if (array == null) {
-            return null;
-        } else if (array.length == 0) {
-            return EMPTY_BYTE_ARRAY;
-        }
-
-        final byte[] result = new byte[array.length];
-        for (int i = 0; i < array.length; i++) {
-            result[i] = array[i];
-        }
-
-        return result;
-    }*/
 }

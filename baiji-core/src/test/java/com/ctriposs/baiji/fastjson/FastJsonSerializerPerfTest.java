@@ -22,33 +22,33 @@ public class FastJsonSerializerPerfTest {
 
     @Test
     public void testDeserialize_10tiny() throws Exception {
-        testDeserialize("/t10records.json", 10, 1, "with tiny data");
+        testDeserialize("/t10records.json", 10, 100, "with tiny data");
     }
 
-    /*@Test
+    @Test
     public void testDeserialize_50tiny() throws Exception {
-        testDeserialize("/t50records.json", 50, 50, "with tiny data");
+        testDeserialize("/t50records.json", 50, 100, "with tiny data");
     }
 
     @Test
     public void testDeserialize_300tiny() throws Exception {
-        testDeserialize("/t300records.json", 300, 50, "with tiny data");
+        testDeserialize("/t300records.json", 300, 100, "with tiny data");
     }
 
     @Test
     public void testDeserialize_10big() throws Exception {
-        testDeserialize("/b10records.json", 10, 50, "with big data");
+        testDeserialize("/b10records.json", 10, 100, "with big data");
     }
 
     @Test
     public void testDeserialize_50big() throws Exception {
-        testDeserialize("/b50records.json", 50, 50, "with big data");
+        testDeserialize("/b50records.json", 50, 100, "with big data");
     }
 
     @Test
     public void testDeserialize_300big() throws Exception {
-        testDeserialize("/b300records.json", 300, 50, "with big data");
-    }*/
+        testDeserialize("/b300records.json", 300, 100, "with big data");
+    }
 
     protected void testDeserialize(String fileName, int size, int loop, String dataType) {
         List<Long> results = new ArrayList<Long>();
