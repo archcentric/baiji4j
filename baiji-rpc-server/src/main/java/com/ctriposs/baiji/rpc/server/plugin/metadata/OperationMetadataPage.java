@@ -60,7 +60,12 @@ public class OperationMetadataPage implements MetadataPage {
         page = page.replace("{ServiceNamespace}", metadata.getServiceNamespace());
         page = page.replace("{Baiji4jVersion}", VersionUtils.getPackageVersion(ServiceHost.class));
         page = page.replace("{CodeGenVersion}", metadata.getCodeGeneratorVersion());
-        page = page.replace("{ContextPath}", request.contextPath());
+        String contextPath = request.contextPath();
+        if (contextPath == null) {
+            contextPath = "";
+        }
+        page = page.replace("{ContextPath}",
+                contextPath.endsWith("/") ? contextPath.substring(0, contextPath.length() - 1) : contextPath);
         page = page.replace("{OperationName}", _operationName);
         page = page.replace("{OperationNameLower}", _operationName.toLowerCase());
         page = page.replace("{ExtLower}", _formatExt.toLowerCase());

@@ -26,6 +26,10 @@ public final class UrlUtil {
     public static String getAbsoluteUrl(String fullUrl, String requestPath,
                                         String relativeUrl)
             throws URISyntaxException {
+        int questionMarkIndex = fullUrl.indexOf('?');
+        if (questionMarkIndex != -1) {
+            fullUrl = fullUrl.substring(0, questionMarkIndex);
+        }
         URI fullUri = new URI(fullUrl);
         if (relativeUrl.startsWith("/")) {
             return fullUri.relativize(new URI(relativeUrl)).toString();
