@@ -1,9 +1,7 @@
 package com.ctriposs.baiji.specific;
 
-import java.util.*;
 import com.ctriposs.baiji.exception.*;
 import com.ctriposs.baiji.schema.*;
-import com.ctriposs.baiji.specific.*;
 import com.google.common.base.Objects;
 
 @SuppressWarnings("all")

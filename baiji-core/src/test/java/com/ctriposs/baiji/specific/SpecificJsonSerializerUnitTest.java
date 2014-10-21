@@ -22,7 +22,7 @@ public class SpecificJsonSerializerUnitTest {
         reader = new SpecificJsonReader<>(TestSerializerSample.SCHEMA);
     }
 
-    @Test
+    /*@Test
     public void testSerializeBoolean() throws Exception {
         singleFieldTest("boolean1", true);
     }
@@ -45,7 +45,7 @@ public class SpecificJsonSerializerUnitTest {
     @Test
     public void testSerializeString() throws Exception {
         singleFieldTest("string1", "好好学习");
-    }
+    }*/
 
     @Test
     public void testSerializeBytes() throws Exception {
@@ -53,7 +53,7 @@ public class SpecificJsonSerializerUnitTest {
         Assert.assertArrayEquals(sample.getBytes1(), "天天向上".getBytes());
     }
 
-    @Test
+    /*@Test
     public void testSerializeEnum() throws Exception {
         singleFieldTest("enum1", Enum1Values.RED);
     }
@@ -76,7 +76,7 @@ public class SpecificJsonSerializerUnitTest {
     public void testSerializeNullable() throws Exception {
         singleFieldTest("nullableint", null);
         singleFieldTest("nullableint", 1);
-    }
+    }*/
 
     private void singleFieldTest(String fieldName, Object fieldValue) throws IOException {
         TestSerializerSample sample = serializeAndDeserialize(fieldName, fieldValue);
