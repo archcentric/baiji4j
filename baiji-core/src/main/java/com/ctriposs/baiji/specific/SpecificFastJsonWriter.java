@@ -24,8 +24,7 @@ public class SpecificFastJsonWriter<T> {
             if (os != null) {
                 try {
                     RecordSchema recordSchema = (RecordSchema) schema;
-                    Writer writer = new BufferedWriter(new OutputStreamWriter(os));
-                    JSONWriter jsonWriter = new JSONWriter(writer);
+                    JSONWriter jsonWriter = new JSONWriter(new BufferedWriter(new OutputStreamWriter(os)));
                     writeRecord(recordSchema, obj, jsonWriter);
                     jsonWriter.close();
                 } catch (IOException e) {
@@ -40,8 +39,8 @@ public class SpecificFastJsonWriter<T> {
     }
 
     private void writeRecord(RecordSchema schema, Object datum, JSONWriter writer) {
-        writer.startObject();
         List<Field> fields = schema.getFields();
+        writer.startObject();
         for (Field field : fields) {
             Object value = ((SpecificRecord) datum).get(field.getPos());
             if (value == null)
@@ -107,12 +106,7 @@ public class SpecificFastJsonWriter<T> {
 
     private void writeBytes(Object datum, JSONWriter writer) {
         byte[] bytes = (byte[]) datum;
-        /*writer.startArray();
-        for (byte aByte : bytes) {
-            writer.writeValue(aByte);
-        }*/
         writer.writeValue(Base64.encode(bytes));
-        //writer.endArray();
     }
 
     private void writeEnum(EnumSchema schema, Enum en, JSONWriter writer) {

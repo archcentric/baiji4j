@@ -26,7 +26,7 @@ public class SpecificFastJsonReader<T> {
         if (root instanceof RecordSchema) {
             RecordSchema recordSchema = (RecordSchema) root;
 
-            try (JSONReader jsonReader = new JSONReader(new BufferedReader(new InputStreamReader(is)))) {
+            try (JSONReader jsonReader = new JSONReader(new InputStreamReader(is))) {
                 return (T) readRecord(recordSchema, reuse, new RecordReader(recordSchema), jsonReader);
             } catch (Exception e) {
                 throw new BaijiRuntimeException(e);
@@ -137,10 +137,11 @@ public class SpecificFastJsonReader<T> {
     private Object readMap(MapSchema schema, JSONReader reader) throws Exception {
         MapReader mapReader = new MapReader(schema);
         Map map = (Map) mapReader.read(null);
+        Schema valueSchema = schema.getValueSchema();
         reader.startObject();
         while (reader.hasNext()) {
             String key = reader.readString();
-            Object value = readValue(schema.getValueSchema(), reader);
+            Object value = readValue(valueSchema, reader);
             mapReader.add(map, key, value);
         }
         reader.endObject();

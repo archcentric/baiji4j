@@ -32,11 +32,11 @@ public class SingleTest {
             is.close();
         }*/
         long start = System.nanoTime();
-        for (int i = 0; i < 200000; i++) {
+        for (int i = 0; i < 2000000; i++) {
             jsonSerializer.serialize(benchmarkRecord, os);
         }
         long end = System.nanoTime();
         ((ByteArrayOutputStream) os).reset();
-        System.out.println((end - start)/(1000*200000));
+        System.out.println((end - start)/(2000000));
     }
 }
