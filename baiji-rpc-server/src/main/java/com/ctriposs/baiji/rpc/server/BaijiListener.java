@@ -108,7 +108,8 @@ public class BaijiListener implements ServletContextListener {
     private void registerService(ServletContext context) {
         initializeServiceRegistry(context);
 
-        if (_context == null) {
+        ServiceRegistry serviceRegistry;
+        if (_context == null || (serviceRegistry = _context.getServiceRegistry()) == null) {
             return;
         }
 
@@ -117,7 +118,7 @@ public class BaijiListener implements ServletContextListener {
                 .serviceNamespace(metadata.getServiceNamespace())
                 .port(_context.getPort()).contextPath(context.getContextPath())
                 .subEnv(_context.getSubEnv()).build();
-        _context.getServiceRegistry().addService(serviceInfo);
+        serviceRegistry.addService(serviceInfo);
     }
 
     private void initializeServiceRegistry(ServletContext context) {
