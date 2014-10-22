@@ -798,6 +798,11 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
         @Override
         public void run() {
+            if (_registryClient == null) {
+                _logger.fatal(getLogTitle("No service registry is configured."));
+                return;
+            }
+
             try {
                 List<InstanceInfo> instances = _registryClient.getServiceInstances(_serviceName, _serviceNamespace, _subEnv);
                 if (instances != null) {
