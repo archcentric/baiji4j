@@ -25,18 +25,20 @@ public class DefaultExceptionHandler implements ExceptionHandler {
     public void handle(ServiceHost host, HttpRequestWrapper request, HttpResponseWrapper response, Exception ex) {
         OperationHandler operationHandler = request.operationHandler();
         if (operationHandler != null) {
-            OperationStats stats = host.getServiceStats().getOperationStats(request.operationName());
-
-            Throwable actualEx;
-            if (ex instanceof InvocationTargetException) {
-                actualEx = ((InvocationTargetException) ex).getTargetException();
-            } else {
-                actualEx = ex;
-            }
-            String errorCode = actualEx.getClass().getSimpleName();
-            String errMsg = actualEx.getMessage();
-            _logger.error(errMsg, actualEx);
             try {
+                OperationStats stats = host.getServiceStats().getOperationStats(request.operationName());
+
+                Throwable actualEx;
+                if (ex instanceof InvocationTargetException) {
+                    actualEx = ((InvocationTargetException) ex).getTargetException();
+                } else {
+                    actualEx = ex;
+                }
+
+                String errorCode = actualEx.getClass().getSimpleName();
+                String errMsg = actualEx.getMessage() != null ? actualEx.getMessage() : actualEx.getClass().getName();
+                _logger.error(errMsg, actualEx);
+
                 SpecificRecord errorResponse;
                 if (response.getExecutionResult().serviceExceptionThrown()) {
                     errorResponse = ErrorUtil.buildServiceErrorResponse(

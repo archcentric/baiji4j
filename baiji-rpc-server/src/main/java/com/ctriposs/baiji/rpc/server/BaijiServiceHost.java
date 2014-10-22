@@ -86,7 +86,6 @@ public class BaijiServiceHost implements ServiceHost {
         try {
             if (requestPath == null || requestPath.isEmpty() || requestPath.equals("/")) {
                 _redirectMetadataHandler.handle(this, request, response);
-                ;
                 return;
             }
 

@@ -183,7 +183,7 @@ public class StatsReportJob implements Runnable {
 
             // Request counts
             long requestCount = stats.getRequestCount();
-            _statsLogger.log(STATS_NAME_REQUEST_COUNT, stats.getRequestCount());
+            _statsLogger.log(STATS_NAME_REQUEST_COUNT, stats.getRequestCount(), tagMap);
             long serviceExceptionCount = stats.getServiceExceptionCount();
             tagMap.put(STATS_TAG_DISTRIBUTION, "Service Exception");
             _statsLogger.log(STATS_NAME_ERROR_COUNT, serviceExceptionCount, tagMap);
