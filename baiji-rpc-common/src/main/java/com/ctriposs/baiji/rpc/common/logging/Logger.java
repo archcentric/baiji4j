@@ -262,4 +262,68 @@ public interface Logger {
      * @param attrs     kv pairs
      */
     void error(Throwable throwable, Map<String, String> attrs);
+
+    /**
+     * Write a log in fatal level.
+     *
+     * @param title   log title.
+     * @param message log message.
+     */
+    void fatal(String title, String message);
+
+    /**
+     * Write an exception log in fatal level.
+     *
+     * @param title     log title.
+     * @param throwable a Throwable instance.
+     */
+    void fatal(String title, Throwable throwable);
+
+    /**
+     * Write a log in fatal level with some extra attributes.
+     *
+     * @param title   log title
+     * @param message log message
+     * @param attrs   kv pairs
+     */
+    void fatal(String title, String message, Map<String, String> attrs);
+
+    /**
+     * Write an exception log in fatal level with some extra attributes.
+     *
+     * @param title     log title
+     * @param throwable a Throwable instance to log
+     * @param attrs     kv pairs
+     */
+    void fatal(String title, Throwable throwable, Map<String, String> attrs);
+
+    /**
+     * Write a log in fatal level.
+     *
+     * @param message log message.
+     */
+    void fatal(String message);
+
+    /**
+     * Write an exception log in fatal level.
+     *
+     * @param throwable a Throwable instance.
+     */
+    void fatal(Throwable throwable);
+
+    /**
+     * Write a log in fatal level with some extra attributes.
+     *
+     * @param message log message
+     * @param attrs   kv pairs
+     */
+    void fatal(String message, Map<String, String> attrs);
+
+    /**
+     * Write an exception log in fatal level with some extra attributes.
+     *
+     * @param throwable a Throwable instance
+     * @param attrs     kv pairs
+     */
+    void fatal(Throwable throwable, Map<String, String> attrs);
 }

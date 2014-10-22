@@ -179,6 +179,46 @@ public class Slf4jLogger implements Logger {
         _logger.error(getAttributeText(attrs), throwable);
     }
 
+    @Override
+    public void fatal(String title, String message) {
+        _logger.error(MSG_WITH_TITLE, title, message);
+    }
+
+    @Override
+    public void fatal(String title, Throwable throwable) {
+        _logger.error(title, throwable);
+    }
+
+    @Override
+    public void fatal(String title, String message, Map<String, String> attrs) {
+        _logger.error(MSG_WITH_TITLE_ATTRS, title, message, getAttributeText(attrs));
+    }
+
+    @Override
+    public void fatal(String title, Throwable throwable, Map<String, String> attrs) {
+        _logger.error(title + "\n" + getAttributeText(attrs), throwable);
+    }
+
+    @Override
+    public void fatal(String message) {
+        _logger.error(message);
+    }
+
+    @Override
+    public void fatal(Throwable throwable) {
+        _logger.error(throwable.getMessage(), throwable);
+    }
+
+    @Override
+    public void fatal(String message, Map<String, String> attrs) {
+        _logger.error(MSG_WITH_ATTRS, message, getAttributeText(attrs));
+    }
+
+    @Override
+    public void fatal(Throwable throwable, Map<String, String> attrs) {
+        _logger.error(getAttributeText(attrs), throwable);
+    }
+
     private String getAttributeText(Map<String, String> attrs) {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, String> entry : attrs.entrySet()) {

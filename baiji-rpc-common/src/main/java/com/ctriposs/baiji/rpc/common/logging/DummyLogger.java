@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * A dummy logger which does nothing when being called.
- *
+ * <p/>
  * Created by yqdong on 2014/9/26.
  */
 public class DummyLogger implements Logger {
@@ -136,5 +136,37 @@ public class DummyLogger implements Logger {
 
     @Override
     public void error(Throwable throwable, Map<String, String> attrs) {
+    }
+
+    @Override
+    public void fatal(String title, String message) {
+    }
+
+    @Override
+    public void fatal(String title, Throwable throwable) {
+    }
+
+    @Override
+    public void fatal(String title, String message, Map<String, String> attrs) {
+    }
+
+    @Override
+    public void fatal(String title, Throwable throwable, Map<String, String> attrs) {
+    }
+
+    @Override
+    public void fatal(String message) {
+    }
+
+    @Override
+    public void fatal(Throwable throwable) {
+    }
+
+    @Override
+    public void fatal(String message, Map<String, String> attrs) {
+    }
+
+    @Override
+    public void fatal(Throwable throwable, Map<String, String> attrs) {
     }
 }
