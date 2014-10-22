@@ -2,6 +2,7 @@ package com.ctriposs.baiji.specific;
 
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.schema.*;
+import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
@@ -16,6 +17,7 @@ import java.util.Map;
 
 public final class SpecificJsonReader<T> {
 
+    private static final JsonFactory FACTORY = new JsonFactory();
     private final Schema root;
     // ObjectMapper is thread safe
     private static final ObjectMapper MAPPER = new ObjectMapper();

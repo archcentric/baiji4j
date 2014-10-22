@@ -1,32 +1,40 @@
 package com.ctriposs.baiji.specific;
 
-import com.alibaba.fastjson.JSONReader;
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.schema.*;
-import com.ctriposs.baiji.util.Base64;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
 
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-public class SpecificFastJsonReader<T> {
+public class SpecificJsonStreamReader<T> {
 
+    private static final JsonFactory FACTORY = new JsonFactory();
     private final Schema root;
 
-    public SpecificFastJsonReader(Schema schema) {
-        this.root = schema;
+    public SpecificJsonStreamReader(Schema root) {
+        this.root = root;
     }
 
+    /**
+     * The only public interface
+     * @param reuse the reuse object
+     * @param is the input stream
+     * @return an object
+     */
     @SuppressWarnings("unchecked")
     public T read(T reuse, InputStream is) {
         if (root instanceof RecordSchema) {
-            RecordSchema recordSchema = (RecordSchema) root;
+            RecordSchema schema = (RecordSchema) root;
 
-            try (JSONReader jsonReader = new JSONReader(new InputStreamReader(is))) {
-                return (T) readRecord(recordSchema, reuse, new RecordReader(recordSchema), jsonReader);
+            try (JsonParser jp = FACTORY.createJsonParser(is)) {
+                return (T) readRecord(schema, reuse, new RecordReader(schema), jp);
             } catch (Exception e) {
                 throw new BaijiRuntimeException(e);
             }
@@ -35,57 +43,58 @@ public class SpecificFastJsonReader<T> {
         }
     }
 
-    private Object readRecord(RecordSchema schema, Object reuse, JsonReadable recordReader, JSONReader reader) throws Exception {
-        Object r = recordReader.read(reuse);
-        reader.startObject();
-        while (reader.hasNext()) {
-            String key = reader.readString();
-            if (schema.contains(key)) {
-                Field field = schema.getField(key);
-                Object value = readValue(field.getSchema(), reader);
-                put(r, field.getPos(), value);
+    private Object readRecord(RecordSchema schema, Object reuse, JsonReadable reader, JsonParser jp) throws Exception {
+        Object record = reader.read(reuse);
+        jp.nextToken();
+
+        while (jp.nextToken() != JsonToken.END_OBJECT) {
+            String fieldName = jp.getCurrentName();
+            if (schema.contains(fieldName)) {
+                Field field = schema.getField(fieldName);
+                jp.nextToken();
+                Object value = readValue(field.getSchema(), jp);
+                put(record, field.getPos(), value);
             }
         }
 
-        reader.endObject();
-        return r;
+        return record;
     }
 
     private void put(Object obj, int fieldPos, Object fieldValue) {
         ((SpecificRecord) obj).put(fieldPos, fieldValue);
     }
 
-    private Object readValue(Schema schema, JSONReader reader) throws Exception {
+    private Object readValue(Schema schema, JsonParser jp) throws Exception {
         try {
             switch (schema.getType()) {
                 case NULL:
                     return readNull();
                 case INT:
-                    return readInt(reader);
+                    return readInt(jp);
                 case BOOLEAN:
-                    return readBoolean(reader);
+                    return readBoolean(jp);
                 case DOUBLE:
-                    return readDouble(reader);
+                    return readDouble(jp);
                 case LONG:
-                    return readLong(reader);
+                    return readLong(jp);
                 case FLOAT:
-                    return readFloat(reader);
+                    return readFloat(jp);
                 case STRING:
-                    return readString(reader);
+                    return readString(jp);
                 case BYTES:
-                    return readBytes(reader);
+                    return readBytes(jp);
                 case DATETIME:
-                    return readDateTime(reader);
+                    return readDateTime(jp);
                 case RECORD:
-                    return readRecord((RecordSchema) schema, null, new RecordReader((RecordSchema) schema), reader);
+                    return readRecord((RecordSchema) schema, null, new RecordReader((RecordSchema) schema), jp);
                 case MAP:
-                    return readMap((MapSchema) schema, reader);
+                    return readMap((MapSchema) schema, jp);
                 case ENUM:
-                    return readEnum((EnumSchema) schema, reader);
+                    return readEnum((EnumSchema) schema, jp);
                 case UNION:
-                    return readUnion((UnionSchema) schema, reader);
+                    return readUnion((UnionSchema) schema, jp);
                 case ARRAY:
-                    return readArray((ArraySchema) schema, reader);
+                    return readArray((ArraySchema) schema, jp);
                 default:
                     throw new BaijiRuntimeException("No such schema type");
             }
@@ -98,84 +107,88 @@ public class SpecificFastJsonReader<T> {
         return null;
     }
 
-    private Object readInt(JSONReader reader) {
-        return reader.readInteger();
+    private Object readInt(JsonParser jp) throws IOException {
+        return jp.getIntValue();
     }
 
-    private Object readBoolean(JSONReader reader) {
-        return reader.readObject(Boolean.class);
+    private Boolean readBoolean(JsonParser jp) throws IOException {
+        return jp.getCurrentToken() == JsonToken.VALUE_TRUE;
     }
 
-    private Object readDouble(JSONReader reader) {
-        return reader.readObject(Double.class);
+    private Object readDouble(JsonParser jp) throws IOException {
+        return jp.getDoubleValue();
     }
 
-    private Object readLong(JSONReader reader) {
-        return reader.readObject(Long.class);
+    private Object readFloat(JsonParser jp) throws IOException {
+        return jp.getFloatValue();
     }
 
-    private Object readFloat(JSONReader reader) {
-        return reader.readObject(Float.class);
+    private Object readLong(JsonParser jp) throws IOException {
+        return jp.getLongValue();
     }
 
-    private Object readString(JSONReader reader) {
-        return reader.readString();
+    private Object readString(JsonParser jp) throws IOException {
+        return jp.getText();
     }
 
-    private Object readBytes(JSONReader reader) {
-        return Base64.decode(reader.readString());
+    private Object readBytes(JsonParser jp) throws IOException {
+        return jp.getBinaryValue();
     }
 
-    private Object readDateTime(JSONReader reader) {
+    private Object readDateTime(JsonParser jp) throws IOException {
         Calendar calendar = Calendar.getInstance();
-        long ms = reader.readLong();
+        long ms = jp.getNumberValue().longValue();
         calendar.setTimeInMillis(ms);
         return calendar;
     }
 
-    private Object readMap(MapSchema schema, JSONReader reader) throws Exception {
-        MapReader mapReader = new MapReader(schema);
-        Map map = (Map) mapReader.read(null);
+    private Object readMap(MapSchema schema, JsonParser jp) throws Exception {
+        MapReader reader = new MapReader(schema);
+        Map map = (Map) reader.read(null);
         Schema valueSchema = schema.getValueSchema();
-        reader.startObject();
-        while (reader.hasNext()) {
-            String key = reader.readString();
-            Object value = readValue(valueSchema, reader);
-            mapReader.add(map, key, value);
+        while (jp.nextToken() != JsonToken.END_OBJECT) {
+            String key = jp.getCurrentName();
+            jp.nextToken();
+            Object value = readValue(valueSchema, jp);
+            reader.add(map, key, value);
         }
-        reader.endObject();
 
         return map;
     }
 
-    private Object readEnum(EnumSchema schema, JSONReader reader) throws Exception {
+    private Object readEnum(EnumSchema schema, JsonParser jp) throws Exception {
         EnumReader enumReader = new EnumReader(schema);
-        return enumReader.read(reader.readString());
+        return enumReader.read(jp.getText());
     }
 
-    private Object readUnion(UnionSchema schema, JSONReader reader) throws Exception {
-        for (Schema childSchema : schema.getSchemas()) {
-            if (childSchema.getType() == SchemaType.NULL)
+    private Object readUnion(UnionSchema schema, JsonParser jp) throws Exception {
+        if (schema.size() != 2) {
+            throw new BaijiRuntimeException("UnionSchema size must be 2");
+        }
+
+        for (Schema itemSchema : schema.getSchemas()) {
+            if (itemSchema.getType() == SchemaType.NULL)
                 continue;
 
-            return readValue(childSchema, reader);
+            return readValue(itemSchema, jp);
         }
 
         return null;
     }
 
-    private Object readArray(ArraySchema schema, JSONReader reader) throws Exception {
-        ArrayReader arrayReader = new ArrayReader(schema);
-        List list = (List) arrayReader.read(null);
-        reader.startArray();
-        while (reader.hasNext()) {
-            Object value = readValue(schema.getItemSchema(), reader);
+    @SuppressWarnings("unchecked")
+    private Object readArray(ArraySchema schema, JsonParser jp) throws Exception {
+        ArrayReader reader = new ArrayReader(schema);
+        Schema itemSchema = schema.getItemSchema();
+        List list = (List) reader.read(null);
+        while (jp.nextToken() != JsonToken.END_ARRAY) {
+            Object value = readValue(itemSchema, jp);
             list.add(value);
         }
-        reader.endArray();
 
         return list;
     }
+
 
     private interface JsonReadable {
         Object read(Object reuse) throws Exception;
@@ -208,6 +221,7 @@ public class SpecificFastJsonReader<T> {
             return reuse == null ? constructor.newInstance() : reuse;
         }
 
+        @SuppressWarnings("unchecked")
         public void add(Object map, String key, Object value) {
             ((Map) map).put(key, value);
         }

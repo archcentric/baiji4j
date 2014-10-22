@@ -14,17 +14,17 @@ import java.util.Map;
 public class SpecificJsonSerializerUnitTest {
 
     private SpecificJsonWriter<TestSerializerSample> writer;
-    private SpecificJsonReader<TestSerializerSample> reader;
+    private SpecificJsonStreamReader<TestSerializerSample> reader;
 
     @Before
     public void setUp() throws Exception {
         writer = new SpecificJsonWriter<>();
-        reader = new SpecificJsonReader<>(TestSerializerSample.SCHEMA);
+        reader = new SpecificJsonStreamReader<>(TestSerializerSample.SCHEMA);
     }
 
     @Test
     public void testSerializeBoolean() throws Exception {
-        singleFieldTest("boolean1", true);
+        singleFieldTest("boolean1", false);
     }
 
     @Test
