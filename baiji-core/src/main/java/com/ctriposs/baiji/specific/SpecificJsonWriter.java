@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentMap;
 public final class SpecificJsonWriter<T> {
 
     private static final JsonFactory FACTORY = new JsonFactory();
-    private static final ConcurrentMap<SchemaType, JsonWritable> _writerCache = new ConcurrentHashMap<>();
+    private static final Map<SchemaType, JsonWritable> _writerCache = new HashMap<>();
 
     static {
         FACTORY.enable(JsonParser.Feature.ALLOW_COMMENTS);
@@ -50,7 +50,7 @@ public final class SpecificJsonWriter<T> {
                     RecordSchema recordSchema = (RecordSchema) schema;
                     JsonGenerator g = FACTORY.createJsonGenerator(os, JsonEncoding.UTF8);
                     _writerCache.get(recordSchema.getType()).write(recordSchema, obj, g);
-                    writeRecord(recordSchema, obj, g);
+                    //writeRecord(recordSchema, obj, g);
                     g.flush();
                     g.close();
                 } catch (Exception e) {
@@ -258,7 +258,7 @@ public final class SpecificJsonWriter<T> {
         @Override
         public void write(Schema schema, Object datum, JsonGenerator g) throws Exception {
             byte[] bytes = (byte[]) datum;
-            g.writeBinary(bytes);
+            g.writeBinary(bytes, 0, bytes.length);
         }
     }
 
