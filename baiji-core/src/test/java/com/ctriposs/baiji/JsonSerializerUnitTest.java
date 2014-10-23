@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 public class JsonSerializerUnitTest {
@@ -177,6 +179,44 @@ public class JsonSerializerUnitTest {
             os = serialize(EnumTest.CAR);
         } catch (BaijiRuntimeException e) {
         }
+    }
+
+    @Test
+    public void testBaseTypes() throws Exception {
+        BaseType base = new BaseType();
+
+        base.setByte1(Byte.valueOf("1"));
+        base.setDecimal1(new BigDecimal("89.123456789012345"));
+        base.setDuration1("10.00012344");
+        base.setFloat1(1234.5678f);
+
+        List<BigDecimal> list = new ArrayList<>();
+        list.add(new BigDecimal("1234.567891234"));
+        list.add(new BigDecimal(10000));
+        list.add(new BigDecimal(100L));
+        base.setList1(list);
+        base.setShort1((short) 10);
+        base.setUnsignedByte1(Short.valueOf("12"));
+        base.setUnsignedInt1(1234567L);
+        base.setUnsignedLong1(new BigInteger("1234567898999"));
+        base.setUnsignedShort1(1234);
+
+        OutputStream os = new ByteArrayOutputStream();
+        os = serialize(base);
+        InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
+
+        BaseType actual = deserialize(BaseType.class, is);
+
+        Assert.assertEquals(base.getByte1(), actual.getByte1());
+        Assert.assertEquals(base.getDecimal1(), actual.getDecimal1());
+        Assert.assertEquals(base.getDuration1(), actual.getDuration1());
+        Assert.assertEquals(base.getFloat1(), actual.getFloat1());
+        Assert.assertEquals(base.getShort1(), actual.getShort1());
+        Assert.assertEquals(base.getUnsignedByte1(), actual.getUnsignedByte1());
+        Assert.assertEquals(base.getUnsignedInt1(), actual.getUnsignedInt1());
+        Assert.assertEquals(base.getUnsignedLong1(), actual.getUnsignedLong1());
+        Assert.assertEquals(base.getUnsignedShort1(), actual.getUnsignedShort1());
+        Assert.assertEquals(base.getList1(), actual.getList1());
     }
 
     private <T extends SpecificRecord> OutputStream serialize(T record) throws IOException {

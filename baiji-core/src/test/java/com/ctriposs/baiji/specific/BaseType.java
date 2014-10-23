@@ -20,7 +20,7 @@ public class BaseType extends com.ctriposs.baiji.specific.SpecificRecordBase imp
 
 	private static final long serialVersionUID = 1L;
 
-	public static final Schema SCHEMA$ = Schema.parse("{\"type\":\"record\",\"name\":\"BaseType\",\"namespace\":\"com.ctrip.soa.framework.soa.basetype.v1\",\"fields\":[{\"name\":\"byte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"decimal1\",\"type\":[\"string\",\"null\"]},{\"name\":\"duration1\",\"type\":[\"string\",\"null\"]},{\"name\":\"float1\",\"type\":[\"float\",\"null\"]},{\"name\":\"short1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedByte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedInt1\",\"type\":[\"long\",\"null\"]},{\"name\":\"unsignedLong1\",\"type\":[\"string\",\"null\"]},{\"name\":\"unsignedShort1\",\"type\":[\"int\",\"null\"]},{\"name\":\"list1\",\"type\":{\"type\":\"array\",\"items\":[\"string\",\"null\"]}}]}");
+	public static final Schema SCHEMA$ = Schema.parse("{\"type\":\"record\",\"name\":\"BaseType\",\"namespace\":\"com.ctriposs.baiji.specific\",\"fields\":[{\"name\":\"byte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"decimal1\",\"type\":[\"string\",\"null\"]},{\"name\":\"duration1\",\"type\":[\"string\",\"null\"]},{\"name\":\"float1\",\"type\":[\"float\",\"null\"]},{\"name\":\"short1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedByte1\",\"type\":[\"int\",\"null\"]},{\"name\":\"unsignedInt1\",\"type\":[\"long\",\"null\"]},{\"name\":\"unsignedLong1\",\"type\":[\"string\",\"null\"]},{\"name\":\"unsignedShort1\",\"type\":[\"int\",\"null\"]},{\"name\":\"list1\",\"type\":{\"type\":\"array\",\"items\":[\"string\",\"null\"]}}]}");
 
 	@Override
 	public Schema getSchema() { return SCHEMA$; }
