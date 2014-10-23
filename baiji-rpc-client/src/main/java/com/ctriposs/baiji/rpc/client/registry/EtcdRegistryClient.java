@@ -23,11 +23,52 @@ public class EtcdRegistryClient implements RegistryClient {
     }
 
     /**
+     * Gets the metadata of the given service.
+     *
+     * @param serviceName      the name of the service
+     * @param serviceNamespace the namespace of the service
+     * @return
+     */
+    public ServiceInfo getServiceInfo(String serviceName, String serviceNamespace) {
+        String key = getServiceKey(serviceName, serviceNamespace, "metadata");
+        CEtcdResult result;
+        try {
+            result = _client.listChildren(key, true);
+        } catch (CEtcdClientException e) {
+            return null;
+        }
+        if (result == null || result.node == null || result.node.nodes == null) {
+            return null;
+        }
+
+        ServiceInfo serviceInfo = new ServiceInfo();
+        for (CEtcdNode node : result.node.nodes) {
+            if (node.dir) {
+                continue;
+            }
+            String name = getPropertyName(node.key);
+            switch (name) {
+                case "ready":
+                    boolean ready = false;
+                    if (node.value != null) {
+                        ready = Boolean.valueOf(node.value);
+                    }
+                    serviceInfo.setReady(ready);
+                    break;
+                case "contact":
+                    serviceInfo.setServiceContact(node.value);
+                    break;
+            }
+        }
+        return serviceInfo;
+    }
+
+    /**
      * Gets all instances of the given service from registry.
      *
-     * @param serviceName the name of the service
+     * @param serviceName      the name of the service
      * @param serviceNamespace the namespace of the service
-     * @param subEnv the sub environment of the instances to be fetched. nullable.
+     * @param subEnv           the sub environment of the instances to be fetched. nullable.
      * @return
      */
     @Override

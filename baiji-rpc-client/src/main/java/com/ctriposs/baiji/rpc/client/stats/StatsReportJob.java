@@ -53,7 +53,7 @@ public class StatsReportJob implements Runnable {
         _serviceName = getServiceFullName(_store.getServiceNamespace(), _store.getServiceName());
         _frameworkVersion = _store.getFrameworkVersion() != null ? _store.getFrameworkVersion() : UNKNOWN;
         _codeGenVersion = _store.getCodeGeneratorVersion() != null ? _store.getCodeGeneratorVersion() : UNKNOWN;
-        _connectionMode = getConnectionModeText(_store.getConnectionMode());
+        _connectionMode = _store.getConnectionMode().toString();
     }
 
     @Override
@@ -162,16 +162,5 @@ public class StatsReportJob implements Runnable {
 
     private static String getServiceFullName(String serviceNamespace, String serviceName) {
         return (StatsUtils.convertNamespaceToStatsValue(serviceNamespace) + "." + serviceName).toLowerCase();
-    }
-
-    private static String getConnectionModeText(ConnectionMode mode) {
-        switch (mode) {
-            case DIRECT:
-                return "Direct";
-            case INDIRECT:
-                return "Indirect";
-            default:
-                return UNKNOWN;
-        }
     }
 }

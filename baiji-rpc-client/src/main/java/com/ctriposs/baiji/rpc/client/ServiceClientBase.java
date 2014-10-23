@@ -5,6 +5,7 @@ import com.ctriposs.baiji.rpc.client.filter.HttpResponseFilter;
 import com.ctriposs.baiji.rpc.client.registry.EtcdRegistryClient;
 import com.ctriposs.baiji.rpc.client.registry.InstanceInfo;
 import com.ctriposs.baiji.rpc.client.registry.RegistryClient;
+import com.ctriposs.baiji.rpc.client.registry.ServiceInfo;
 import com.ctriposs.baiji.rpc.client.stats.InvocationStats;
 import com.ctriposs.baiji.rpc.client.stats.InvocationStatsStore;
 import com.ctriposs.baiji.rpc.client.stats.StatsReportJob;
@@ -88,6 +89,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private int _socketTimeOut = DEFAULT_SOCKET_TIME_OUT;
     private int _connectTimeOut = DEFAULT_CONNECT_TIME_OUT;
     private int _maxConnections = DEFAULT_MAX_CONNECTIONS;
+    private ServiceInfo _serviceInfo;
     private String[] _serviceUris;
     private HttpRequestFilter _localHttpRequestFilter;
     private HttpResponseFilter _localHttpResponseFilter;
@@ -482,6 +484,10 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                                                                                              Class<TResp> responseClass, Span span)
             throws ServiceException, HttpWebException, IOException {
 
+        if (_serviceInfo == null || !_serviceInfo.isReady()) {
+            throw new IllegalStateException("The service is not ready for use now.");
+        }
+
         long startTime = System.currentTimeMillis();
         _statsStore.getStats(operationName).markInvocation();
         CloseableHttpResponse httpResponse = null;
@@ -504,9 +510,9 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
             _statsStore.getStats(operationName).markSuccess();
             return response;
         } catch (ServiceException ex) {
-            Map<String, String> addtionalInfo = new HashMap<String, String>();
-            addtionalInfo.put("Operation", operationName);
-            _logger.error(getLogTitle("ServiceException"), ex, addtionalInfo);
+            Map<String, String> additionalInfo = getClientInfo();
+            additionalInfo.put("Operation", operationName);
+            _logger.error(getLogTitle("ServiceException"), ex, additionalInfo);
 
             InvocationStats stats = _statsStore.getStats(operationName);
             stats.markException(ex);
@@ -534,8 +540,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                 } catch (IOException ioe) {
                 }
             }
-            if (span != null)
-            {
+            if (span != null) {
                 span.stop();
             }
             _statsStore.getStats(operationName).addRequestCost(System.currentTimeMillis() - startTime);
@@ -565,6 +570,9 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                 .build();
 
         String baseUri = getServiceBaseUri();
+        if (baseUri == null) {
+            throw new IllegalStateException("No service instance available at the time.");
+        }
         String requestUri = baseUri + operationName + "." + _format;
         HttpPost httpPost = new HttpPost(requestUri);
         httpPost.setConfig(config);
@@ -781,17 +789,44 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
     private void logGeneralException(String operationName, Exception ex) {
         String title = getLogTitle("General Exception");
-        Map<String, String> addtionalInfo = new HashMap<String, String>();
-        addtionalInfo.put("Operation", operationName);
+        Map<String, String> additionalInfo = getClientInfo();
+        additionalInfo.put("Operation", operationName);
         if (ex instanceof HttpWebException) {
-            _logger.warn(title, ex, addtionalInfo);
+            _logger.warn(title, ex, additionalInfo);
         } else {
-            _logger.error(title, ex, addtionalInfo);
+            _logger.error(title, ex, additionalInfo);
         }
     }
 
     private String getLogTitle(String title) {
-        return title;
+        String serviceContact = _serviceInfo != null ? _serviceInfo.getServiceContact() : null;
+        if (serviceContact == null || serviceContact.isEmpty()) {
+            return title;
+        }
+
+        StringBuilder titleBuilder = new StringBuilder();
+        if (title == null || title.isEmpty()) {
+            title = title.trim();
+            titleBuilder.append(title);
+            if (!title.endsWith(".")) {
+                titleBuilder.append(".");
+            }
+            titleBuilder.append(" ");
+        }
+
+        titleBuilder.append("Service Owner: ");
+        titleBuilder.append(serviceContact);
+        return titleBuilder.toString();
+    }
+
+    private Map<String, String> getClientInfo() {
+        Map<String, String> clientInfo = new HashMap<String, String>();
+        clientInfo.put("Service", _serviceName + "{" + _serviceNamespace + "}");
+        clientInfo.put("ServiceContact",
+                _serviceInfo != null && _serviceInfo.getServiceContact() != null ? _serviceInfo.getServiceContact() : "");
+        clientInfo.put("ConnectionMode", _connectionMode.toString());
+        clientInfo.put("Format", _format);
+        return clientInfo;
     }
 
     private class SyncRegistryTask implements Runnable {
@@ -801,6 +836,12 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
             if (_registryClient == null) {
                 _logger.fatal(getLogTitle("No service registry is configured."));
                 return;
+            }
+
+            try {
+                _serviceInfo = _registryClient.getServiceInfo(_serviceName, _serviceNamespace);
+            } catch (Exception ex) {
+                _logger.error(getLogTitle("Update service info failed."), ex);
             }
 
             try {
@@ -817,7 +858,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                     _serviceUris = new String[0];
                 }
             } catch (Exception ex) {
-                _logger.error(getLogTitle("Sync Service Registry failed"), ex);
+                _logger.error(getLogTitle("Sync Service Registry failed."), ex);
             }
         }
     }
