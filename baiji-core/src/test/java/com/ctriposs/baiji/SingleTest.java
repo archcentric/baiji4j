@@ -1,9 +1,6 @@
 package com.ctriposs.baiji;
 
-import com.ctriposs.baiji.generic.GenericBenchmarkRecord;
 import com.ctriposs.baiji.specific.*;
-import org.codehaus.jackson.map.MappingIterator;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
 import java.util.*;

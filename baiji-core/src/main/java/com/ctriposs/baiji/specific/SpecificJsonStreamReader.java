@@ -34,7 +34,7 @@ public class SpecificJsonStreamReader<T> {
             RecordSchema schema = (RecordSchema) root;
 
             try (JsonParser jp = FACTORY.createJsonParser(is)) {
-                return (T) readRecord(schema, reuse, new RecordReader(schema), jp);
+                return (T) readRecord(schema, reuse, new RecordReader(schema), jp, false);
             } catch (Exception e) {
                 throw new BaijiRuntimeException(e);
             }
@@ -43,9 +43,11 @@ public class SpecificJsonStreamReader<T> {
         }
     }
 
-    private Object readRecord(RecordSchema schema, Object reuse, JsonReadable reader, JsonParser jp) throws Exception {
+    private Object readRecord(RecordSchema schema, Object reuse, JsonReadable reader, JsonParser jp, boolean inner) throws Exception {
         Object record = reader.read(reuse);
-        jp.nextToken();
+        if (!inner) {
+            jp.nextToken();
+        }
 
         while (jp.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = jp.getCurrentName();
@@ -86,7 +88,7 @@ public class SpecificJsonStreamReader<T> {
                 case DATETIME:
                     return readDateTime(jp);
                 case RECORD:
-                    return readRecord((RecordSchema) schema, null, new RecordReader((RecordSchema) schema), jp);
+                    return readRecord((RecordSchema) schema, null, new RecordReader((RecordSchema) schema), jp, true);
                 case MAP:
                     return readMap((MapSchema) schema, jp);
                 case ENUM:
