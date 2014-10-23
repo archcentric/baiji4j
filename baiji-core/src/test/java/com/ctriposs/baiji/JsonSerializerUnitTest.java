@@ -185,7 +185,7 @@ public class JsonSerializerUnitTest {
     public void testBaseTypes() throws Exception {
         BaseType base = new BaseType();
 
-        base.setByte1(Byte.valueOf("1"));
+        base.setByte1(Byte.valueOf("-46"));
         base.setDecimal1(new BigDecimal("89.123456789012345"));
         base.setDuration1("10.00012344");
         base.setFloat1(1234.5678f);

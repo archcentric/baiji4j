@@ -34,9 +34,13 @@ public class TypeConverter {
         if (sList == null || sList.size() == 0)
             return null;
 
-        List<D> list = new ArrayList<>();
         String key = sList.get(0).getClass().getName() + "-" + clazz.getName();
         Converter converter = _converterCache.get(key);
+        if (converter == null) {
+            return null;
+        }
+
+        List<D> list = new ArrayList<>();
         for (S s : sList) {
             list.add((D) converter.convert(s, clazz));
         }
