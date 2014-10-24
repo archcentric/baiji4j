@@ -9,6 +9,14 @@ public class ServiceInfo {
 
     private boolean _ready;
 
+    public ServiceInfo() {
+    }
+
+    public ServiceInfo(boolean ready, String serviceContact) {
+        _ready = ready;
+        _serviceContact = serviceContact;
+    }
+
     public String getServiceContact() {
         return _serviceContact;
     }

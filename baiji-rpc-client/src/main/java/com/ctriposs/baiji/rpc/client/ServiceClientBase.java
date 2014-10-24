@@ -312,6 +312,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
         _serviceUris = new String[]{baseUri};
         _statsStore = new InvocationStatsStore();
+        _serviceInfo = new ServiceInfo(true, "");
 
         _logger.info("Initialized client instance with direct service url " + baseUri);
     }
