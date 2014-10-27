@@ -473,7 +473,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
     public <TReq extends SpecificRecord, TResp extends SpecificRecord> TResp invoke(String operation, TReq request,
                                                                                     Class<TResp> responseClass)
-            throws ServiceException, HttpWebException, IOException {
+            throws Exception {
         Span span = null;
         if (_tracer.isTracing()) {
             span = _tracer.startSpan(operation, getClass().getSimpleName(), SpanType.WEB_SERVICE);
@@ -483,7 +483,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
     private <TReq extends SpecificRecord, TResp extends SpecificRecord> TResp invokeInternal(String operationName, TReq request,
                                                                                              Class<TResp> responseClass, Span span)
-            throws ServiceException, HttpWebException, IOException {
+            throws Exception {
 
         if (_serviceInfo == null || !_serviceInfo.isReady()) {
             throw new IllegalStateException("The service is not ready for use now.");
