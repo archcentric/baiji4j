@@ -31,6 +31,7 @@ import org.apache.http.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -93,6 +94,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private String[] _serviceUris;
     private HttpRequestFilter _localHttpRequestFilter;
     private HttpResponseFilter _localHttpResponseFilter;
+    private RequestConfig _requestConfig;
     private final AtomicInteger _lastUsedServiceIndex = new AtomicInteger(-1);
     private final ConnectionMode _connectionMode;
     private final Map<String, String> _headers = new HashMap<String, String>();
@@ -172,7 +174,11 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     }
 
     public void setRequestTimeout(int requestTimeOut) {
+        if (requestTimeOut < 0 || requestTimeOut == _requestTimeOut) {
+            return;
+        }
         this._requestTimeOut = requestTimeOut;
+        updateRequestConfig();
     }
 
     /**
@@ -190,7 +196,11 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     }
 
     public void setSocketTimeout(int socketTimeOut) {
+        if (socketTimeOut < 0 || socketTimeOut == _socketTimeOut) {
+            return;
+        }
         this._socketTimeOut = socketTimeOut;
+        updateRequestConfig();
     }
 
     /**
@@ -207,7 +217,11 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     }
 
     public void setConnectTimeout(int connectTimeOut) {
+        if (connectTimeOut < 0 || connectTimeOut == _connectTimeOut) {
+            return;
+        }
         this._connectTimeOut = connectTimeOut;
+        updateRequestConfig();
     }
 
     /**
@@ -224,6 +238,14 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
             this._maxConnections = maxConnections;
             reloadClient();
         }
+    }
+
+    private void updateRequestConfig() {
+        _requestConfig = RequestConfig.custom()
+                .setConnectTimeout(_connectTimeOut)
+                .setConnectionRequestTimeout(_requestTimeOut)
+                .setSocketTimeout(_socketTimeOut)
+                .build();
     }
 
     /**
@@ -314,6 +336,8 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         _statsStore = new InvocationStatsStore();
         _serviceInfo = new ServiceInfo(true, "");
 
+        updateRequestConfig();
+
         _logger.info("Initialized client instance with direct service url " + baseUri);
     }
 
@@ -326,6 +350,8 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         _serviceName = serviceName;
         _serviceNamespace = serviceNamespace;
         _subEnv = subEnv;
+
+        updateRequestConfig();
 
         initServiceBaseUriFromReg();
 
@@ -564,19 +590,13 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private <TReq extends SpecificRecord> HttpPost prepareWebRequest(String operationName, TReq request,
                                                                      ContentFormatter contentFormatter, Span span)
             throws IOException {
-        RequestConfig config = RequestConfig.custom()
-                .setConnectTimeout(_connectTimeOut)
-                .setConnectionRequestTimeout(_requestTimeOut)
-                .setSocketTimeout(_socketTimeOut)
-                .build();
-
         String baseUri = getServiceBaseUri();
         if (baseUri == null) {
             throw new IllegalStateException("No service instance available at the time.");
         }
         String requestUri = baseUri + operationName + "." + _format;
         HttpPost httpPost = new HttpPost(requestUri);
-        httpPost.setConfig(config);
+        httpPost.setConfig(_requestConfig);
 
         if (span != null) {
             httpPost.addHeader(ServiceCommons.TRACE_ID_HTTP_HEADER, String.valueOf(span.getTraceId()));
@@ -661,7 +681,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         throw ex;
     }
 
-    private void applyHttpRequestFilters(HttpRequest request) {
+    private void applyHttpRequestFilters(HttpRequestBase request) {
         HttpRequestFilter filter = _globalHttpRequestFilter;
         if (filter != null) {
             filter.apply(request);
