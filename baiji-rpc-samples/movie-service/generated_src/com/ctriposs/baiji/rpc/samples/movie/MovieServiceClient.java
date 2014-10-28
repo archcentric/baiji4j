@@ -28,35 +28,35 @@ public class MovieServiceClient extends ServiceClientBase<MovieServiceClient> {
     }
 
     public AddMovieResponseType addMovie(AddMovieRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("addMovie", request, AddMovieResponseType.class);
     }
     public UpdateMovieResponseType updateMovie(UpdateMovieRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("updateMovie", request, UpdateMovieResponseType.class);
     }
     public GetMovieByIdResponseType getMovieById(GetMovieByIdRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("getMovieById", request, GetMovieByIdResponseType.class);
     }
     public DeleteMovieByIdResponseType deleteMovieById(DeleteMovieByIdRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("deleteMovieById", request, DeleteMovieByIdResponseType.class);
     }
     public FindMoviesByGenreResponseType findMoviesByGenre(FindMoviesByGenreRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("findMoviesByGenre", request, FindMoviesByGenreResponseType.class);
     }
     public ResetMovieResponseType resetMovie(ResetMovieRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("resetMovie", request, ResetMovieResponseType.class);
     }
     public GetMoviesResponseType getMovies(GetMoviesRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("getMovies", request, GetMoviesResponseType.class);
     }
     public com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType checkHealth(com.ctriposs.baiji.rpc.common.types.CheckHealthRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("checkHealth", request, com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType.class);
     }
 }

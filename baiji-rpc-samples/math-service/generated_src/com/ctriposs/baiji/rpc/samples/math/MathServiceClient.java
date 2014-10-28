@@ -28,11 +28,11 @@ public class MathServiceClient extends ServiceClientBase<MathServiceClient> {
     }
 
     public GetFactorialResponseType getFactorial(GetFactorialRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("getFactorial", request, GetFactorialResponseType.class);
     }
     public com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType checkHealth(com.ctriposs.baiji.rpc.common.types.CheckHealthRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("checkHealth", request, com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType.class);
     }
 }

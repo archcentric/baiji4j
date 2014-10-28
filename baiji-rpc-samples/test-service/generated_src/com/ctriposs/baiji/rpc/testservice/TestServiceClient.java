@@ -28,11 +28,11 @@ public class TestServiceClient extends ServiceClientBase<TestServiceClient> {
     }
 
     public GetItemsResponseType getItems(GetItemsRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("getItems", request, GetItemsResponseType.class);
     }
     public com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType checkHealth(com.ctriposs.baiji.rpc.common.types.CheckHealthRequestType request)
-                                    throws ServiceException, HttpWebException, IOException {
+                                    throws Exception {
         return super.invoke("checkHealth", request, com.ctriposs.baiji.rpc.common.types.CheckHealthResponseType.class);
     }
 }
