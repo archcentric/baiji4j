@@ -19,9 +19,10 @@ public class AuditableCounter {
      * @return
      */
     public int getValueCountInRange(Long from, Long to) {
-        int count = 0;
-        for (int i = 0; i < _count.get(); ++i) {
-            long item = _values[i];
+        int count = 0, totalCount = _count.get();
+        long[] values = _values;
+        for (int i = 0; i < totalCount; ++i) {
+            long item = values[i];
             if (item >= from && (to != null && item < to)) {
                 count++;
             }

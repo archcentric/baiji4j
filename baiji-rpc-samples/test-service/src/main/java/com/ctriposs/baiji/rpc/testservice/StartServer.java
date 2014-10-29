@@ -12,12 +12,21 @@ import io.netty.channel.ChannelOption;
 
 public final class StartServer {
 
+    private static final  ServiceRegistry _registry = new EtcdServiceRegistry("http://localhost:4001/");
+
     public static void main(String[] args) throws Exception {
+        startTestService(8114);
+        startTestService(8115);
+        startTestService(8116);
+        _registry.run();
+    }
+
+    private static void startTestService(int port) throws Exception {
         HostConfig config = new HostConfig();
         config.debugMode = true;
         ServiceHost router = new BaijiServiceHost(config, TestServiceImpl.class);
 
-        BlockingHttpServerBuilder builder = new BlockingHttpServerBuilder(8114);
+        BlockingHttpServerBuilder builder = new BlockingHttpServerBuilder(port);
 
         builder.serviceHost(router)
                 .withWorkerCount(10)
@@ -25,13 +34,12 @@ public final class StartServer {
                 .clientSocketOption(ChannelOption.TCP_NODELAY, true)
                 .build().startWithoutWaitingForShutdown();
 
-        ServiceRegistry registry = new EtcdServiceRegistry("http://localhost:4001/");
+
         BaijiContract contract = TestService.class.getAnnotation(BaijiContract.class);
         ServiceInfo service = new ServiceInfo.Builder().serviceName(contract.serviceName())
                 .serviceNamespace(contract.serviceNamespace())
                 .subEnv("dev")
-                .port(8114).build();
-        registry.addService(service);
-        registry.run();
+                .port(port).build();
+        _registry.addService(service);
     }
 }

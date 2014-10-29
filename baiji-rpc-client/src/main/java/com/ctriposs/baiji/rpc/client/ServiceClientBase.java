@@ -555,7 +555,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
             if (ex instanceof HttpWebException) {
                 HttpWebException hwe = (HttpWebException) ex;
-                _logger.debug(String.format("Status Code: %s\nReason Phrase: %", hwe.getStatusCode(),
+                _logger.debug(String.format("Status Code: %s\nReason Phrase: %s", hwe.getStatusCode(),
                         hwe.getReasonPhrase()));
             }
 
@@ -682,24 +682,24 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     }
 
     private void applyHttpRequestFilters(HttpRequestBase request) {
-        HttpRequestFilter filter = _globalHttpRequestFilter;
+        HttpRequestFilter filter = _localHttpRequestFilter;
         if (filter != null) {
             filter.apply(request);
         }
 
-        filter = _localHttpRequestFilter;
+        filter = _globalHttpRequestFilter;
         if (filter != null) {
             filter.apply(request);
         }
     }
 
     private void applyHttpResponseFilters(HttpResponse response) {
-        HttpResponseFilter filter = _localHttpResponseFilter;
+        HttpResponseFilter filter = _globalHttpResponseFilter;
         if (filter != null) {
             filter.apply(response);
         }
 
-        filter = _globalHttpResponseFilter;
+        filter = _localHttpResponseFilter;
         if (filter != null) {
             filter.apply(response);
         }
@@ -842,7 +842,9 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
     private Map<String, String> getClientInfo() {
         Map<String, String> clientInfo = new HashMap<String, String>();
-        clientInfo.put("Service", _serviceName + "{" + _serviceNamespace + "}");
+        if (_serviceName != null && _serviceNamespace != null) {
+            clientInfo.put("Service", _serviceName + "{" + _serviceNamespace + "}");
+        }
         clientInfo.put("ServiceContact",
                 _serviceInfo != null && _serviceInfo.getServiceContact() != null ? _serviceInfo.getServiceContact() : "");
         clientInfo.put("ConnectionMode", _connectionMode.toString());

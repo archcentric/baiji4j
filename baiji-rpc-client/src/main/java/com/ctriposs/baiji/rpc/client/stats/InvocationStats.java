@@ -5,6 +5,7 @@ import com.ctriposs.baiji.rpc.client.ServiceException;
 import com.ctriposs.baiji.rpc.common.stats.AuditableCounter;
 import com.ctriposs.baiji.rpc.common.stats.AuditionData;
 import com.ctriposs.baiji.rpc.common.stats.SimpleCounter;
+import com.ctriposs.baiji.rpc.common.types.ErrorClassificationCodeType;
 import org.apache.http.HttpStatus;
 
 import java.io.IOException;
@@ -77,8 +78,12 @@ public class InvocationStats {
         String exceptionTypeName = "other";
         if (ex instanceof ServiceException) {
             ServiceException se = (ServiceException) ex;
-            if (se.getResponseErrors() != null && !se.getResponseErrors().isEmpty())
-                exceptionTypeName = se.getResponseErrors().get(0).getErrorClassification().toString().toLowerCase();
+            if (se.getResponseErrors() != null && !se.getResponseErrors().isEmpty()) {
+                ErrorClassificationCodeType errorClassification = se.getResponseErrors().get(0).getErrorClassification();
+                if (errorClassification != null) {
+                    exceptionTypeName = errorClassification.toString().toLowerCase();
+                }
+            }
         } else if (ex instanceof HttpWebException) {
             int statusCode = ((HttpWebException) ex).getStatusCode();
             switch (statusCode) {
@@ -113,7 +118,7 @@ public class InvocationStats {
 
         String exceptionName = ex.getClass().getName();
         if (ex.getCause() != null) {
-            exceptionName = ex.getCause().getCause().getClass().getName();
+            exceptionName = ex.getCause().getClass().getName();
         }
 
         SimpleCounter exceptionCounter = exceptionMap.get(exceptionName);

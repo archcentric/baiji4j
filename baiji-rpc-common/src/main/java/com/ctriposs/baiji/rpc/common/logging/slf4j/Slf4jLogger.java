@@ -225,6 +225,7 @@ public class Slf4jLogger implements Logger {
             builder.append(entry.getKey());
             builder.append("=");
             builder.append(entry.getValue());
+            builder.append(" ");
         }
         return builder.toString();
     }

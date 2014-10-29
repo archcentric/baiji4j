@@ -30,37 +30,7 @@ public class EtcdRegistryClient implements RegistryClient {
      * @return
      */
     public ServiceInfo getServiceInfo(String serviceName, String serviceNamespace) {
-        String key = getServiceKey(serviceName, serviceNamespace, "metadata");
-        CEtcdResult result;
-        try {
-            result = _client.listChildren(key, true);
-        } catch (CEtcdClientException e) {
-            return null;
-        }
-        if (result == null || result.node == null || result.node.nodes == null) {
-            return null;
-        }
-
-        ServiceInfo serviceInfo = new ServiceInfo();
-        for (CEtcdNode node : result.node.nodes) {
-            if (node.dir) {
-                continue;
-            }
-            String name = getPropertyName(node.key);
-            switch (name) {
-                case "ready":
-                    boolean ready = false;
-                    if (node.value != null) {
-                        ready = Boolean.valueOf(node.value);
-                    }
-                    serviceInfo.setReady(ready);
-                    break;
-                case "contact":
-                    serviceInfo.setServiceContact(node.value);
-                    break;
-            }
-        }
-        return serviceInfo;
+        return new ServiceInfo(true, "N/A");
     }
 
     /**

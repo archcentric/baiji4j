@@ -87,6 +87,14 @@ project(':baiji-rpc-client') {
         compile 'org.apache.httpcomponents:httpclient:4.3.5'
         compile 'com.ctriposs:etcd4j:1.0-SNAPSHOT'
     }
+
+    sourceSets {
+        test {
+            java {
+                srcDir 'src/test/generated_src'
+            }
+        }
+    }
 }
 
 project(':baiji-rpc-server') {
