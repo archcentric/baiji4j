@@ -28,7 +28,6 @@ public class StatsReportJob implements Runnable {
     public static final String STATS_NAME_OPERATION_COST_DISTRIBUTION = STATS_NAME_OPERATION_COST + ".distribution";
     public static final String STATS_NAME_RESPONSE_SIZE = STATS_PREFIX_RESPONSE + "size";
     public static final String STATS_NAME_RESPONSE_SIZE_DISTRIBUTION = STATS_NAME_RESPONSE_SIZE + ".distribution";
-    public static final String STATS_NAME_RESPONSE_TYPE_DISTRIBUTION = STATS_PREFIX_RESPONSE + "type.distribution";
     public static final String STATS_PREFIX_ERROR = STATS_PREFIX + "error.";
     public static final String STATS_NAME_ERROR_COUNT = STATS_PREFIX_ERROR + "count";
     public static final String STATS_NAME_ERROR_PERCENTAGE = STATS_PREFIX_ERROR + "percentage";
@@ -78,7 +77,7 @@ public class StatsReportJob implements Runnable {
 
         Collection<OperationStats> allStats = _serviceStats.getAndResetAllOperationStats();
         for (OperationStats stats : allStats) {
-            tagMap.put(STATS_TAG_OPERATION, stats.getOperationName());
+            tagMap.put(STATS_TAG_OPERATION, _serviceName + "." + stats.getOperationName().toLowerCase());
 
             // Request cost
             AuditionData requestCostAuditionData = stats.getRequestCostAuditionData();
