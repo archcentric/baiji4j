@@ -4,7 +4,7 @@ import com.ctriposs.baiji.BinarySerializer;
 
 public class BinaryContentFormatter extends ContentFormatterBase {
 
-    public static final String MEDIA_TYPE = "application/x-baiji-bin";
+    public static final String MEDIA_TYPE = "application/bjbin";
     public static final String EXTENSION = "bjbin";
 
     public BinaryContentFormatter() {
