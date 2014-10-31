@@ -64,7 +64,7 @@ public abstract class ServiceRequestHandlerBase implements RequestHandler {
             try {
                 long traceId = Long.parseLong(traceIdString);
                 long spanId = Long.parseLong(spanIdString);
-                _tracer.continueSpan(request.operationName(), host.getServiceMetaData().getServiceName(),
+                span = _tracer.continueSpan(request.operationName(), host.getServiceMetaData().getServiceName(),
                         traceId, spanId, SpanType.WEB_SERVICE);
             } catch (Exception ex) {
                 // No tracing
