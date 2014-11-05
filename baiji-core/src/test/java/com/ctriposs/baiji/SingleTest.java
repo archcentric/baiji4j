@@ -26,12 +26,12 @@ public class SingleTest {
         GenericBenchmarkRecord.recordType = "\"int\"";
         GenericBenchmarkRecord benchmarkRecord = new GenericBenchmarkRecord();
         benchmarkRecord.put(0, 42);
-       /* sample.bigint1 = 110L;
+        sample.bigint1 = 110L;
         sample.boolean1 = false;
         sample.double1 = 2.099328;
-        sample.enum1 = Enum1Values.GREEN;*/
+        sample.enum1 = Enum1Values.GREEN;
         sample.int1 = 2000;
-        /*sample.string1 = "testSerialize";
+        sample.string1 = "testSerialize";
         sample.bytes1 = "testBytes".getBytes();
         sample.list1 = Arrays.asList("a", "b", "c");
         Map<String, Integer> map = new HashMap<>();
@@ -47,7 +47,7 @@ public class SingleTest {
         recordMap.put("m1", new Record(1, true, "testRecord"));
         recordMap.put("m2", new Record(2, true, "testRecord"));
         record2.map2 = recordMap;
-        sample.container1 = new Record2Container(Arrays.asList(record2));*/
+        sample.container1 = new Record2Container(Arrays.asList(record2));
 
         OutputStream os = new ByteArrayOutputStream();
 
