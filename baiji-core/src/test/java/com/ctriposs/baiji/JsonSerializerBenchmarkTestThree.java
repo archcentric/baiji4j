@@ -1,16 +1,21 @@
 package com.ctriposs.baiji;
 
 import com.ctriposs.baiji.generic.GenericBenchmarkRecord;
-import com.ctriposs.baiji.specific.*;
+import com.ctriposs.baiji.specific.Enum1Values;
+import com.ctriposs.baiji.specific.Enum2Values;
+import com.ctriposs.baiji.specific.ModelFilling2;
+import com.ctriposs.baiji.specific.SpecificRecord;
 import com.google.common.collect.Lists;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
-public class JsonSerializerBenchmarkTest {
-
+public class JsonSerializerBenchmarkTestThree {
     private BenchmarkSerializer serializer = new JsonSerializerBenchmark();
     private int loop;
     private boolean run;
@@ -18,7 +23,12 @@ public class JsonSerializerBenchmarkTest {
     private ConcurrentHashMap<String, List<ExecutionResult>> records = new ConcurrentHashMap<>();
 
     public static void main(String[] args) throws Exception {
-        JsonSerializerBenchmarkTest test = new JsonSerializerBenchmarkTest();
+        try {
+            Thread.sleep(10 * 1000);
+        } catch (InterruptedException e) {
+        }
+
+        JsonSerializerBenchmarkTestThree test = new JsonSerializerBenchmarkTestThree();
         test.testBenchmark();
     }
 
@@ -87,7 +97,7 @@ public class JsonSerializerBenchmarkTest {
     }
 
     private void jsonWarmUp() throws Exception {
-        loop = 800;
+        loop = 2000;
         run = false;
         testJsonSerializerBenchmark();
         System.out.println("Json Warm Up Done");
@@ -101,7 +111,7 @@ public class JsonSerializerBenchmarkTest {
     }
 
     private void binaryWarmUp() throws Exception {
-        loop = 800;
+        loop = 2000;
         run = false;
         testBinaryBenchmark();
         System.out.println("Binary warm up done");
@@ -115,7 +125,7 @@ public class JsonSerializerBenchmarkTest {
     }
 
     private void jacksonWarmUp() throws Exception {
-        loop = 800;
+        loop = 2000;
         run = false;
         testJacksonBenchmark();
         System.out.println("Jackson warm up done");
@@ -132,57 +142,56 @@ public class JsonSerializerBenchmarkTest {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(42, "\"int\"");
         appendResults("write int", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("parse int", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        //appendResults("parse int", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void booleanBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(true, "\"boolean\"");
         appendResults("write boolean", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("parse boolean", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        //appendResults("parse boolean", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void longBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(1024 * 1024 * 16L, "\"long\"");
         appendResults("write long", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("parse long", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        //appendResults("parse long", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void doubleBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(24.00000001, "\"double\"");
         appendResults("write double", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("parse double", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        //appendResults("parse double", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void stringBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark("testString", "\"string\"");
         appendResults("write string", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("parse string", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        //appendResults("parse string", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void bytesBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark("testBytes".getBytes(), "\"bytes\"");
         appendResults("write bytes", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("parse bytes", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        //appendResults("parse bytes", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void enumBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(Enum1Values.RED, "{\"type\":\"enum\",\"name\":\"Enum1Values\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"symbols\":[\"BLUE\",\"RED\",\"GREEN\"]}");
         appendResults("write enum", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("parse enum", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        //appendResults("parse enum", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void arrayBenchmark() {
         serializer.clearCache();
         double[] results = singleFieldBenchmark(Lists.newArrayList(1, 2, 3, 4, 5), "{\"type\":\"array\",\"items\":\"int\"}");
         appendResults("write array", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("parse array", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
-
+        //appendResults("parse array", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void mapBenchmark() {
@@ -193,7 +202,7 @@ public class JsonSerializerBenchmarkTest {
         map.put("3c", 3);
         double[] results = singleFieldBenchmark(map, "{\"type\":\"map\",\"values\":\"int\"}");
         appendResults("write map", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("parse map", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        //appendResults("parse map", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void recordBenchmark() {
@@ -201,7 +210,7 @@ public class JsonSerializerBenchmarkTest {
         ModelFilling2 record = new ModelFilling2(1024 * 1024 * 16L, "testRecord", Lists.newArrayList("a", "b", "c"), Enum2Values.BIKE);
         double[] results = singleFieldBenchmark(record, record.getSchema().toString());
         appendResults("write record", new ExecutionResult(serializer.getName(), results[0], (int)results[2]));
-        appendResults("parse record", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
+        //appendResults("parse record", new ExecutionResult(serializer.getName(), results[1], (int)results[2]));
     }
 
     private void benchmarkFiveThreads() throws ExecutionException, InterruptedException {
@@ -280,7 +289,7 @@ public class JsonSerializerBenchmarkTest {
                 long endTime = System.nanoTime();
                 serializeTimes.add((endTime - startTime)/1000);
 
-                byte[] bytes = ((ByteArrayOutputStream) os).toByteArray();
+                /*byte[] bytes = ((ByteArrayOutputStream) os).toByteArray();
                 ((ByteArrayOutputStream) os).reset();
 
                 bytesSize = bytes.length;
@@ -288,11 +297,13 @@ public class JsonSerializerBenchmarkTest {
                 long startTimeTwo = System.nanoTime();
                 serializer.deserialize(GenericBenchmarkRecord.class, is);
                 long endTimeTwo = System.nanoTime();
-                deserializeTimes.add((endTimeTwo - startTimeTwo)/1000);
+                deserializeTimes.add((endTimeTwo - startTimeTwo)/1000);*/
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
+        ((ByteArrayOutputStream) os).reset();
 
         return new double[]{aggregateResults(serializeTimes), aggregateResults(deserializeTimes), bytesSize};
     }
@@ -358,7 +369,6 @@ public class JsonSerializerBenchmarkTest {
         }
     }
 
-
     class JacksonBenchmark implements BenchmarkSerializer {
 
         private ObjectMapper objectMapper = new ObjectMapper();
@@ -419,16 +429,15 @@ public class JsonSerializerBenchmarkTest {
         void clearCache();
     }
 
-}
+    class ExecutionResult {
+        public String serializer;
+        public double time;
+        public int bytesSize;
 
-class ExecutionResult {
-    public String serializer;
-    public double time;
-    public int bytesSize;
-
-    public ExecutionResult(String serializer, double time, int bytesSize) {
-        this.serializer = serializer;
-        this.time = time;
-        this.bytesSize = bytesSize;
+        public ExecutionResult(String serializer, double time, int bytesSize) {
+            this.serializer = serializer;
+            this.time = time;
+            this.bytesSize = bytesSize;
+        }
     }
 }

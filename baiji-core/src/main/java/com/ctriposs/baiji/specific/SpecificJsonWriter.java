@@ -6,13 +6,9 @@ import com.ctriposs.baiji.schema.*;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonParser;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public final class SpecificJsonWriter<T> {
 
@@ -20,7 +16,6 @@ public final class SpecificJsonWriter<T> {
     private static final Map<SchemaType, JsonWritable> _writerCache = new HashMap<>();
 
     static {
-        FACTORY.enable(JsonParser.Feature.ALLOW_COMMENTS);
         _writerCache.put(SchemaType.INT, new IntegerWriter());
         _writerCache.put(SchemaType.LONG, new LongWriter());
         _writerCache.put(SchemaType.DOUBLE, new DoubleWriter());
@@ -34,7 +29,7 @@ public final class SpecificJsonWriter<T> {
         _writerCache.put(SchemaType.ENUM, new EnumWriter());
         _writerCache.put(SchemaType.ARRAY, new ArrayWriter());
         _writerCache.put(SchemaType.MAP, new MapWriter());
-        _writerCache.put(SchemaType.UNION,new UnionWriter());
+        _writerCache.put(SchemaType.UNION, new UnionWriter());
     }
 
     /**
@@ -50,7 +45,6 @@ public final class SpecificJsonWriter<T> {
                     RecordSchema recordSchema = (RecordSchema) schema;
                     JsonGenerator g = FACTORY.createJsonGenerator(os, JsonEncoding.UTF8);
                     _writerCache.get(recordSchema.getType()).write(recordSchema, obj, g);
-                    g.flush();
                     g.close();
                 } catch (Exception e) {
                     throw new BaijiRuntimeException("Serialize process failed.", e);

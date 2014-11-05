@@ -63,7 +63,7 @@ public class JsonStreamSerializer implements Serializer {
     }
 
     public void clearCache() {
-        _readerCache.clear();
-        _writerCache.clear();
+        //_readerCache.clear();
+        //_writerCache.clear();
     }
 }
