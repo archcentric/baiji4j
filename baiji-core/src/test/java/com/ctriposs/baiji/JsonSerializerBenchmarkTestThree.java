@@ -272,8 +272,7 @@ public class JsonSerializerBenchmarkTestThree {
     }
 
     private double[] singleFieldBenchmark(Object fieldValue, String fieldType) {
-        GenericBenchmarkRecord.recordType = fieldType;
-        GenericBenchmarkRecord benchmarkRecord = new GenericBenchmarkRecord();
+        GenericBenchmarkRecord benchmarkRecord = GenericBenchmarkRecord.getBenchmarkRecord(fieldType);
         benchmarkRecord.put(0, fieldValue);
 
         List<Long> serializeTimes = new ArrayList<>();

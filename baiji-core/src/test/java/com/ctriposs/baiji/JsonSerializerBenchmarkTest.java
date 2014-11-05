@@ -263,8 +263,8 @@ public class JsonSerializerBenchmarkTest {
     }
 
     private double[] singleFieldBenchmark(Object fieldValue, String fieldType) {
-        SimpleRecord simpleRecord = new SimpleRecord();
-        simpleRecord.put(0, 42);
+        GenericBenchmarkRecord benchmarkRecord = GenericBenchmarkRecord.getBenchmarkRecord(fieldType);
+        benchmarkRecord.put(0, fieldValue);
 
         List<Long> serializeTimes = new ArrayList<>();
         List<Long> deserializeTimes = new ArrayList<>();
@@ -275,7 +275,7 @@ public class JsonSerializerBenchmarkTest {
         for (int i = 0; i < loop; i++) {
             try {
                 long startTime = System.nanoTime();
-                serializer.serialize(simpleRecord, os);
+                serializer.serialize(benchmarkRecord, os);
                 long endTime = System.nanoTime();
                 serializeTimes.add((endTime - startTime)/1000);
 
@@ -285,7 +285,7 @@ public class JsonSerializerBenchmarkTest {
                 bytesSize = bytes.length;
                 InputStream is = new ByteArrayInputStream(bytes);
                 long startTimeTwo = System.nanoTime();
-                serializer.deserialize(SimpleRecord.class, is);
+                serializer.deserialize(benchmarkRecord.getClass(), is);
                 long endTimeTwo = System.nanoTime();
                 deserializeTimes.add((endTimeTwo - startTimeTwo)/1000);
             } catch (IOException e) {

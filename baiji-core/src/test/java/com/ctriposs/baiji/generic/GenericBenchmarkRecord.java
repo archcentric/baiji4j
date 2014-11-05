@@ -5,18 +5,50 @@ import com.ctriposs.baiji.schema.Schema;
 import com.ctriposs.baiji.specific.SpecificRecordBase;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
-public class GenericBenchmarkRecord extends SpecificRecordBase {
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class GenericBenchmarkRecord extends SpecificRecordBase {
 
     private Object fieldValue;
 
-    public static String recordType;
+    @JsonIgnore
+    private static Map<String, Schema> schemaMap = new HashMap<>();
+    @JsonIgnore
+    private static Map<String, GenericBenchmarkRecord> recordMap = new HashMap<>();
+    @JsonIgnore
+    private Schema schema;
+
+    public GenericBenchmarkRecord(String recordType) {
+        String s = "{\"type\":\"record\",\"name\":\"GenericBenchmarkRecord\",\"namespace\":\"com.ctriposs.baiji.generic\","
+                + "\"fields\":[{\"name\":\"fieldValue\",\"type\": " + recordType + "}]}";
+
+        schema = schemaMap.get(recordType);
+        if (schema == null) {
+            schema = Schema.parse(s);
+            schemaMap.put(recordType, schema);
+        }
+    }
 
     @Override
     @JsonIgnore
     public Schema getSchema() {
-        String s = "{\"type\":\"record\",\"name\":\"GenericBenchmarkRecord\",\"namespace\":\"com.ctriposs.baiji.generic\","
-                + "\"fields\":[{\"name\":\"fieldValue\",\"type\": " + recordType + "}]}";
-        return Schema.parse(s);
+        return schema;
+    }
+
+    @JsonIgnore
+    public static GenericBenchmarkRecord getBenchmarkRecord(String recordType) {
+        GenericBenchmarkRecord benchmarkRecord = recordMap.get(recordType);
+
+        if (benchmarkRecord == null) {
+            switch (recordType) {
+                case "int":
+                    benchmarkRecord = new GenericIntBenchmarkRecord();
+                    break;
+            }
+        }
+
+        return benchmarkRecord;
     }
 
     public Object getFieldValue() {
@@ -35,5 +67,12 @@ public class GenericBenchmarkRecord extends SpecificRecordBase {
     @Override
     public void put(int fieldPos, Object fieldValue) {
         this.fieldValue = fieldValue;
+    }
+
+    private static class GenericIntBenchmarkRecord extends GenericBenchmarkRecord {
+
+        public GenericIntBenchmarkRecord() {
+            super("int");
+        }
     }
 }
