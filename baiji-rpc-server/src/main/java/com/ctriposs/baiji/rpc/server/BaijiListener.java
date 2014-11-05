@@ -97,12 +97,11 @@ public class BaijiListener implements ServletContextListener {
     }
 
     private String getConfigValue(ServletContext context, String key) {
-        String value =  context.getInitParameter(key);
+        String value = System.getProperty(SYSTEM_PROPERTY_PREFIX + key);
         if (value != null && !value.isEmpty()) {
             return value;
         }
-
-        return System.getProperty(SYSTEM_PROPERTY_PREFIX + key);
+        return context.getInitParameter(key);
     }
 
     private void registerService(ServletContext context) {
