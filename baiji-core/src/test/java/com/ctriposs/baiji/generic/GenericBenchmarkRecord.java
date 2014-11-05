@@ -22,6 +22,13 @@ public abstract class GenericBenchmarkRecord extends SpecificRecordBase {
     static {
         recordClasses.put("\"int\"", GenericIntBenchmarkRecord.class);
         recordClasses.put("\"boolean\"", GenericBooleanBenchmarkRecord.class);
+        recordClasses.put("\"long\"", GenericLongBenchmarkRecord.class);
+        recordClasses.put("\"double\"", GenericDoubleBenchmarkRecord.class);
+        recordClasses.put("\"string\"", GenericStringBenchmarkRecord.class);
+        recordClasses.put("\"bytes\"", GenericBytesBenchmarkRecord.class);
+        recordClasses.put("{\"type\":\"enum\",\"name\":\"Enum1Values\",\"namespace\":\"com.ctriposs.baiji.specific\",\"doc\":null,\"symbols\":[\"BLUE\",\"RED\",\"GREEN\"]}", GenericEnumBenchmarkRecord.class);
+        recordClasses.put("{\"type\":\"array\",\"items\":\"int\"}", GenericArrayBenchmarkRecord.class);
+        recordClasses.put("{\"type\":\"map\",\"values\":\"int\"}", GenericMapBenchmarkRecord.class);
     }
 
     public GenericBenchmarkRecord(String recordType) {
