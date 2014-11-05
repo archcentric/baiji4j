@@ -27,14 +27,23 @@ import com.ctriposs.baiji.rpc.common.util.DaemonThreadFactory;
 import com.ctriposs.baiji.specific.SpecificRecord;
 import com.ctriposs.baiji.util.VersionUtils;
 import com.google.common.base.Joiner;
+import com.google.common.util.concurrent.AsyncFunction;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import org.apache.http.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.util.EntityUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,6 +52,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -100,6 +110,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private final Map<String, String> _headers = new HashMap<String, String>();
     private final InvocationStatsStore _statsStore;
     private final AtomicReference<CloseableHttpClient> _client = new AtomicReference<CloseableHttpClient>(createClient());
+    private final AtomicReference<CloseableHttpAsyncClient> _asyncClient = new AtomicReference<CloseableHttpAsyncClient>(createAsyncClient());
 
     private final ScheduledExecutorService _registrySyncService = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
     private final ScheduledExecutorService _clientDisposeService = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
@@ -574,7 +585,86 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         }
     }
 
-    private int getContentLength(CloseableHttpResponse response) {
+    public <TReq extends SpecificRecord, TResp extends SpecificRecord> TResp invokeAsync(String operation, TReq request, Class<TResp> responseClass) {
+        Span span = null;
+        if (_tracer.isTracing()) {
+            span = _tracer.startSpan(operation, getClass().getSimpleName(), SpanType.WEB_SERVICE);
+        }
+        try {
+            return invokeAsyncInternal(operation, request, responseClass, span).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e1) {
+            e1.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public <TReq extends SpecificRecord, TResp extends SpecificRecord> ListenableFuture<TResp> invokeAsyncInternal(final String operation, TReq request, final Class<TResp> responseClass, Span span) {
+        if (_serviceInfo == null || !_serviceInfo.isReady()) {
+            throw new IllegalStateException("The service is not ready for use now.");
+        }
+
+        try {
+            final ContentFormatter contentFormatter = _contentFormatters.get(_format);
+            HttpPost httpPost = prepareWebRequest(operation, request, contentFormatter, span);
+
+            ListenableFuture<HttpResponse> httpResponse = asyncExecuteHttp(httpPost);
+
+            return Futures.transform(httpResponse, new AsyncFunction<HttpResponse, TResp>() {
+                @Override
+                public ListenableFuture<TResp> apply(HttpResponse resp) throws Exception {
+
+                    applyHttpResponseFilters(resp);
+
+                    checkHttpResponseStatus(resp);
+
+                    int contentLength = getContentLength(resp);
+                    _statsStore.getStats(operation).addResponseSize(contentLength);
+
+                    TResp response = contentFormatter.deserialize(responseClass, resp.getEntity().getContent());
+                    if (response instanceof HasResponseStatus) {
+                        checkResponseStatus((HasResponseStatus) response);
+                    }
+
+                    close(resp);
+                    _statsStore.getStats(operation).markSuccess();
+
+                    return Futures.immediateFuture(response);
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private ListenableFuture<HttpResponse> asyncExecuteHttp(HttpUriRequest request) {
+        final SettableFuture<HttpResponse> future = SettableFuture.create();
+
+        _asyncClient.get().execute(request, new FutureCallback<HttpResponse>() {
+            @Override
+            public void completed(HttpResponse result) {
+                future.set(result);
+            }
+
+            @Override
+            public void failed(Exception ex) {
+                future.setException(ex);
+            }
+
+            @Override
+            public void cancelled() {
+                future.setException(new InterruptedException());
+            }
+        });
+
+        return future;
+    }
+
+    private int getContentLength(HttpResponse response) {
         Header lengthHeader = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         if (lengthHeader == null) {
             return 0;
@@ -621,7 +711,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         return httpPost;
     }
 
-    private void checkHttpResponseStatus(CloseableHttpResponse response)
+    private void checkHttpResponseStatus(HttpResponse response)
             throws HttpWebException {
         if (response.getStatusLine().getStatusCode() <= 200) {
             return;
@@ -634,7 +724,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         throw ex;
     }
 
-    private String getResponseContent(CloseableHttpResponse response) {
+    private String getResponseContent(HttpResponse response) {
         String responseContent = null;
         InputStreamReader reader = null;
         try {
@@ -655,7 +745,9 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                 }
             }
             try {
-                response.close();
+                if (response instanceof CloseableHttpResponse) {
+                    ((CloseableHttpResponse) response).close();
+                }
             } catch (IOException e) {
             }
         }
@@ -727,6 +819,27 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                 .setMaxConnPerRoute(_maxConnections)
                 .build();
         return httpClient;
+    }
+
+    private CloseableHttpAsyncClient createAsyncClient() {
+        CloseableHttpAsyncClient httpAsyncClient;
+        httpAsyncClient = HttpAsyncClients.custom()
+                .setMaxConnPerRoute(_maxConnections)
+                .build();
+
+        httpAsyncClient.start();
+
+        return httpAsyncClient;
+    }
+
+    private void close(HttpResponse response) {
+        if (response == null)
+            return;
+
+        HttpEntity entity = response.getEntity();
+        if (entity != null) {
+            EntityUtils.consumeQuietly(entity);
+        }
     }
 
     /**
