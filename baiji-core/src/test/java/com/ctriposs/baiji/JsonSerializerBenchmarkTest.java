@@ -33,14 +33,14 @@ public class JsonSerializerBenchmarkTest {
         serializer = new JsonSerializerBenchmark();
         intBenchmark();
         booleanBenchmark();
-        longBenchmark();
+        /*longBenchmark();
         doubleBenchmark();
         stringBenchmark();
         bytesBenchmark();
         enumBenchmark();
         arrayBenchmark();
         mapBenchmark();
-        recordBenchmark();
+        recordBenchmark();*/
        /* if (run) {
             benchmarkFiveThreads();
             benchmarkTenThreads();
@@ -52,14 +52,14 @@ public class JsonSerializerBenchmarkTest {
         serializer = new JacksonBenchmark();
         intBenchmark();
         booleanBenchmark();
-        longBenchmark();
+        /*longBenchmark();
         doubleBenchmark();
         stringBenchmark();
         bytesBenchmark();
         enumBenchmark();
         arrayBenchmark();
         mapBenchmark();
-        recordBenchmark();
+        recordBenchmark();*/
       /*  if (run) {
             benchmarkFiveThreads();
             benchmarkTenThreads();
@@ -71,14 +71,14 @@ public class JsonSerializerBenchmarkTest {
         serializer = new BinaryBenchmark();
         intBenchmark();
         booleanBenchmark();
-        longBenchmark();
+        /*longBenchmark();
         doubleBenchmark();
         stringBenchmark();
         bytesBenchmark();
         enumBenchmark();
         arrayBenchmark();
         mapBenchmark();
-        recordBenchmark();
+        recordBenchmark();*/
         /*if (run) {
             benchmarkFiveThreads();
             benchmarkTenThreads();

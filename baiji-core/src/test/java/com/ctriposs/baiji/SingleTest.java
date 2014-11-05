@@ -23,8 +23,7 @@ public class SingleTest {
 
         TestSerializerSample sample = new TestSerializerSample();
 
-        GenericBenchmarkRecord.recordType = "\"int\"";
-        GenericBenchmarkRecord benchmarkRecord = new GenericBenchmarkRecord();
+        GenericBenchmarkRecord benchmarkRecord = GenericBenchmarkRecord.getBenchmarkRecord("int");
         benchmarkRecord.put(0, 42);
         sample.bigint1 = 110L;
         sample.boolean1 = false;

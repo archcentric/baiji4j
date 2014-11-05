@@ -14,17 +14,22 @@ public abstract class GenericBenchmarkRecord extends SpecificRecordBase {
 
     @JsonIgnore
     private static Map<String, Schema> schemaMap = new HashMap<>();
-    @JsonIgnore
-    private static Map<String, GenericBenchmarkRecord> recordMap = new HashMap<>();
+
+    protected static final Map<String, Class<? extends GenericBenchmarkRecord>> recordClasses = new HashMap<>();
     @JsonIgnore
     private Schema schema;
 
-    public GenericBenchmarkRecord(String recordType) {
-        String s = "{\"type\":\"record\",\"name\":\"GenericBenchmarkRecord\",\"namespace\":\"com.ctriposs.baiji.generic\","
-                + "\"fields\":[{\"name\":\"fieldValue\",\"type\": " + recordType + "}]}";
+    static {
+        recordClasses.put("\"int\"", GenericIntBenchmarkRecord.class);
+        recordClasses.put("\"boolean\"", GenericBooleanBenchmarkRecord.class);
+    }
 
+    public GenericBenchmarkRecord(String recordType) {
         schema = schemaMap.get(recordType);
+
         if (schema == null) {
+            String s = "{\"type\":\"record\",\"name\":\"" + recordClasses.get(recordType).getSimpleName() + "\",\"namespace\":\"com.ctriposs.baiji.generic\","
+                    + "\"fields\":[{\"name\":\"fieldValue\",\"type\":" + recordType + "}]}";
             schema = Schema.parse(s);
             schemaMap.put(recordType, schema);
         }
@@ -38,17 +43,13 @@ public abstract class GenericBenchmarkRecord extends SpecificRecordBase {
 
     @JsonIgnore
     public static GenericBenchmarkRecord getBenchmarkRecord(String recordType) {
-        GenericBenchmarkRecord benchmarkRecord = recordMap.get(recordType);
+        Class<? extends GenericBenchmarkRecord> clazz = recordClasses.get(recordType);
 
-        if (benchmarkRecord == null) {
-            switch (recordType) {
-                case "int":
-                    benchmarkRecord = new GenericIntBenchmarkRecord();
-                    break;
-            }
+        try {
+            return clazz.newInstance();
+        } catch (Exception e) {
+            return null;
         }
-
-        return benchmarkRecord;
     }
 
     public Object getFieldValue() {
@@ -69,10 +70,10 @@ public abstract class GenericBenchmarkRecord extends SpecificRecordBase {
         this.fieldValue = fieldValue;
     }
 
-    private static class GenericIntBenchmarkRecord extends GenericBenchmarkRecord {
+    /*public static class GenericIntBenchmarkRecord extends GenericBenchmarkRecord {
 
         public GenericIntBenchmarkRecord() {
-            super("int");
+            super("\"int\"");
         }
-    }
+    }*/
 }
