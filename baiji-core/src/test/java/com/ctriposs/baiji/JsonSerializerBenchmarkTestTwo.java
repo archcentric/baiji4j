@@ -4,7 +4,9 @@ import com.ctriposs.baiji.generic.GenericBenchmarkRecord;
 import com.ctriposs.baiji.specific.Enum1Values;
 import com.ctriposs.baiji.specific.Enum2Values;
 import com.ctriposs.baiji.specific.ModelFilling2;
+import com.ctriposs.baiji.specific.SimpleRecord;
 import com.google.common.collect.Lists;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.*;
 import java.util.HashMap;
@@ -13,26 +15,18 @@ import java.util.Map;
 public class JsonSerializerBenchmarkTestTwo {
 
     private JsonSerializer serializer = new JsonSerializer();
-    private int loop = 50;
+    private ObjectMapper objectMapper = new ObjectMapper();
+    private int loop = 500000;
 
     public static void main(String[] args) throws Exception {
         JsonSerializerBenchmarkTestTwo test = new JsonSerializerBenchmarkTestTwo();
-        while (true) {
-            test.testBenchmark();
-        }
-    }
-
-    private void testBenchmark() throws Exception {
-        testJson();
-    }
-
-    private void testJson() throws Exception {
-        testJsonSerializerBenchmark();
+        test.testJsonSerializerBenchmark();
     }
 
     public void testJsonSerializerBenchmark() throws Exception {
         intBenchmark();
-        booleanBenchmark();
+        //jacksonIntBenchmark();
+        /*booleanBenchmark();
         longBenchmark();
         doubleBenchmark();
         stringBenchmark();
@@ -40,12 +34,26 @@ public class JsonSerializerBenchmarkTestTwo {
         enumBenchmark();
         arrayBenchmark();
         mapBenchmark();
-        recordBenchmark();
+        recordBenchmark();*/
+    }
+
+    public void testJacksonSerializerBenchmark() {
+
     }
 
     private void intBenchmark() {
         serializer.clearCache();
+        long start = System.nanoTime();
         singleFieldBenchmark(42, "\"int\"");
+        long end = System.nanoTime();
+        System.out.println("Used time: " + (end - start)/1000000);
+    }
+
+    private void jacksonIntBenchmark() {
+        long start = System.nanoTime();
+        jacksonBenchmark();
+        long end = System.nanoTime();
+        System.out.println("Used time: " + (end - start)/1000000);
     }
 
     private void booleanBenchmark() {
@@ -104,6 +112,9 @@ public class JsonSerializerBenchmarkTestTwo {
         GenericBenchmarkRecord benchmarkRecord = new GenericBenchmarkRecord();
         benchmarkRecord.put(0, fieldValue);
 
+        SimpleRecord simpleRecord = new SimpleRecord();
+        simpleRecord.put(0, 42);
+
         OutputStream os = new ByteArrayOutputStream();
 
         for (int i = 0; i < loop; i++) {
@@ -113,8 +124,33 @@ public class JsonSerializerBenchmarkTestTwo {
                 byte[] bytes = ((ByteArrayOutputStream) os).toByteArray();
                 ((ByteArrayOutputStream) os).reset();
 
-                InputStream is = new ByteArrayInputStream(bytes);
-                serializer.deserialize(GenericBenchmarkRecord.class, is);
+                //InputStream is = new ByteArrayInputStream(bytes);
+                //serializer.deserialize(GenericBenchmarkRecord.class, is);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void jacksonBenchmark() {
+        GenericBenchmarkRecord.recordType = "\"int\"";
+        GenericBenchmarkRecord benchmarkRecord = new GenericBenchmarkRecord();
+        benchmarkRecord.put(0, 42);
+
+        SimpleRecord simpleRecord = new SimpleRecord();
+        simpleRecord.put(0, 42);
+
+        OutputStream os = new ByteArrayOutputStream();
+
+        for (int i = 0; i < loop; i++) {
+            try {
+                objectMapper.writeValue(os, benchmarkRecord);
+
+                byte[] bytes = ((ByteArrayOutputStream) os).toByteArray();
+                ((ByteArrayOutputStream) os).reset();
+
+                //InputStream is = new ByteArrayInputStream(bytes);
+                //objectMapper.readValue(is, GenericBenchmarkRecord.class);
             } catch (IOException e) {
                 e.printStackTrace();
             }

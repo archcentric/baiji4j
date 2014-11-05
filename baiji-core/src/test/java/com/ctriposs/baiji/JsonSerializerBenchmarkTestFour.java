@@ -21,7 +21,7 @@ public class JsonSerializerBenchmarkTestFour {
         SpecificJsonWriter jsonWriter = new SpecificJsonWriter<SimpleRecord>();
 
         SimpleRecord simpleRecord = new SimpleRecord();
-        simpleRecord.sInt = 10001;
+        simpleRecord.put(0, 10001);
 
         OutputStream os = new ByteArrayOutputStream();
         Schema schema = simpleRecord.getSchema();
@@ -83,7 +83,7 @@ public class JsonSerializerBenchmarkTestFour {
         ObjectMapper objectMapper = new ObjectMapper();
 
         SimpleRecord simpleRecord = new SimpleRecord();
-        simpleRecord.sInt = 10001;
+        simpleRecord.put(0, 10001);
 
         OutputStream os = new ByteArrayOutputStream();
 
