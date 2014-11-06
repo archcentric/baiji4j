@@ -56,6 +56,8 @@ public class SpecificJsonStreamReader<T> {
                 jp.nextToken();
                 Object value = readValue(field.getSchema(), jp);
                 put(record, field.getPos(), value);
+            } else {
+                throw new BaijiRuntimeException("The schema has no such field");
             }
         }
 
