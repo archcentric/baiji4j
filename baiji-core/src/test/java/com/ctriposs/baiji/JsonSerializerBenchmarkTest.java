@@ -23,8 +23,8 @@ public class JsonSerializerBenchmarkTest {
     }
 
     public void testBenchmark() throws Exception {
-        testJackson();
         //testBinary();
+        testJackson();
         testJson();
         print(records);
     }
@@ -87,7 +87,7 @@ public class JsonSerializerBenchmarkTest {
     }
 
     private void jsonWarmUp() throws Exception {
-        loop = 800;
+        loop = 5000;
         run = false;
         testJsonSerializerBenchmark();
         System.out.println("Json Warm Up Done");
@@ -95,13 +95,13 @@ public class JsonSerializerBenchmarkTest {
 
     private void testJson() throws Exception {
         jsonWarmUp();
-        loop = 40000;
+        loop = 100000;
         run = true;
         testJsonSerializerBenchmark();
     }
 
     private void binaryWarmUp() throws Exception {
-        loop = 800;
+        loop = 5000;
         run = false;
         testBinaryBenchmark();
         System.out.println("Binary warm up done");
@@ -109,13 +109,13 @@ public class JsonSerializerBenchmarkTest {
 
     private void testBinary() throws Exception {
         binaryWarmUp();
-        loop = 40000;
+        loop = 100000;
         run = true;
         testBinaryBenchmark();
     }
 
     private void jacksonWarmUp() throws Exception {
-        loop = 800;
+        loop = 5000;
         run = false;
         testJacksonBenchmark();
         System.out.println("Jackson warm up done");
@@ -123,7 +123,7 @@ public class JsonSerializerBenchmarkTest {
 
     private void testJackson() throws Exception {
         jacksonWarmUp();
-        loop = 40000;
+        loop = 100000;
         run = true;
         testJacksonBenchmark();
     }

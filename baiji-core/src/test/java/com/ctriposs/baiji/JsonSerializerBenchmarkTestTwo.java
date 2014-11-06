@@ -11,12 +11,12 @@ public class JsonSerializerBenchmarkTestTwo {
 
     private JsonStreamSerializer serializer = new JsonStreamSerializer();
     private ObjectMapper objectMapper = new ObjectMapper();
-    private int loop = 100000;
+    private int loop = 5000000;
 
     public static void main(String[] args) throws Exception {
         JsonSerializerBenchmarkTestTwo test = new JsonSerializerBenchmarkTestTwo();
+        Thread.sleep(10 * 1000);
         test.testJsonSerializerBenchmark();
-        test.testJacksonSerializerBenchmark();
     }
 
     public void testJsonSerializerBenchmark() throws Exception {
@@ -27,35 +27,23 @@ public class JsonSerializerBenchmarkTestTwo {
         jacksonBenchmark();
     }
 
-    private void intBenchmark() {
-        serializer.clearCache();
-        singleFieldBenchmark(42, "\"int\"");
+    private void intBenchmark() throws IOException {
+        singleFieldBenchmark();
     }
 
-    private void singleFieldBenchmark(Object fieldValue, String fieldType) {
+    private void singleFieldBenchmark() throws IOException {
         SimpleRecord simpleRecord = new SimpleRecord();
         simpleRecord.put(0, 42);
 
         OutputStream os = new ByteArrayOutputStream();
+        serializer.serialize(simpleRecord, os);
+        byte[] bytes = ((ByteArrayOutputStream) os).toByteArray();
+        ((ByteArrayOutputStream) os).reset();
 
-        List<Long> deserializeTimeList = new ArrayList<>();
         for (int i = 0; i < loop; i++) {
-            try {
-                serializer.serialize(simpleRecord, os);
-
-                byte[] bytes = ((ByteArrayOutputStream) os).toByteArray();
-                ((ByteArrayOutputStream) os).reset();
-
-                InputStream is = new ByteArrayInputStream(bytes);
-                long start = System.nanoTime();
-                serializer.deserialize(SimpleRecord.class, is);
-                deserializeTimeList.add(System.nanoTime() - start);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            InputStream is = new ByteArrayInputStream(bytes);
+            serializer.deserialize(SimpleRecord.class, is);
         }
-
-        printResults(deserializeTimeList);
     }
 
     private void jacksonBenchmark() {
