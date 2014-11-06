@@ -8,7 +8,6 @@ import org.codehaus.jackson.JsonToken;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -199,11 +198,9 @@ public class SpecificJsonStreamReader<T> {
 
     private static class RecordReader implements JsonReadable {
 
-        //private final Constructor constructor;
         private final Class<?> clazz;
 
         public RecordReader(RecordSchema schema) {
-            //constructor = getConstructor(schema);
             clazz = getClazz(schema);
         }
 
@@ -215,10 +212,9 @@ public class SpecificJsonStreamReader<T> {
 
     private static class MapReader implements JsonReadable {
 
-        //private final Constructor constructor;
         private final Class<?> clazz;
+
         public MapReader(Schema schema) {
-            //constructor = getConstructor(schema);
             clazz = getClazz(schema);
         }
 
@@ -256,11 +252,9 @@ public class SpecificJsonStreamReader<T> {
 
     private static class ArrayReader implements JsonReadable {
 
-        //private final Constructor constructor;
         private final Class<?> clazz;
 
         public ArrayReader(Schema schema) {
-            //constructor = getConstructor(schema);
             clazz = getClazz(schema);
         }
 
@@ -280,18 +274,6 @@ public class SpecificJsonStreamReader<T> {
 
             return list;
         }
-    }
-
-    private static Constructor getConstructor(Schema schema) {
-        ObjectCreator objectCreator = ObjectCreator.INSTANCE;
-        Constructor constructor;
-        try {
-            constructor = objectCreator.getClass(schema).getConstructor(new Class[]{});
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-
-        return constructor;
     }
 
     private static Class<?> getClazz(Schema schema) {
