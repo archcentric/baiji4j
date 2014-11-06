@@ -277,7 +277,7 @@ public class JsonSerializerBenchmarkTest {
                 long startTime = System.nanoTime();
                 serializer.serialize(benchmarkRecord, os);
                 long endTime = System.nanoTime();
-                serializeTimes.add((endTime - startTime)/1000);
+                serializeTimes.add((endTime - startTime));
 
                 byte[] bytes = ((ByteArrayOutputStream) os).toByteArray();
                 ((ByteArrayOutputStream) os).reset();
@@ -287,7 +287,7 @@ public class JsonSerializerBenchmarkTest {
                 long startTimeTwo = System.nanoTime();
                 serializer.deserialize(benchmarkRecord.getClass(), is);
                 long endTimeTwo = System.nanoTime();
-                deserializeTimes.add((endTimeTwo - startTimeTwo)/1000);
+                deserializeTimes.add((endTimeTwo - startTimeTwo));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -302,7 +302,7 @@ public class JsonSerializerBenchmarkTest {
             sum += result;
         }
 
-        return sum/results.size();
+        return sum/(1000 * results.size());
     }
 
     private void appendResults(String type, ExecutionResult result) {
