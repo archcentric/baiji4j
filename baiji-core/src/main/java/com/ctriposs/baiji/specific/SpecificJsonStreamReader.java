@@ -197,31 +197,34 @@ public class SpecificJsonStreamReader<T> {
         Object read(Object reuse) throws Exception;
     }
 
-    private class RecordReader implements JsonReadable {
+    private static class RecordReader implements JsonReadable {
 
-        private final Constructor constructor;
+        //private final Constructor constructor;
+        private final Class<?> clazz;
 
         public RecordReader(RecordSchema schema) {
-            constructor = getConstructor(schema);
+            //constructor = getConstructor(schema);
+            clazz = getClazz(schema);
         }
 
         @Override
         public Object read(Object reuse) throws Exception {
-            return reuse == null ? constructor.newInstance() : reuse;
+            return reuse == null ? clazz.newInstance() : reuse;
         }
     }
 
-    private class MapReader implements JsonReadable {
+    private static class MapReader implements JsonReadable {
 
-        private final Constructor constructor;
-
+        //private final Constructor constructor;
+        private final Class<?> clazz;
         public MapReader(Schema schema) {
-            this.constructor = getConstructor(schema);
+            //constructor = getConstructor(schema);
+            clazz = getClazz(schema);
         }
 
         @Override
         public Object read(Object reuse) throws Exception {
-            return reuse == null ? constructor.newInstance() : reuse;
+            return reuse == null ? clazz.newInstance() : reuse;
         }
 
         @SuppressWarnings("unchecked")
@@ -230,7 +233,7 @@ public class SpecificJsonStreamReader<T> {
         }
     }
 
-    private class EnumReader implements JsonReadable {
+    private static class EnumReader implements JsonReadable {
 
         private int[] translator;
         private EnumSchema enumSchema;
@@ -251,12 +254,14 @@ public class SpecificJsonStreamReader<T> {
         }
     }
 
-    private class ArrayReader implements JsonReadable {
+    private static class ArrayReader implements JsonReadable {
 
-        private final Constructor constructor;
+        //private final Constructor constructor;
+        private final Class<?> clazz;
 
         public ArrayReader(Schema schema) {
-            this.constructor = getConstructor(schema);
+            //constructor = getConstructor(schema);
+            clazz = getClazz(schema);
         }
 
         @Override
@@ -270,7 +275,7 @@ public class SpecificJsonStreamReader<T> {
                 }
                 list.clear();
             } else {
-                list = (List) constructor.newInstance();
+                list = (List) clazz.newInstance();
             }
 
             return list;
@@ -287,6 +292,11 @@ public class SpecificJsonStreamReader<T> {
         }
 
         return constructor;
+    }
+
+    private static Class<?> getClazz(Schema schema) {
+        ObjectCreator objectCreator = ObjectCreator.INSTANCE;
+        return objectCreator.getClass(schema);
     }
 
     /** Helper method for adding a message to an NPE. */

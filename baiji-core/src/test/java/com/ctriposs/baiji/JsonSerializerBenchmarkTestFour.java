@@ -14,7 +14,7 @@ public class JsonSerializerBenchmarkTestFour {
 
     public static void main(String[] args) throws IOException {
         JsonSerializerBenchmarkTestFour testFour = new JsonSerializerBenchmarkTestFour();
-        testFour.testComplexJacksonSerialize();
+        testFour.testComplexJsonSerialize();
     }
 
     private void testJsonSerialize() {
