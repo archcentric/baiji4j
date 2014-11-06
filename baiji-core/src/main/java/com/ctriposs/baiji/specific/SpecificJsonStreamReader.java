@@ -43,9 +43,9 @@ public class SpecificJsonStreamReader<T> {
         }
     }
 
-    private Object readRecord(RecordSchema schema, Object reuse, JsonReadable reader, JsonParser jp, boolean inner) throws Exception {
+    private Object readRecord(RecordSchema schema, Object reuse, JsonReadable reader, JsonParser jp, boolean nested) throws Exception {
         Object record = reader.read(reuse);
-        if (!inner) {
+        if (!nested) {
             jp.nextToken();
         }
 
@@ -190,7 +190,6 @@ public class SpecificJsonStreamReader<T> {
 
         return list;
     }
-
 
     private interface JsonReadable {
         Object read(Object reuse) throws Exception;
