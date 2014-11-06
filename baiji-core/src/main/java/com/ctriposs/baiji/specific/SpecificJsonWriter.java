@@ -57,18 +57,6 @@ public final class SpecificJsonWriter<T> {
         }
     }
 
-    /** Error method.*/
-    private void error(Schema schema, Object datum) {
-        throw new BaijiRuntimeException("Not a " + schema + ": " + datum);
-    }
-
-    /** Helper method for adding a message to an NPE. */
-    protected NullPointerException npe(NullPointerException e, String s) {
-        NullPointerException result = new NullPointerException(e.getMessage()+s);
-        result.initCause(e.getCause() == null ? e : e.getCause());
-        return result;
-    }
-
     private interface JsonWritable {
         void write(Schema schema, Object datum, JsonGenerator g) throws Exception;
     }

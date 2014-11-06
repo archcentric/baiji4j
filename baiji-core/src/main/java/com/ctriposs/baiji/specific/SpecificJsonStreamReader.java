@@ -50,8 +50,8 @@ public class SpecificJsonStreamReader<T> {
 
         while (jp.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = jp.getCurrentName();
-            if (schema.contains(fieldName)) {
-                Field field = schema.getField(fieldName);
+            Field field = schema.getField(fieldName);
+            if (field != null) {
                 jp.nextToken();
                 Object value = readValue(field.getSchema(), jp);
                 put(record, field.getPos(), value);

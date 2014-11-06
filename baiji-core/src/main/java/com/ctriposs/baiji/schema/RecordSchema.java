@@ -44,7 +44,7 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
         Map<String, Field> fieldMap = new HashMap<String, Field>();
         Map<String, Field> fieldAliasMap = new HashMap<String, Field>();
         for (Field field : fields) {
-            addToFieldMap(fieldMap, field.getName(), field);
+            addToFieldMap(fieldMap, field.getName().toLowerCase(), field);
             addToFieldMap(fieldAliasMap, field.getName(), field);
 
             if (field.getAliases() != null)
@@ -190,7 +190,7 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
             throw new IllegalArgumentException("Duplicate field: " + field.getName());
         }
         _fields.add(field);
-        addToFieldMap(_fieldLookup, field.getName(), field);
+        addToFieldMap(_fieldLookup, field.getName().toLowerCase(), field);
         addToFieldMap(_fieldAliasLookup, field.getName(), field);
     }
 
@@ -204,7 +204,7 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("name cannot be null");
         }
-        return _fieldLookup.get(name);
+        return _fieldLookup.get(name.toLowerCase());
     }
 
     /**
@@ -214,7 +214,7 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
      * @return true if the field exists, false otherwise
      */
     public boolean contains(String fieldName) {
-        return _fieldLookup.containsKey(fieldName);
+        return _fieldLookup.containsKey(fieldName.toLowerCase());
     }
 
 
