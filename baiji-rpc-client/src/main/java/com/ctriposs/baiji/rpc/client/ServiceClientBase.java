@@ -110,7 +110,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private final ScheduledExecutorService _clientDisposeService = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
     private final ScheduledExecutorService _statsReportService
             = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
-    private final ExecutorService _delegateAsyncTransformer = Executors.newFixedThreadPool(5);
+    private final ExecutorService _delegateAsyncTransformer = Executors.newFixedThreadPool(10);
     private final ListeningExecutorService _transformerPool = MoreExecutors.listeningDecorator(_delegateAsyncTransformer);
 
     static {
@@ -990,7 +990,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
         @Override
         public ListenableFuture<TResp> apply(HttpResponse response) throws Exception {
-            return transformPool.submit(new TransformWorker<TResp>(response, clazz, operation));
+            return transformPool.submit(new TransformWorker(response, clazz, operation));
         }
 
         private class TransformWorker<TResp extends SpecificRecord> implements Callable<TResp> {
