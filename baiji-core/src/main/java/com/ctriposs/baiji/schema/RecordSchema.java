@@ -44,7 +44,7 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
         Map<String, Field> fieldMap = new HashMap<String, Field>();
         Map<String, Field> fieldAliasMap = new HashMap<String, Field>();
         for (Field field : fields) {
-            addToFieldMap(fieldMap, field.getName().toLowerCase(), field);
+            addToFieldMap(fieldMap, field.getName(), field);
             addToFieldMap(fieldAliasMap, field.getName(), field);
 
             if (field.getAliases() != null)
@@ -140,10 +140,11 @@ public class RecordSchema extends NamedSchema implements Iterable<Field> {
     }
 
     private static void addToFieldMap(Map<String, Field> map, String name, Field field) {
-        if (map.containsKey(name)) {
+        String lowerCaseName = name.toLowerCase();
+        if (map.containsKey(lowerCaseName)) {
             throw new SchemaParseException("field or alias " + name + " is a duplicate name");
         }
-        map.put(name, field);
+        map.put(lowerCaseName, field);
     }
 
     /**

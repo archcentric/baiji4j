@@ -77,10 +77,4 @@ public abstract class GenericBenchmarkRecord extends SpecificRecordBase {
         this.fieldValue = fieldValue;
     }
 
-    /*public static class GenericIntBenchmarkRecord extends GenericBenchmarkRecord {
-
-        public GenericIntBenchmarkRecord() {
-            super("\"int\"");
-        }
-    }*/
 }
