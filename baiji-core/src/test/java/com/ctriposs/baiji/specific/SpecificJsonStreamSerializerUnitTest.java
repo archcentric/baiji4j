@@ -14,12 +14,12 @@ import java.util.Map;
 public class SpecificJsonStreamSerializerUnitTest {
 
     private SpecificJsonWriter<TestSerializerSample> writer;
-    private SpecificJsonStreamReader<TestSerializerSample> reader;
+    private SpecificJsonReader<TestSerializerSample> reader;
 
     @Before
     public void setUp() throws Exception {
         writer = new SpecificJsonWriter<>();
-        reader = new SpecificJsonStreamReader<>(TestSerializerSample.SCHEMA);
+        reader = new SpecificJsonReader<>(TestSerializerSample.SCHEMA);
     }
 
     @Test

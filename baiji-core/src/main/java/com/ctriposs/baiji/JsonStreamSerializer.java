@@ -1,6 +1,6 @@
 package com.ctriposs.baiji;
 
-import com.ctriposs.baiji.specific.SpecificJsonStreamReader;
+import com.ctriposs.baiji.specific.SpecificJsonReader;
 import com.ctriposs.baiji.specific.SpecificJsonWriter;
 import com.ctriposs.baiji.specific.SpecificRecord;
 
@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class JsonStreamSerializer implements Serializer {
 
-    private static final ConcurrentMap<Class<?>, SpecificJsonStreamReader> _readerCache =
+    private static final ConcurrentMap<Class<?>, SpecificJsonReader> _readerCache =
             new ConcurrentHashMap<>();
 
     private static final ConcurrentMap<Class<?>, SpecificJsonWriter> _writerCache =
@@ -26,7 +26,7 @@ public class JsonStreamSerializer implements Serializer {
 
     @Override
     public <T extends SpecificRecord> T deserialize(Class<T> objClass, InputStream stream) throws IOException {
-        SpecificJsonStreamReader<T> reader = (SpecificJsonStreamReader) getReader(objClass);
+        SpecificJsonReader<T> reader = (SpecificJsonReader) getReader(objClass);
         return reader.read(null, stream);
     }
 
@@ -43,8 +43,8 @@ public class JsonStreamSerializer implements Serializer {
         return writer;
     }
 
-    private static <T extends SpecificRecord> SpecificJsonStreamReader<T> getReader(Class<T> clazz) {
-        SpecificJsonStreamReader<T> datumReader = _readerCache.get(clazz);
+    private static <T extends SpecificRecord> SpecificJsonReader<T> getReader(Class<T> clazz) {
+        SpecificJsonReader<T> datumReader = _readerCache.get(clazz);
         if (datumReader == null) {
             SpecificRecord record;
             try {
@@ -52,8 +52,8 @@ public class JsonStreamSerializer implements Serializer {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            datumReader = new SpecificJsonStreamReader<T>(record.getSchema());
-            SpecificJsonStreamReader<T> existedReader = _readerCache.putIfAbsent(clazz, datumReader);
+            datumReader = new SpecificJsonReader<T>(record.getSchema());
+            SpecificJsonReader<T> existedReader = _readerCache.putIfAbsent(clazz, datumReader);
             if (existedReader != null) {
                 datumReader = existedReader;
             }

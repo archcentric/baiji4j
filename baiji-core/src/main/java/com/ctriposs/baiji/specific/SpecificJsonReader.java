@@ -3,41 +3,37 @@ package com.ctriposs.baiji.specific;
 import com.ctriposs.baiji.exception.BaijiRuntimeException;
 import com.ctriposs.baiji.schema.*;
 import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public final class SpecificJsonReader<T> {
+public class SpecificJsonReader<T> {
 
     private static final JsonFactory FACTORY = new JsonFactory();
     private final Schema root;
-    // ObjectMapper is thread safe
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    public SpecificJsonReader(Schema schema) {
-        this.root = schema;
+    public SpecificJsonReader(Schema root) {
+        this.root = root;
     }
 
     /**
-     * Parse as JSON Node
-     * @param reuse
-     * @param is the source stream
-     * @return a record instance
+     * The only public interface
+     * @param reuse the reuse object
+     * @param is the input stream
+     * @return an object
      */
-    public T read(T reuse, InputStream is) throws IOException {
-        JsonNode jsonNode = MAPPER.readTree(is);
+    @SuppressWarnings("unchecked")
+    public T read(T reuse, InputStream is) {
         if (root instanceof RecordSchema) {
-            RecordSchema recordSchema = (RecordSchema) root;
-            try {
-                return (T) readRecord(jsonNode, reuse, new RecordReader(recordSchema), recordSchema);
+            RecordSchema schema = (RecordSchema) root;
+
+            try (JsonParser jp = FACTORY.createJsonParser(is)) {
+                return (T) readRecord(schema, reuse, new RecordReader(schema), jp, false);
             } catch (Exception e) {
                 throw new BaijiRuntimeException(e);
             }
@@ -46,80 +42,67 @@ public final class SpecificJsonReader<T> {
         }
     }
 
-    /** Called to read a record.*/
-    protected Object readRecord(JsonNode node, Object reuse, JsonReadable recordReader, RecordSchema recordSchema) throws Exception {
-        Object r = recordReader.read(reuse);
-        List<Field> fields = recordSchema.getFields();
-        for (Field field : fields) {
-            if (node.has(field.getName())) {
-                Object value = readField(field.getSchema(), node.get(field.getName()));
-                put(r, field.getPos(), value);
+    private Object readRecord(RecordSchema schema, Object reuse, JsonReadable reader, JsonParser jp, boolean nested) throws Exception {
+        Object record = reader.read(reuse);
+        if (!nested) {
+            jp.nextToken();
+        }
+
+        while (jp.nextToken() != JsonToken.END_OBJECT) {
+            String fieldName = jp.getCurrentName();
+            Field field = schema.getField(fieldName);
+            if (field != null) {
+                jp.nextToken();
+                Object value = readValue(field.getSchema(), jp);
+                put(record, field.getPos(), value);
+            } else {
+                throw new BaijiRuntimeException("The schema has no such field");
             }
         }
 
-        return r;
+        return record;
     }
 
-    /** Called to read the inner record.*/
-    protected Object readInnerRecord(Object reuse, JsonReadable recordReader, RecordSchema recordSchema) throws Exception {
-        Object obj = recordReader.read(null);
-        List<Field> fields = recordSchema.getFields();
-        for (Field field : fields) {
-            if (((ObjectNode) reuse).has(field.getName())) {
-                Object value = readField(field.getSchema(), ((ObjectNode) reuse).get(field.getName()));
-                put(obj, field.getPos(), value);
-            }
-        }
-
-        return obj;
-    }
-
-    protected void put(Object obj, int fieldPos, Object fieldValue) {
+    private void put(Object obj, int fieldPos, Object fieldValue) {
         ((SpecificRecord) obj).put(fieldPos, fieldValue);
     }
 
-    /** Called to read a field of a record.*/
-    protected Object readField(Schema schema, Object datum) throws Exception {
+    private Object readValue(Schema schema, JsonParser jp) throws Exception {
         try {
             switch (schema.getType()) {
                 case NULL:
                     return readNull();
                 case INT:
-                    return readInt(datum);
+                    return readInt(jp);
                 case BOOLEAN:
-                    return readBoolean(datum);
+                    return readBoolean(jp);
                 case DOUBLE:
-                    return readDouble(datum);
+                    return readDouble(jp);
                 case LONG:
-                    return readLong(datum);
+                    return readLong(jp);
                 case FLOAT:
-                    return readFloat(datum);
+                    return readFloat(jp);
                 case STRING:
-                    return readString(datum);
+                    return readString(jp);
                 case BYTES:
-                    return readBytes(datum);
+                    return readBytes(jp);
                 case DATETIME:
-                    return readDatetime(datum);
+                    return readDateTime(jp);
                 case RECORD:
-                    RecordReader recordReader = new RecordReader((RecordSchema) schema);
-                    return readInnerRecord(datum, recordReader, (RecordSchema) schema);
+                    return readRecord((RecordSchema) schema, null, new RecordReader((RecordSchema) schema), jp, true);
                 case MAP:
-                    MapSchema mapSchema = (MapSchema) schema;
-                    return readMap(datum, mapSchema);
+                    return readMap((MapSchema) schema, jp);
                 case ENUM:
-                    EnumReader enumReader = new EnumReader(schema);
-                    return enumReader.read(datum);
+                    return readEnum((EnumSchema) schema, jp);
                 case UNION:
-                    UnionSchema unionSchema = (UnionSchema) schema;
-                    return readUnion(datum, unionSchema);
+                    return readUnion((UnionSchema) schema, jp);
                 case ARRAY:
-                    ArraySchema arraySchema = (ArraySchema) schema;
-                    return readArray(datum, arraySchema);
+                    return readArray((ArraySchema) schema, jp);
                 default:
-                    throw new BaijiRuntimeException("");
+                    throw new BaijiRuntimeException("No such schema type");
             }
         } catch (NullPointerException e) {
-            throw e;
+            throw npe(e, " of " + schema.getName());
         }
     }
 
@@ -127,138 +110,126 @@ public final class SpecificJsonReader<T> {
         return null;
     }
 
-    private Object readInt(Object obj) {
-        return (obj instanceof JsonNode) ? ((JsonNode) obj).getIntValue() : obj;
+    private Object readInt(JsonParser jp) throws IOException {
+        return jp.getIntValue();
     }
 
-    private Object readBoolean(Object obj) {
-        return (obj instanceof JsonNode) ? ((JsonNode) obj).getBooleanValue() : obj;
+    private Boolean readBoolean(JsonParser jp) throws IOException {
+        return jp.getCurrentToken() == JsonToken.VALUE_TRUE;
     }
 
-    private Object readDouble(Object obj) {
-        return (obj instanceof JsonNode) ? ((JsonNode) obj).getDoubleValue() : obj;
+    private Object readDouble(JsonParser jp) throws IOException {
+        return jp.getDoubleValue();
     }
 
-    private Object readLong(Object obj) {
-        return (obj instanceof JsonNode) ? ((JsonNode) obj).getLongValue() : obj;
+    private Object readFloat(JsonParser jp) throws IOException {
+        return jp.getFloatValue();
     }
 
-    private Object readFloat(Object obj) {
-        return (obj instanceof JsonNode) ? ((JsonNode) obj).getNumberValue().floatValue() : obj;
+    private Object readLong(JsonParser jp) throws IOException {
+        return jp.getLongValue();
     }
 
-    private Object readString(Object obj) {
-        return (obj instanceof JsonNode) ? ((JsonNode) obj).getTextValue() : obj;
+    private Object readString(JsonParser jp) throws IOException {
+        return jp.getText();
     }
 
-    private byte[] readBytes(Object obj) throws IOException {
-        return ((JsonNode) obj).getBinaryValue();
+    private Object readBytes(JsonParser jp) throws IOException {
+        return jp.getBinaryValue();
     }
 
-    private Object readDatetime(Object obj) {
+    private Object readDateTime(JsonParser jp) throws IOException {
         Calendar calendar = Calendar.getInstance();
-        long ms = ((JsonNode) obj).getLongValue();
+        long ms = jp.getNumberValue().longValue();
         calendar.setTimeInMillis(ms);
         return calendar;
     }
 
-    private Map readMap(Object obj, MapSchema mapSchema) throws Exception {
-        MapReader mapReader = new MapReader(mapSchema);
-        Map map = (Map) mapReader.read(null);
-        for (Iterator<Map.Entry<String, JsonNode>> iterator = ((JsonNode) obj).getFields(); iterator.hasNext();) {
-            Map.Entry<String, JsonNode> entry = iterator.next();
-            Schema valueSchema = mapSchema.getValueSchema();
-            Object value = readField(valueSchema, entry.getValue());
-            mapReader.add(map, entry.getKey(), value);
+    private Object readMap(MapSchema schema, JsonParser jp) throws Exception {
+        MapReader reader = new MapReader(schema);
+        Map map = (Map) reader.read(null);
+        Schema valueSchema = schema.getValueSchema();
+        while (jp.nextToken() != JsonToken.END_OBJECT) {
+            String key = jp.getCurrentName();
+            jp.nextToken();
+            Object value = readValue(valueSchema, jp);
+            reader.add(map, key, value);
         }
 
         return map;
     }
 
-    private List readArray(Object obj, ArraySchema arraySchema) throws Exception {
-        ArrayReader arrayReader = new ArrayReader(arraySchema);
-        List list = (List) arrayReader.read(null);
-        for (Iterator<JsonNode> iterator = ((JsonNode) obj).getElements(); iterator.hasNext();) {
-            JsonNode node = iterator.next();
-            Schema itemSchema = arraySchema.getItemSchema();
-            Object value = readField(itemSchema, node);
+    private Object readEnum(EnumSchema schema, JsonParser jp) throws Exception {
+        EnumReader enumReader = new EnumReader(schema);
+        return enumReader.read(jp.getText());
+    }
+
+    private Object readUnion(UnionSchema schema, JsonParser jp) throws Exception {
+        if (schema.size() != 2) {
+            throw new BaijiRuntimeException("UnionSchema size must be 2");
+        }
+
+        for (Schema itemSchema : schema.getSchemas()) {
+            if (itemSchema.getType() == SchemaType.NULL)
+                continue;
+
+            return readValue(itemSchema, jp);
+        }
+
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object readArray(ArraySchema schema, JsonParser jp) throws Exception {
+        ArrayReader reader = new ArrayReader(schema);
+        Schema itemSchema = schema.getItemSchema();
+        List list = (List) reader.read(null);
+        while (jp.nextToken() != JsonToken.END_ARRAY) {
+            Object value = readValue(itemSchema, jp);
             list.add(value);
         }
 
         return list;
     }
 
-    private Object readUnion(Object obj, UnionSchema unionSchema) throws Exception {
-        for (int i = 0; i < unionSchema.size(); i++) {
-            Schema schema = unionSchema.get(i);
-            if (schema.getType() == SchemaType.NULL)
-                continue;
-
-            return readField(schema, obj);
-        }
-
-        throw new BaijiRuntimeException("");
+    private interface JsonReadable {
+        Object read(Object reuse) throws Exception;
     }
 
-    private class RecordReader implements JsonReadable {
+    private static class RecordReader implements JsonReadable {
 
-        private final Constructor constructor;
+        private final Class<?> clazz;
 
-        public RecordReader(RecordSchema recordSchema) {
-            this.constructor = getConstructor(recordSchema);
+        public RecordReader(RecordSchema schema) {
+            clazz = getClazz(schema);
         }
 
         @Override
         public Object read(Object reuse) throws Exception {
-            return reuse == null ? constructor.newInstance() : reuse;
+            return reuse == null ? clazz.newInstance() : reuse;
         }
     }
 
-    private class MapReader implements JsonReadable {
+    private static class MapReader implements JsonReadable {
 
-        private final Constructor constructor;
+        private final Class<?> clazz;
 
         public MapReader(Schema schema) {
-            this.constructor = getConstructor(schema);
+            clazz = getClazz(schema);
         }
 
         @Override
         public Object read(Object reuse) throws Exception {
-            return reuse == null ? constructor.newInstance() : reuse;
+            return reuse == null ? clazz.newInstance() : reuse;
         }
 
+        @SuppressWarnings("unchecked")
         public void add(Object map, String key, Object value) {
             ((Map) map).put(key, value);
         }
     }
 
-    private class ArrayReader implements JsonReadable {
-
-        private final Constructor constructor;
-
-        public ArrayReader(Schema schema) {
-            this.constructor = getConstructor(schema);
-        }
-
-        @Override
-        public Object read(Object reuse) throws Exception {
-            List list;
-            if (reuse != null) {
-                try {
-                    list = (List) reuse;
-                } catch (ClassCastException e) {
-                    throw new BaijiRuntimeException(e);
-                }
-                list.clear();
-            } else {
-                list = (List) constructor.newInstance();
-            }
-
-            return list;
-        }
-    }
-
-    private class EnumReader implements JsonReadable {
+    private static class EnumReader implements JsonReadable {
 
         private int[] translator;
         private EnumSchema enumSchema;
@@ -274,24 +245,46 @@ public final class SpecificJsonReader<T> {
 
         @Override
         public Object read(Object reuse) throws Exception {
-            String value = ((JsonNode) reuse).getTextValue();
+            String value = reuse.toString();
             return Enum.valueOf((Class)ObjectCreator.INSTANCE.getClass(enumSchema), value);
         }
     }
 
-    private interface JsonReadable {
-        Object read(Object reuse) throws Exception;
-    }
+    private static class ArrayReader implements JsonReadable {
 
-    private static Constructor getConstructor(Schema schema) {
-        ObjectCreator objectCreator = ObjectCreator.INSTANCE;
-        Constructor constructor;
-        try {
-            constructor = objectCreator.getClass(schema).getConstructor(new Class[]{});
-        } catch (NoSuchMethodException e) {
-            return null;
+        private final Class<?> clazz;
+
+        public ArrayReader(Schema schema) {
+            clazz = getClazz(schema);
         }
 
-        return constructor;
+        @Override
+        public Object read(Object reuse) throws Exception {
+            List list;
+            if (reuse != null) {
+                try {
+                    list = (List) reuse;
+                } catch (ClassCastException e) {
+                    throw new BaijiRuntimeException(e);
+                }
+                list.clear();
+            } else {
+                list = (List) clazz.newInstance();
+            }
+
+            return list;
+        }
+    }
+
+    private static Class<?> getClazz(Schema schema) {
+        ObjectCreator objectCreator = ObjectCreator.INSTANCE;
+        return objectCreator.getClass(schema);
+    }
+
+    /** Helper method for adding a message to an NPE. */
+    protected NullPointerException npe(NullPointerException e, String s) {
+        NullPointerException result = new NullPointerException(e.getMessage()+s);
+        result.initCause(e.getCause() == null ? e : e.getCause());
+        return result;
     }
 }
