@@ -27,10 +27,7 @@ import com.ctriposs.baiji.rpc.common.util.DaemonThreadFactory;
 import com.ctriposs.baiji.specific.SpecificRecord;
 import com.ctriposs.baiji.util.VersionUtils;
 import com.google.common.base.Joiner;
-import com.google.common.util.concurrent.AsyncFunction;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
+import com.google.common.util.concurrent.*;
 import org.apache.http.*;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -52,10 +49,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -116,6 +110,8 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
     private final ScheduledExecutorService _clientDisposeService = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
     private final ScheduledExecutorService _statsReportService
             = new ScheduledThreadPoolExecutor(1, new DaemonThreadFactory());
+    private final ExecutorService _delegateAsyncTransformer = Executors.newFixedThreadPool(5);
+    private final ListeningExecutorService _transformerPool = MoreExecutors.listeningDecorator(_delegateAsyncTransformer);
 
     static {
         registerContentFormatter(new BinaryContentFormatter());
@@ -612,28 +608,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
             ListenableFuture<HttpResponse> httpResponse = asyncExecuteHttp(httpPost);
 
-            return Futures.transform(httpResponse, new AsyncFunction<HttpResponse, TResp>() {
-                @Override
-                public ListenableFuture<TResp> apply(HttpResponse resp) throws Exception {
-
-                    applyHttpResponseFilters(resp);
-
-                    checkHttpResponseStatus(resp);
-
-                    int contentLength = getContentLength(resp);
-                    _statsStore.getStats(operation).addResponseSize(contentLength);
-
-                    TResp response = contentFormatter.deserialize(responseClass, resp.getEntity().getContent());
-                    if (response instanceof HasResponseStatus) {
-                        checkResponseStatus((HasResponseStatus) response);
-                    }
-
-                    close(resp);
-                    _statsStore.getStats(operation).markSuccess();
-
-                    return Futures.immediateFuture(response);
-                }
-            });
+            return Futures.transform(httpResponse, new AsyncTransformation<>(_transformerPool, responseClass, operation));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -995,6 +970,60 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
                 }
             } catch (Exception ex) {
                 _logger.error(getLogTitle("Sync Service Registry failed."), ex);
+            }
+        }
+    }
+
+    private class AsyncTransformation<TResp extends SpecificRecord> implements AsyncFunction<HttpResponse, TResp> {
+
+        private final ListeningExecutorService transformPool;
+        private final Class<TResp> clazz;
+        private final String operation;
+
+        private ContentFormatter contentFormatter = _contentFormatters.get(_format);
+
+        public AsyncTransformation(final ListeningExecutorService transformPool, final Class<TResp> clazz, final String operation) {
+            this.transformPool = transformPool;
+            this.clazz = clazz;
+            this.operation = operation;
+        }
+
+        @Override
+        public ListenableFuture<TResp> apply(HttpResponse response) throws Exception {
+            return transformPool.submit(new TransformWorker<TResp>(response, clazz, operation));
+        }
+
+        private class TransformWorker<TResp extends SpecificRecord> implements Callable<TResp> {
+
+            private final HttpResponse response;
+            private final Class<TResp> clazz;
+            private final String operation;
+
+            public TransformWorker(final HttpResponse response, final Class<TResp> clazz, final String operation) {
+                this.response = response;
+                this.clazz = clazz;
+                this.operation = operation;
+            }
+
+            @Override
+            public TResp call() throws Exception {
+
+                applyHttpResponseFilters(response);
+
+                checkHttpResponseStatus(response);
+
+                int contentLength = getContentLength(response);
+                _statsStore.getStats(operation).addResponseSize(contentLength);
+
+                TResp resp = contentFormatter.deserialize(clazz, response.getEntity().getContent());
+                if (response instanceof HasResponseStatus) {
+                    checkResponseStatus((HasResponseStatus) response);
+                }
+
+                close(response);
+                _statsStore.getStats(operation).markSuccess();
+
+                return resp;
             }
         }
     }
