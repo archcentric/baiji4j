@@ -581,25 +581,15 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         }
     }
 
-    public <TReq extends SpecificRecord, TResp extends SpecificRecord> TResp invokeAsync(String operation, TReq request, Class<TResp> responseClass) {
+
+    private <TReq extends SpecificRecord, TResp extends SpecificRecord> Future<TResp> invokeAsync(final String operation, TReq request, final Class<TResp> respClass) {
+        if (_serviceInfo == null || !_serviceInfo.isReady()) {
+            throw new IllegalStateException("The service is not ready for use now.");
+        }
+
         Span span = null;
         if (_tracer.isTracing()) {
             span = _tracer.startSpan(operation, getClass().getSimpleName(), SpanType.WEB_SERVICE);
-        }
-        try {
-            return invokeAsyncInternal(operation, request, responseClass, span).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e1) {
-            e1.printStackTrace();
-        }
-
-        return null;
-    }
-
-    public <TReq extends SpecificRecord, TResp extends SpecificRecord> ListenableFuture<TResp> invokeAsyncInternal(final String operation, TReq request, final Class<TResp> responseClass, Span span) {
-        if (_serviceInfo == null || !_serviceInfo.isReady()) {
-            throw new IllegalStateException("The service is not ready for use now.");
         }
 
         try {
@@ -608,7 +598,7 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
             ListenableFuture<HttpResponse> httpResponse = asyncExecuteHttp(httpPost);
 
-            return Futures.transform(httpResponse, new AsyncTransformation<>(_transformerPool, responseClass, operation));
+            return Futures.transform(httpResponse, new AsyncTransformation<>(_transformerPool, respClass, operation));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -976,52 +966,63 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
 
     private class AsyncTransformation<TResp extends SpecificRecord> implements AsyncFunction<HttpResponse, TResp> {
 
-        private final ListeningExecutorService transformPool;
-        private final Class<TResp> clazz;
-        private final String operation;
+        private final ListeningExecutorService _transformPool;
+        private final Class<TResp> _class;
+        private final String _operation;
 
-        private ContentFormatter contentFormatter = _contentFormatters.get(_format);
+        private ContentFormatter _contentFormatter = _contentFormatters.get(_format);
 
         public AsyncTransformation(final ListeningExecutorService transformPool, final Class<TResp> clazz, final String operation) {
-            this.transformPool = transformPool;
-            this.clazz = clazz;
-            this.operation = operation;
+            this._transformPool = transformPool;
+            this._class = clazz;
+            this._operation = operation;
         }
 
         @Override
         public ListenableFuture<TResp> apply(HttpResponse response) throws Exception {
-            return transformPool.submit(new TransformWorker(response, clazz, operation));
+            return _transformPool.submit(new TransformWorker(response, _class, _operation));
+        }
+
+        private void close(HttpResponse response) {
+            if (response == null) {
+                return;
+            }
+
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                EntityUtils.consumeQuietly(entity);
+            }
         }
 
         private class TransformWorker<TResp extends SpecificRecord> implements Callable<TResp> {
 
-            private final HttpResponse response;
-            private final Class<TResp> clazz;
-            private final String operation;
+            private final HttpResponse _response;
+            private final Class<TResp> _clazz;
+            private final String _operation;
 
             public TransformWorker(final HttpResponse response, final Class<TResp> clazz, final String operation) {
-                this.response = response;
-                this.clazz = clazz;
-                this.operation = operation;
+                this._response = response;
+                this._clazz = clazz;
+                this._operation = operation;
             }
 
             @Override
             public TResp call() throws Exception {
 
-                applyHttpResponseFilters(response);
+                applyHttpResponseFilters(_response);
 
-                checkHttpResponseStatus(response);
+                checkHttpResponseStatus(_response);
 
-                int contentLength = getContentLength(response);
-                _statsStore.getStats(operation).addResponseSize(contentLength);
+                int contentLength = getContentLength(_response);
+                _statsStore.getStats(_operation).addResponseSize(contentLength);
 
-                TResp resp = contentFormatter.deserialize(clazz, response.getEntity().getContent());
-                if (response instanceof HasResponseStatus) {
-                    checkResponseStatus((HasResponseStatus) response);
+                TResp resp = _contentFormatter.deserialize(_clazz, _response.getEntity().getContent());
+                if (_response instanceof HasResponseStatus) {
+                    checkResponseStatus((HasResponseStatus) _response);
                 }
 
-                close(response);
-                _statsStore.getStats(operation).markSuccess();
+                close(_response);
+                _statsStore.getStats(_operation).markSuccess();
 
                 return resp;
             }
