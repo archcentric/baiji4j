@@ -48,15 +48,13 @@ public class SpecificJsonReader<T> {
             jp.nextToken();
         }
 
-        while (jp.nextToken() != JsonToken.END_OBJECT) {
+        while (jp.getCurrentToken() != null && jp.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = jp.getCurrentName();
             Field field = schema.getField(fieldName);
             if (field != null) {
                 jp.nextToken();
                 Object value = readValue(field.getSchema(), jp);
                 put(record, field.getPos(), value);
-            } else {
-                throw new BaijiRuntimeException("The schema has no such field");
             }
         }
 
@@ -283,7 +281,7 @@ public class SpecificJsonReader<T> {
 
     /** Helper method for adding a message to an NPE. */
     protected NullPointerException npe(NullPointerException e, String s) {
-        NullPointerException result = new NullPointerException(e.getMessage()+s);
+        NullPointerException result = new NullPointerException(e.getMessage() + s);
         result.initCause(e.getCause() == null ? e : e.getCause());
         return result;
     }
