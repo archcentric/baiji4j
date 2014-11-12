@@ -797,16 +797,6 @@ public abstract class ServiceClientBase<DerivedClient extends ServiceClientBase>
         return httpAsyncClient;
     }
 
-    private void close(HttpResponse response) {
-        if (response == null)
-            return;
-
-        HttpEntity entity = response.getEntity();
-        if (entity != null) {
-            EntityUtils.consumeQuietly(entity);
-        }
-    }
-
     /**
      * Register calling format.
      *
